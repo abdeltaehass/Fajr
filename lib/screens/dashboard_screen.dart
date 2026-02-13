@@ -9,6 +9,7 @@ import '../widgets/crescent_decoration.dart';
 import '../widgets/hijri_date_header.dart';
 import '../widgets/next_prayer_banner.dart';
 import '../widgets/prayer_card.dart';
+import '../widgets/qibla_compass.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -28,6 +29,8 @@ class _DashboardScreenState extends State<DashboardScreen>
   int _nextPrayerIndex = 0;
   Duration _timeUntilNext = Duration.zero;
   Timer? _countdownTimer;
+  double? _latitude;
+  double? _longitude;
 
   @override
   void initState() {
@@ -62,6 +65,8 @@ class _DashboardScreenState extends State<DashboardScreen>
         latitude: position.latitude,
         longitude: position.longitude,
       );
+      _latitude = position.latitude;
+      _longitude = position.longitude;
 
       if (!mounted) return;
 
@@ -244,6 +249,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                 isNext: index == _nextPrayerIndex,
               );
             }),
+            const SizedBox(height: 24),
+
+            // Qibla compass
+            if (_latitude != null && _longitude != null)
+              QiblaCompass(
+                latitude: _latitude!,
+                longitude: _longitude!,
+              ),
             const SizedBox(height: 16),
           ],
         ),
