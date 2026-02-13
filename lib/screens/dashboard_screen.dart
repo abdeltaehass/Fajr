@@ -1,0 +1,253 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_theme.dart';
+import '../models/prayer_times.dart';
+import '../services/location_service.dart';
+import '../services/prayer_time_service.dart';
+import '../widgets/crescent_decoration.dart';
+import '../widgets/hijri_date_header.dart';
+import '../widgets/next_prayer_banner.dart';
+import '../widgets/prayer_card.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen>
+    with WidgetsBindingObserver {
+  final LocationService _locationService = LocationService();
+  final PrayerTimeService _prayerTimeService = PrayerTimeService();
+
+  bool _isLoading = true;
+  String? _errorMessage;
+  PrayerTimesResponse? _prayerTimes;
+  int _nextPrayerIndex = 0;
+  Duration _timeUntilNext = Duration.zero;
+  Timer? _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadPrayerTimes();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadPrayerTimes();
+    }
+  }
+
+  Future<void> _loadPrayerTimes() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final position = await _locationService.getCurrentPosition();
+      final prayerTimes = await _prayerTimeService.fetchPrayerTimes(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _prayerTimes = prayerTimes;
+        _isLoading = false;
+      });
+
+      _determineNextPrayer();
+      _startCountdown();
+    } on LocationServiceException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.message;
+      });
+    } on PrayerTimeServiceException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.message;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Something went wrong. Please try again.';
+      });
+    }
+  }
+
+  void _determineNextPrayer() {
+    if (_prayerTimes == null) return;
+
+    final prayers = _prayerTimes!.timings.dailyPrayers;
+    final now = DateTime.now();
+
+    for (int i = 0; i < prayers.length; i++) {
+      if (prayers[i].todayDateTime.isAfter(now)) {
+        setState(() {
+          _nextPrayerIndex = i;
+          _timeUntilNext = prayers[i].todayDateTime.difference(now);
+        });
+        return;
+      }
+    }
+
+    // All prayers have passed — next is tomorrow's Fajr
+    final tomorrowFajr = prayers[0].todayDateTime.add(const Duration(days: 1));
+    setState(() {
+      _nextPrayerIndex = 0;
+      _timeUntilNext = tomorrowFajr.difference(now);
+    });
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_prayerTimes == null) return;
+
+      _determineNextPrayer();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: _isLoading
+            ? _buildLoadingState()
+            : _errorMessage != null
+                ? _buildErrorState()
+                : _buildContent(),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CrescentMoon(size: 60, color: IslamicColors.gold.withValues(alpha: 0.5)),
+          const SizedBox(height: 24),
+          const CircularProgressIndicator(color: IslamicColors.gold),
+          const SizedBox(height: 16),
+          Text(
+            'Finding your location...',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.location_off,
+              size: 64,
+              color: IslamicColors.lightGold,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _errorMessage!,
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadPrayerTimes,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: IslamicColors.gold,
+                foregroundColor: IslamicColors.deepGreen,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Retry',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    final prayers = _prayerTimes!.timings.dailyPrayers;
+    final nextPrayer = prayers[_nextPrayerIndex];
+
+    return RefreshIndicator(
+      onRefresh: _loadPrayerTimes,
+      color: IslamicColors.gold,
+      backgroundColor: IslamicColors.darkGreen,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CrescentMoon(size: 32, color: IslamicColors.gold),
+                const SizedBox(width: 12),
+                Text(
+                  'Fajr',
+                  style: Theme.of(context).textTheme.displayLarge,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Hijri date
+            HijriDateHeader(date: _prayerTimes!.date),
+            const SizedBox(height: 24),
+
+            // Next prayer banner
+            NextPrayerBanner(
+              prayerName: nextPrayer.name,
+              prayerTime: nextPrayer.time,
+              timeRemaining: _timeUntilNext,
+            ),
+            const SizedBox(height: 24),
+
+            // Prayer cards
+            ...List.generate(prayers.length, (index) {
+              return PrayerCard(
+                prayer: prayers[index],
+                isNext: index == _nextPrayerIndex,
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
