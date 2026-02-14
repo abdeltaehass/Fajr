@@ -50,6 +50,7 @@ class PrayerTimings {
 
   List<PrayerEntry> get dailyPrayers => [
         PrayerEntry(name: 'Fajr', time: fajr, icon: Icons.nights_stay),
+        PrayerEntry(name: 'Sunrise', time: sunrise, icon: Icons.wb_sunny_outlined, isPrayer: false),
         PrayerEntry(name: 'Dhuhr', time: dhuhr, icon: Icons.wb_sunny),
         PrayerEntry(name: 'Asr', time: asr, icon: Icons.wb_cloudy),
         PrayerEntry(name: 'Maghrib', time: maghrib, icon: Icons.wb_twilight),
@@ -61,11 +62,13 @@ class PrayerEntry {
   final String name;
   final String time;
   final IconData icon;
+  final bool isPrayer;
 
   PrayerEntry({
     required this.name,
     required this.time,
     required this.icon,
+    this.isPrayer = true,
   });
 
   DateTime get todayDateTime {

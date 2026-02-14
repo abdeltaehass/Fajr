@@ -133,14 +133,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _isLoading
-            ? _buildLoadingState()
-            : _errorMessage != null
-                ? _buildErrorState()
-                : _buildContent(),
-      ),
+    return SafeArea(
+      child: _isLoading
+          ? _buildLoadingState()
+          : _errorMessage != null
+              ? _buildErrorState()
+              : _buildContent(),
     );
   }
 
