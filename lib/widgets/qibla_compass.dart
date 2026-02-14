@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 
-class QiblaCompass extends StatelessWidget {
+class QiblaCompass extends StatefulWidget {
   final double latitude;
   final double longitude;
 
@@ -14,16 +15,89 @@ class QiblaCompass extends StatelessWidget {
     required this.longitude,
   });
 
+  @override
+  State<QiblaCompass> createState() => _QiblaCompassState();
+}
+
+class _QiblaCompassState extends State<QiblaCompass>
+    with SingleTickerProviderStateMixin {
   static const double _kaabaLat = 21.4225;
   static const double _kaabaLon = 39.8262;
 
+  StreamSubscription<CompassEvent>? _compassSub;
+  double _smoothedHeading = 0;
+  double _targetHeading = 0;
+  double? _accuracy;
+  bool _hasData = false;
+  late AnimationController _animController;
+
+  // Low-pass filter coefficient (0 = no smoothing, 1 = infinite smoothing)
+  static const double _smoothingFactor = 0.3;
+
   double get _qiblaDirection {
-    final lat1 = latitude * pi / 180;
+    final lat1 = widget.latitude * pi / 180;
     final lat2 = _kaabaLat * pi / 180;
-    final dLon = (_kaabaLon - longitude) * pi / 180;
+    final dLon = (_kaabaLon - widget.longitude) * pi / 180;
     final x = sin(dLon) * cos(lat2);
     final y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
     return (atan2(x, y) * 180 / pi + 360) % 360;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..addListener(() {
+        setState(() {});
+      });
+    _startCompass();
+  }
+
+  void _startCompass() {
+    _compassSub = FlutterCompass.events?.listen((event) {
+      final heading = event.heading;
+      if (heading == null) return;
+
+      _accuracy = event.accuracy;
+
+      // Calculate shortest angular distance for smooth interpolation
+      double delta = heading - _targetHeading;
+      // Normalize delta to [-180, 180] so we always take the short way around
+      while (delta > 180) {
+        delta -= 360;
+      }
+      while (delta < -180) {
+        delta += 360;
+      }
+
+      // Low-pass filter: blend new heading with previous to reduce jitter
+      _targetHeading = _targetHeading + delta * (1 - _smoothingFactor);
+      // Normalize to [0, 360)
+      _targetHeading = (_targetHeading + 360) % 360;
+
+      if (!_hasData) {
+        // First reading — snap immediately
+        _smoothedHeading = _targetHeading;
+        _hasData = true;
+        setState(() {});
+      } else {
+        // Animate from current to smoothed target
+        _smoothedHeading = _targetHeading;
+        if (!_animController.isAnimating) {
+          _animController.forward(from: 0);
+        }
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _compassSub?.cancel();
+    _animController.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,39 +137,12 @@ class QiblaCompass extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Compass
-          StreamBuilder<CompassEvent>(
-            stream: FlutterCompass.events,
-            builder: (context, snapshot) {
-              if (snapshot.hasError || !snapshot.hasData) {
-                // No live compass — show static bearing from North
-                return _CompassDial(
-                  compassAngle: 0,
-                  qiblaAngle: qibla * pi / 180,
-                  qiblaDegrees: qibla,
-                  isLive: false,
-                );
-              }
-
-              final heading = snapshot.data!.heading;
-              if (heading == null) {
-                return _CompassDial(
-                  compassAngle: 0,
-                  qiblaAngle: qibla * pi / 180,
-                  qiblaDegrees: qibla,
-                  isLive: false,
-                );
-              }
-
-              // Rotate the whole compass ring counter-clockwise by heading
-              // so N always points to geographic north.
-              // The Qibla arrow is drawn at the fixed Qibla bearing on the ring.
-              return _CompassDial(
-                compassAngle: -heading * pi / 180,
-                qiblaAngle: qibla * pi / 180,
-                qiblaDegrees: qibla,
-                isLive: true,
-              );
-            },
+          _CompassDial(
+            compassAngle: _hasData ? -_smoothedHeading * pi / 180 : 0,
+            qiblaAngle: qibla * pi / 180,
+            qiblaDegrees: qibla,
+            isLive: _hasData,
+            accuracy: _accuracy,
           ),
         ],
       ),
@@ -104,21 +151,33 @@ class QiblaCompass extends StatelessWidget {
 }
 
 class _CompassDial extends StatelessWidget {
-  /// Angle to rotate the entire compass ring so N points to geographic north.
   final double compassAngle;
-
-  /// Angle of the Qibla arrow measured from North on the ring.
   final double qiblaAngle;
-
   final double qiblaDegrees;
   final bool isLive;
+  final double? accuracy;
 
   const _CompassDial({
     required this.compassAngle,
     required this.qiblaAngle,
     required this.qiblaDegrees,
     required this.isLive,
+    this.accuracy,
   });
+
+  String _accuracyLabel() {
+    if (accuracy == null) return '';
+    if (accuracy! <= 10) return 'High accuracy';
+    if (accuracy! <= 25) return 'Medium accuracy';
+    return 'Low accuracy — move your phone in a figure-8';
+  }
+
+  Color _accuracyColor() {
+    if (accuracy == null) return IslamicColors.lightGold;
+    if (accuracy! <= 10) return const Color(0xFF4CAF50);
+    if (accuracy! <= 25) return IslamicColors.gold;
+    return const Color(0xFFFF9800);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,20 +189,15 @@ class _CompassDial extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Compass ring + Qibla arrow rotate together so that
-              // N always points to geographic north and the arrow
-              // stays fixed at the correct bearing.
               Transform.rotate(
                 angle: compassAngle,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Ring with N / E / S / W
                     CustomPaint(
                       size: const Size(210, 210),
                       painter: _CompassRingPainter(),
                     ),
-                    // Qibla arrow at the fixed Qibla bearing on the ring
                     Transform.rotate(
                       angle: qiblaAngle,
                       child: CustomPaint(
@@ -154,7 +208,7 @@ class _CompassDial extends StatelessWidget {
                   ],
                 ),
               ),
-              // Center Kaaba marker — never rotates
+              // Center Kaaba marker
               Container(
                 width: 36,
                 height: 36,
@@ -189,6 +243,16 @@ class _CompassDial extends StatelessWidget {
             fontWeight: FontWeight.w400,
           ),
         ),
+        if (isLive && accuracy != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            _accuracyLabel(),
+            style: GoogleFonts.poppins(
+              color: _accuracyColor(),
+              fontSize: 11,
+            ),
+          ),
+        ],
         if (!isLive) ...[
           const SizedBox(height: 4),
           Text(

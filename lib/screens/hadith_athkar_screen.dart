@@ -76,6 +76,40 @@ class HadithAthkarScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
+
+            // After Prayer Athkar
+            _AthkarLaunchCard(
+              title: 'After Prayer Athkar',
+              subtitle: 'Athkar Ba\'d As-Salah',
+              icon: Icons.mosque_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AthkarScreen(
+                    title: 'After Prayer Athkar',
+                    athkar: afterPrayerAthkar,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Sleep Athkar
+            _AthkarLaunchCard(
+              title: 'Sleep Athkar',
+              subtitle: 'Athkar An-Nawm',
+              icon: Icons.bedtime_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AthkarScreen(
+                    title: 'Sleep Athkar',
+                    athkar: sleepAthkar,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
         ),
@@ -89,27 +123,36 @@ class _HadithCard extends StatelessWidget {
 
   const _HadithCard({required this.hadith});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: IslamicColors.darkGreen,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: IslamicColors.gold.withValues(alpha: 0.35),
-          width: 1,
-        ),
+  void _showExplanation(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: IslamicColors.darkGreen,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.65,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, controller) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: ListView(
+            controller: controller,
             children: [
-              const Icon(Icons.auto_stories, color: IslamicColors.gold, size: 18),
-              const SizedBox(width: 8),
+              const SizedBox(height: 12),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: IslamicColors.lightGold.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               Text(
                 'HADITH OF THE DAY',
                 style: GoogleFonts.poppins(
@@ -119,42 +162,156 @@ class _HadithCard extends StatelessWidget {
                   letterSpacing: 2,
                 ),
               ),
+              const SizedBox(height: 16),
+              Text(
+                '"${hadith.text}"',
+                style: GoogleFonts.amiri(
+                  color: IslamicColors.cream,
+                  fontSize: 16,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                hadith.narrator,
+                style: GoogleFonts.poppins(
+                  color: IslamicColors.gold,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                hadith.source,
+                style: GoogleFonts.poppins(
+                  color: IslamicColors.lightGold.withValues(alpha: 0.7),
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                height: 1,
+                color: IslamicColors.gold.withValues(alpha: 0.2),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'EXPLANATION',
+                style: GoogleFonts.poppins(
+                  color: IslamicColors.gold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                hadith.explanation,
+                style: GoogleFonts.poppins(
+                  color: IslamicColors.cream,
+                  fontSize: 14,
+                  height: 1.7,
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
           ),
-          const SizedBox(height: 16),
+        ),
+      ),
+    );
+  }
 
-          // Hadith text
-          Text(
-            '"${hadith.text}"',
-            style: GoogleFonts.amiri(
-              color: IslamicColors.cream,
-              fontSize: 16,
-              height: 1.6,
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showExplanation(context),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: IslamicColors.darkGreen,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: IslamicColors.gold.withValues(alpha: 0.35),
+            width: 1,
           ),
-          const SizedBox(height: 14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                const Icon(Icons.auto_stories, color: IslamicColors.gold, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'HADITH OF THE DAY',
+                  style: GoogleFonts.poppins(
+                    color: IslamicColors.gold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
 
-          // Narrator
-          Text(
-            hadith.narrator,
-            style: GoogleFonts.poppins(
-              color: IslamicColors.gold,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              fontStyle: FontStyle.italic,
+            // Hadith text
+            Text(
+              '"${hadith.text}"',
+              style: GoogleFonts.amiri(
+                color: IslamicColors.cream,
+                fontSize: 16,
+                height: 1.6,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
+            const SizedBox(height: 14),
 
-          // Source
-          Text(
-            hadith.source,
-            style: GoogleFonts.poppins(
-              color: IslamicColors.lightGold.withValues(alpha: 0.7),
-              fontSize: 11,
+            // Narrator
+            Text(
+              hadith.narrator,
+              style: GoogleFonts.poppins(
+                color: IslamicColors.gold,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+
+            // Source
+            Text(
+              hadith.source,
+              style: GoogleFonts.poppins(
+                color: IslamicColors.lightGold.withValues(alpha: 0.7),
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Tap hint
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.touch_app_outlined,
+                  color: IslamicColors.lightGold.withValues(alpha: 0.5),
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Tap for explanation',
+                  style: GoogleFonts.poppins(
+                    color: IslamicColors.lightGold.withValues(alpha: 0.5),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

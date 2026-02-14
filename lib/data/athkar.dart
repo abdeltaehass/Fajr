@@ -190,3 +190,114 @@ const List<Dhikr> eveningAthkar = [
     repeatCount: 100,
   ),
 ];
+
+const List<Dhikr> afterPrayerAthkar = [
+  Dhikr(
+    arabic: 'أَسْتَغْفِرُ اللَّهَ',
+    translation: 'I seek the forgiveness of Allah.',
+    repeatCount: 3,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ',
+    translation: 'O Allah, You are Peace and from You is peace. Blessed are You, O Owner of Majesty and Honor.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ، اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدُّ',
+    translation: 'None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and praise, and He is over all things omnipotent. O Allah, none can prevent what You have willed to bestow, and none can bestow what You have willed to prevent, and no wealth or majesty can benefit anyone against Your will.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ، وَلَا نَعْبُدُ إِلَّا إِيَّاهُ، لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلَٰهَ إِلَّا اللَّهُ مُخْلِصِينَ لَهُ الدِّينَ وَلَوْ كَرِهَ الْكَافِرُونَ',
+    translation: 'None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and praise, and He is over all things omnipotent. There is no might nor power except with Allah. None has the right to be worshipped except Allah, and we worship none except Him. His is the favor and His is the grace, and to Him belongs the most excellent praise. None has the right to be worshipped except Allah, sincere in our devotion to Him, even though the disbelievers detest it.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'سُبْحَانَ اللَّهِ',
+    translation: 'Glory be to Allah.',
+    repeatCount: 33,
+  ),
+  Dhikr(
+    arabic: 'الْحَمْدُ لِلَّهِ',
+    translation: 'All praise is due to Allah.',
+    repeatCount: 33,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُ أَكْبَرُ',
+    translation: 'Allah is the Greatest.',
+    repeatCount: 33,
+  ),
+  Dhikr(
+    arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+    translation: 'None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and praise, and He is over all things omnipotent.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+    translation: 'Ayatul Kursi – Allah, there is no deity except Him, the Ever-Living, the Sustainer of existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth.',
+    repeatCount: 1,
+  ),
+];
+
+const List<Dhikr> sleepAthkar = [
+  Dhikr(
+    arabic: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
+    translation: 'In Your name, O Allah, I die and I live.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُمَّ بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ',
+    translation: 'O Allah, in Your name, my Lord, I lay down my side and in Your name I raise it. If You take my soul, then have mercy on it, and if You release it, then protect it as You protect Your righteous servants.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُمَّ إِنَّكَ خَلَقْتَ نَفْسِي وَأَنْتَ تَوَفَّاهَا، لَكَ مَمَاتُهَا وَمَحْيَاهَا، إِنْ أَحْيَيْتَهَا فَاحْفَظْهَا، وَإِنْ أَمَتَّهَا فَاغْفِرْ لَهَا، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ',
+    translation: 'O Allah, You have created my soul and You take it back. Its death and life belong to You. If You keep it alive, then protect it, and if You cause it to die, then forgive it. O Allah, I ask You for well-being.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ',
+    translation: 'O Allah, protect me from Your punishment on the Day You resurrect Your servants.',
+    repeatCount: 3,
+  ),
+  Dhikr(
+    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
+    translation: 'Surah Al-Ikhlas – Say: He is Allah, the One. Allah, the Eternal Refuge. He neither begets nor is born. Nor is there to Him any equivalent.',
+    repeatCount: 3,
+  ),
+  Dhikr(
+    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+    translation: 'Surah Al-Falaq – Say: I seek refuge in the Lord of daybreak. From the evil of that which He created. And from the evil of darkness when it settles. And from the evil of the blowers in knots. And from the evil of an envier when he envies.',
+    repeatCount: 3,
+  ),
+  Dhikr(
+    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ',
+    translation: 'Surah An-Nas – Say: I seek refuge in the Lord of mankind. The Sovereign of mankind. The God of mankind. From the evil of the retreating whisperer. Who whispers in the breasts of mankind. Among jinn and among mankind.',
+    repeatCount: 3,
+  ),
+  Dhikr(
+    arabic: 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+    translation: 'Ayatul Kursi – Allah, there is no deity except Him, the Ever-Living, the Sustainer of existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth.',
+    repeatCount: 1,
+  ),
+  Dhikr(
+    arabic: 'سُبْحَانَ اللَّهِ',
+    translation: 'Glory be to Allah.',
+    repeatCount: 33,
+  ),
+  Dhikr(
+    arabic: 'الْحَمْدُ لِلَّهِ',
+    translation: 'All praise is due to Allah.',
+    repeatCount: 33,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُ أَكْبَرُ',
+    translation: 'Allah is the Greatest.',
+    repeatCount: 34,
+  ),
+  Dhikr(
+    arabic: 'اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ، آمَنْتُ بِكِتَابِكَ الَّذِي أَنْزَلْتَ، وَبِنَبِيِّكَ الَّذِي أَرْسَلْتَ',
+    translation: 'O Allah, I have submitted myself to You, entrusted my affairs to You, turned my face to You, and laid my back to You, in hope and fear of You. There is no refuge or escape from You except to You. I believe in Your Book which You have revealed and in Your Prophet whom You have sent.',
+    repeatCount: 1,
+  ),
+];
