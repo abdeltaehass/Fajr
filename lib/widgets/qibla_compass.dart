@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../settings/app_colors.dart';
+import '../settings/settings_provider.dart';
 
 class QiblaCompass extends StatefulWidget {
   final double latitude;
@@ -104,14 +105,15 @@ class _QiblaCompassState extends State<QiblaCompass>
   Widget build(BuildContext context) {
     final qibla = _qiblaDirection;
 
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       decoration: BoxDecoration(
-        color: IslamicColors.darkGreen,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: IslamicColors.gold.withValues(alpha: 0.35),
+          color: c.accent.withValues(alpha: 0.35),
           width: 1,
         ),
       ),
@@ -121,12 +123,12 @@ class _QiblaCompassState extends State<QiblaCompass>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.explore, color: IslamicColors.gold, size: 18),
+              Icon(Icons.explore, color: c.accent, size: 18),
               const SizedBox(width: 8),
               Text(
-                'QIBLA DIRECTION',
+                context.strings.qiblaDirection,
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.gold,
+                  color: c.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 2,
@@ -143,6 +145,7 @@ class _QiblaCompassState extends State<QiblaCompass>
             qiblaDegrees: qibla,
             isLive: _hasData,
             accuracy: _accuracy,
+            colors: c,
           ),
         ],
       ),
@@ -156,26 +159,29 @@ class _CompassDial extends StatelessWidget {
   final double qiblaDegrees;
   final bool isLive;
   final double? accuracy;
+  final AppColors colors;
 
   const _CompassDial({
     required this.compassAngle,
     required this.qiblaAngle,
     required this.qiblaDegrees,
     required this.isLive,
+    required this.colors,
     this.accuracy,
   });
 
-  String _accuracyLabel() {
+  String _accuracyLabel(BuildContext context) {
     if (accuracy == null) return '';
-    if (accuracy! <= 10) return 'High accuracy';
-    if (accuracy! <= 25) return 'Medium accuracy';
-    return 'Low accuracy — move your phone in a figure-8';
+    final s = context.strings;
+    if (accuracy! <= 10) return s.highAccuracy;
+    if (accuracy! <= 25) return s.mediumAccuracy;
+    return s.lowAccuracy;
   }
 
   Color _accuracyColor() {
-    if (accuracy == null) return IslamicColors.lightGold;
+    if (accuracy == null) return colors.accentLight;
     if (accuracy! <= 10) return const Color(0xFF4CAF50);
-    if (accuracy! <= 25) return IslamicColors.gold;
+    if (accuracy! <= 25) return colors.accent;
     return const Color(0xFFFF9800);
   }
 
@@ -196,13 +202,13 @@ class _CompassDial extends StatelessWidget {
                   children: [
                     CustomPaint(
                       size: const Size(210, 210),
-                      painter: _CompassRingPainter(),
+                      painter: _CompassRingPainter(colors: colors),
                     ),
                     Transform.rotate(
                       angle: qiblaAngle,
                       child: CustomPaint(
                         size: const Size(210, 210),
-                        painter: _QiblaArrowPainter(),
+                        painter: _QiblaArrowPainter(colors: colors),
                       ),
                     ),
                   ],
@@ -213,15 +219,15 @@ class _CompassDial extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: IslamicColors.deepGreen,
+                  color: colors.scaffold,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: IslamicColors.gold,
+                    color: colors.accent,
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: IslamicColors.gold.withValues(alpha: 0.3),
+                      color: colors.accent.withValues(alpha: 0.3),
                       blurRadius: 8,
                     ),
                   ],
@@ -236,9 +242,9 @@ class _CompassDial extends StatelessWidget {
         const SizedBox(height: 14),
         // Bearing label
         Text(
-          '${qiblaDegrees.toStringAsFixed(1)}° from North',
+          '${qiblaDegrees.toStringAsFixed(1)}° ${context.strings.fromNorth}',
           style: GoogleFonts.poppins(
-            color: IslamicColors.lightGold,
+            color: colors.accentLight,
             fontSize: 12,
             fontWeight: FontWeight.w400,
           ),
@@ -246,7 +252,7 @@ class _CompassDial extends StatelessWidget {
         if (isLive && accuracy != null) ...[
           const SizedBox(height: 4),
           Text(
-            _accuracyLabel(),
+            _accuracyLabel(context),
             style: GoogleFonts.poppins(
               color: _accuracyColor(),
               fontSize: 11,
@@ -256,9 +262,9 @@ class _CompassDial extends StatelessWidget {
         if (!isLive) ...[
           const SizedBox(height: 4),
           Text(
-            'No compass sensor detected',
+            context.strings.noCompass,
             style: GoogleFonts.poppins(
-              color: IslamicColors.lightGold.withValues(alpha: 0.6),
+              color: colors.accentLight.withValues(alpha: 0.6),
               fontSize: 11,
             ),
           ),
@@ -269,6 +275,9 @@ class _CompassDial extends StatelessWidget {
 }
 
 class _CompassRingPainter extends CustomPainter {
+  final AppColors colors;
+  _CompassRingPainter({required this.colors});
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -279,7 +288,7 @@ class _CompassRingPainter extends CustomPainter {
       center,
       radius,
       Paint()
-        ..color = IslamicColors.forestGreen.withValues(alpha: 0.18)
+        ..color = colors.surface.withValues(alpha: 0.18)
         ..style = PaintingStyle.fill,
     );
 
@@ -288,7 +297,7 @@ class _CompassRingPainter extends CustomPainter {
       center,
       radius,
       Paint()
-        ..color = IslamicColors.gold.withValues(alpha: 0.45)
+        ..color = colors.accent.withValues(alpha: 0.45)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );
@@ -298,7 +307,7 @@ class _CompassRingPainter extends CustomPainter {
       center,
       radius * 0.78,
       Paint()
-        ..color = IslamicColors.gold.withValues(alpha: 0.15)
+        ..color = colors.accent.withValues(alpha: 0.15)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0,
     );
@@ -311,8 +320,8 @@ class _CompassRingPainter extends CustomPainter {
       final tickLen = isMajor ? 13.0 : (isMid ? 9.0 : 5.0);
       final tickPaint = Paint()
         ..color = isMajor
-            ? IslamicColors.gold
-            : IslamicColors.gold.withValues(alpha: 0.35)
+            ? colors.accent
+            : colors.accent.withValues(alpha: 0.35)
         ..strokeWidth = isMajor ? 2.0 : 1.0
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
@@ -340,7 +349,7 @@ class _CompassRingPainter extends CustomPainter {
         text: TextSpan(
           text: entry.key,
           style: TextStyle(
-            color: isNorth ? IslamicColors.activeGlow : IslamicColors.lightGold,
+            color: isNorth ? colors.activeGlow : colors.accentLight,
             fontSize: isNorth ? 15 : 13,
             fontWeight: isNorth ? FontWeight.w700 : FontWeight.w500,
           ),
@@ -357,10 +366,13 @@ class _CompassRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_CompassRingPainter oldDelegate) => oldDelegate.colors != colors;
 }
 
 class _QiblaArrowPainter extends CustomPainter {
+  final AppColors colors;
+  _QiblaArrowPainter({required this.colors});
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -375,7 +387,7 @@ class _QiblaArrowPainter extends CustomPainter {
       arrowBase,
       arrowTip,
       Paint()
-        ..color = IslamicColors.gold
+        ..color = colors.accent
         ..strokeWidth = 3.0
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke,
@@ -392,7 +404,7 @@ class _QiblaArrowPainter extends CustomPainter {
     canvas.drawPath(
       headPath,
       Paint()
-        ..color = IslamicColors.gold
+        ..color = colors.accent
         ..style = PaintingStyle.fill,
     );
 
@@ -401,11 +413,11 @@ class _QiblaArrowPainter extends CustomPainter {
       arrowBase,
       5,
       Paint()
-        ..color = IslamicColors.gold.withValues(alpha: 0.5)
+        ..color = colors.accent.withValues(alpha: 0.5)
         ..style = PaintingStyle.fill,
     );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_QiblaArrowPainter oldDelegate) => oldDelegate.colors != colors;
 }

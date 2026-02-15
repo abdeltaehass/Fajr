@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../settings/settings_provider.dart';
 import '../data/hadiths.dart';
 import '../data/athkar.dart';
 import 'athkar_screen.dart';
@@ -11,6 +11,7 @@ class HadithAthkarScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hadith = todaysHadith;
+    final s = context.strings;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -20,7 +21,7 @@ class HadithAthkarScreen extends StatelessWidget {
           children: [
             // Header
             Text(
-              'Hadith & Athkar',
+              s.hadithAthkar,
               style: Theme.of(context).textTheme.displayLarge,
             ),
             const SizedBox(height: 24),
@@ -33,9 +34,9 @@ class HadithAthkarScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'DAILY ATHKAR',
+                s.dailyAthkar,
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.lightGold,
+                  color: context.colors.accentLight,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 2,
@@ -46,8 +47,8 @@ class HadithAthkarScreen extends StatelessWidget {
 
             // Morning Athkar
             _AthkarLaunchCard(
-              title: 'Morning Athkar',
-              subtitle: 'Athkar Al-Sabah',
+              title: s.morningAthkar,
+              subtitle: s.athkarAlSabah,
               icon: Icons.wb_sunny_outlined,
               onTap: () => Navigator.push(
                 context,
@@ -63,8 +64,8 @@ class HadithAthkarScreen extends StatelessWidget {
 
             // Evening Athkar
             _AthkarLaunchCard(
-              title: 'Evening Athkar',
-              subtitle: 'Athkar Al-Masa',
+              title: s.eveningAthkar,
+              subtitle: s.athkarAlMasa,
               icon: Icons.nights_stay_outlined,
               onTap: () => Navigator.push(
                 context,
@@ -80,8 +81,8 @@ class HadithAthkarScreen extends StatelessWidget {
 
             // After Prayer Athkar
             _AthkarLaunchCard(
-              title: 'After Prayer Athkar',
-              subtitle: 'Athkar Ba\'d As-Salah',
+              title: s.afterPrayerAthkar,
+              subtitle: s.athkarBadSalah,
               icon: Icons.mosque_outlined,
               onTap: () => Navigator.push(
                 context,
@@ -97,8 +98,8 @@ class HadithAthkarScreen extends StatelessWidget {
 
             // Sleep Athkar
             _AthkarLaunchCard(
-              title: 'Sleep Athkar',
-              subtitle: 'Athkar An-Nawm',
+              title: s.sleepAthkar,
+              subtitle: s.athkarAnNawm,
               icon: Icons.bedtime_outlined,
               onTap: () => Navigator.push(
                 context,
@@ -124,9 +125,11 @@ class _HadithCard extends StatelessWidget {
   const _HadithCard({required this.hadith});
 
   void _showExplanation(BuildContext context) {
+    final c = context.colors;
+    final s = context.strings;
     showModalBottomSheet(
       context: context,
-      backgroundColor: IslamicColors.darkGreen,
+      backgroundColor: c.card,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -147,16 +150,16 @@ class _HadithCard extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: IslamicColors.lightGold.withValues(alpha: 0.3),
+                    color: c.accentLight.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                'HADITH OF THE DAY',
+                s.hadithOfTheDay,
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.gold,
+                  color: c.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 2,
@@ -166,7 +169,7 @@ class _HadithCard extends StatelessWidget {
               Text(
                 '"${hadith.text}"',
                 style: GoogleFonts.amiri(
-                  color: IslamicColors.cream,
+                  color: c.bodyText,
                   fontSize: 16,
                   height: 1.6,
                 ),
@@ -175,7 +178,7 @@ class _HadithCard extends StatelessWidget {
               Text(
                 hadith.narrator,
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.gold,
+                  color: c.accent,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontStyle: FontStyle.italic,
@@ -185,7 +188,7 @@ class _HadithCard extends StatelessWidget {
               Text(
                 hadith.source,
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.lightGold.withValues(alpha: 0.7),
+                  color: c.accentLight.withValues(alpha: 0.7),
                   fontSize: 11,
                 ),
               ),
@@ -193,13 +196,13 @@ class _HadithCard extends StatelessWidget {
               Container(
                 width: double.infinity,
                 height: 1,
-                color: IslamicColors.gold.withValues(alpha: 0.2),
+                color: c.accent.withValues(alpha: 0.2),
               ),
               const SizedBox(height: 20),
               Text(
-                'EXPLANATION',
+                s.explanation.toUpperCase(),
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.gold,
+                  color: c.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 2,
@@ -209,7 +212,7 @@ class _HadithCard extends StatelessWidget {
               Text(
                 hadith.explanation,
                 style: GoogleFonts.poppins(
-                  color: IslamicColors.cream,
+                  color: c.bodyText,
                   fontSize: 14,
                   height: 1.7,
                 ),
@@ -224,16 +227,18 @@ class _HadithCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final s = context.strings;
     return GestureDetector(
       onTap: () => _showExplanation(context),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: IslamicColors.darkGreen,
+          color: c.card,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: IslamicColors.gold.withValues(alpha: 0.35),
+            color: c.accent.withValues(alpha: 0.35),
             width: 1,
           ),
         ),
@@ -243,12 +248,12 @@ class _HadithCard extends StatelessWidget {
             // Header
             Row(
               children: [
-                const Icon(Icons.auto_stories, color: IslamicColors.gold, size: 18),
+                Icon(Icons.auto_stories, color: c.accent, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  'HADITH OF THE DAY',
+                  s.hadithOfTheDay,
                   style: GoogleFonts.poppins(
-                    color: IslamicColors.gold,
+                    color: c.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2,
@@ -262,7 +267,7 @@ class _HadithCard extends StatelessWidget {
             Text(
               '"${hadith.text}"',
               style: GoogleFonts.amiri(
-                color: IslamicColors.cream,
+                color: c.bodyText,
                 fontSize: 16,
                 height: 1.6,
               ),
@@ -273,7 +278,7 @@ class _HadithCard extends StatelessWidget {
             Text(
               hadith.narrator,
               style: GoogleFonts.poppins(
-                color: IslamicColors.gold,
+                color: c.accent,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 fontStyle: FontStyle.italic,
@@ -285,7 +290,7 @@ class _HadithCard extends StatelessWidget {
             Text(
               hadith.source,
               style: GoogleFonts.poppins(
-                color: IslamicColors.lightGold.withValues(alpha: 0.7),
+                color: c.accentLight.withValues(alpha: 0.7),
                 fontSize: 11,
               ),
             ),
@@ -297,14 +302,14 @@ class _HadithCard extends StatelessWidget {
               children: [
                 Icon(
                   Icons.touch_app_outlined,
-                  color: IslamicColors.lightGold.withValues(alpha: 0.5),
+                  color: c.accentLight.withValues(alpha: 0.5),
                   size: 14,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Tap for explanation',
+                  s.tapForExplanation,
                   style: GoogleFonts.poppins(
-                    color: IslamicColors.lightGold.withValues(alpha: 0.5),
+                    color: c.accentLight.withValues(alpha: 0.5),
                     fontSize: 11,
                   ),
                 ),
@@ -332,16 +337,18 @@ class _AthkarLaunchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final highEmphasis = c.isLight ? c.scaffold : Colors.white;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: IslamicColors.darkGreen,
+          color: c.card,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: IslamicColors.gold.withValues(alpha: 0.25),
+            color: c.accent.withValues(alpha: 0.25),
             width: 1,
           ),
         ),
@@ -351,10 +358,10 @@ class _AthkarLaunchCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: IslamicColors.forestGreen.withValues(alpha: 0.4),
+                color: c.surface.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: IslamicColors.gold, size: 22),
+              child: Icon(icon, color: c.accent, size: 22),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -364,7 +371,7 @@ class _AthkarLaunchCard extends StatelessWidget {
                   Text(
                     title,
                     style: GoogleFonts.poppins(
-                      color: Colors.white,
+                      color: highEmphasis,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -373,16 +380,16 @@ class _AthkarLaunchCard extends StatelessWidget {
                   Text(
                     subtitle,
                     style: GoogleFonts.poppins(
-                      color: IslamicColors.lightGold.withValues(alpha: 0.7),
+                      color: c.accentLight.withValues(alpha: 0.7),
                       fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
-              color: IslamicColors.lightGold,
+              color: c.accentLight,
               size: 24,
             ),
           ],

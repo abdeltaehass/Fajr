@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../settings/settings_provider.dart';
 import '../models/prayer_times.dart';
 import '../services/location_service.dart';
 import '../services/prayer_time_service.dart';
@@ -143,16 +143,17 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildLoadingState() {
+    final c = context.colors;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CrescentMoon(size: 60, color: IslamicColors.gold.withValues(alpha: 0.5)),
+          CrescentMoon(size: 60, color: c.accent.withValues(alpha: 0.5)),
           const SizedBox(height: 24),
-          const CircularProgressIndicator(color: IslamicColors.gold),
+          CircularProgressIndicator(color: c.accent),
           const SizedBox(height: 16),
           Text(
-            'Finding your location...',
+            context.strings.findingLocation,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
@@ -161,16 +162,17 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildErrorState() {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.location_off,
               size: 64,
-              color: IslamicColors.lightGold,
+              color: c.accentLight,
             ),
             const SizedBox(height: 16),
             Text(
@@ -182,8 +184,8 @@ class _DashboardScreenState extends State<DashboardScreen>
             ElevatedButton(
               onPressed: _loadPrayerTimes,
               style: ElevatedButton.styleFrom(
-                backgroundColor: IslamicColors.gold,
-                foregroundColor: IslamicColors.deepGreen,
+                backgroundColor: c.accent,
+                foregroundColor: c.scaffold,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(
@@ -191,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
               child: Text(
-                'Retry',
+                context.strings.retry,
                 style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
             ),
@@ -202,13 +204,14 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildContent() {
+    final c = context.colors;
     final prayers = _prayerTimes!.timings.dailyPrayers;
     final nextPrayer = prayers[_nextPrayerIndex];
 
     return RefreshIndicator(
       onRefresh: _loadPrayerTimes,
-      color: IslamicColors.gold,
-      backgroundColor: IslamicColors.darkGreen,
+      color: c.accent,
+      backgroundColor: c.card,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -218,7 +221,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CrescentMoon(size: 32, color: IslamicColors.gold),
+                CrescentMoon(size: 32, color: c.accent),
                 const SizedBox(width: 12),
                 Text(
                   'Fajr',

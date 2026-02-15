@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../settings/settings_provider.dart';
 import '../data/athkar.dart';
 
 class AthkarScreen extends StatefulWidget {
@@ -42,11 +42,12 @@ class _AthkarScreenState extends State<AthkarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: IslamicColors.deepGreen,
+      backgroundColor: c.scaffold,
       appBar: AppBar(
-        backgroundColor: IslamicColors.darkGreen,
-        foregroundColor: IslamicColors.gold,
+        backgroundColor: c.card,
+        foregroundColor: c.accent,
         title: Text(
           widget.title,
           style: GoogleFonts.poppins(
@@ -64,6 +65,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
   }
 
   Widget _buildDhikrView() {
+    final c = context.colors;
     return GestureDetector(
       onTap: _onTap,
       behavior: HitTestBehavior.opaque,
@@ -79,7 +81,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
             Text(
               '${_currentIndex + 1} of ${widget.athkar.length}',
               style: GoogleFonts.poppins(
-                color: IslamicColors.lightGold.withValues(alpha: 0.7),
+                color: c.accentLight.withValues(alpha: 0.7),
                 fontSize: 13,
               ),
             ),
@@ -95,7 +97,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
                     Text(
                       _currentDhikr.arabic,
                       style: GoogleFonts.amiri(
-                        color: Colors.white,
+                        color: c.isLight ? c.scaffold : Colors.white,
                         fontSize: 24,
                         height: 2.0,
                       ),
@@ -108,7 +110,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
                     Container(
                       width: 60,
                       height: 1,
-                      color: IslamicColors.gold.withValues(alpha: 0.3),
+                      color: c.accent.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: 24),
 
@@ -116,7 +118,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
                     Text(
                       _currentDhikr.translation,
                       style: GoogleFonts.poppins(
-                        color: IslamicColors.lightGold,
+                        color: c.accentLight,
                         fontSize: 14,
                         height: 1.6,
                       ),
@@ -133,9 +135,9 @@ class _AthkarScreenState extends State<AthkarScreen> {
             const SizedBox(height: 12),
 
             Text(
-              'Tap anywhere to count',
+              context.strings.tapAnywhere,
               style: GoogleFonts.poppins(
-                color: IslamicColors.lightGold.withValues(alpha: 0.5),
+                color: c.accentLight.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
             ),
@@ -147,33 +149,35 @@ class _AthkarScreenState extends State<AthkarScreen> {
   }
 
   Widget _buildProgressBar() {
+    final c = context.colors;
     final progress = (_currentIndex + 1) / widget.athkar.length;
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: LinearProgressIndicator(
         value: progress,
-        backgroundColor: IslamicColors.forestGreen.withValues(alpha: 0.3),
-        color: IslamicColors.gold,
+        backgroundColor: c.surface.withValues(alpha: 0.3),
+        color: c.accent,
         minHeight: 4,
       ),
     );
   }
 
   Widget _buildCounterBadge() {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
       decoration: BoxDecoration(
-        color: IslamicColors.forestGreen.withValues(alpha: 0.4),
+        color: c.surface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: IslamicColors.gold.withValues(alpha: 0.5),
+          color: c.accent.withValues(alpha: 0.5),
           width: 1.5,
         ),
       ),
       child: Text(
         '$_currentCount / ${_currentDhikr.repeatCount}',
         style: GoogleFonts.poppins(
-          color: IslamicColors.gold,
+          color: c.accent,
           fontSize: 24,
           fontWeight: FontWeight.w700,
         ),
@@ -182,31 +186,33 @@ class _AthkarScreenState extends State<AthkarScreen> {
   }
 
   Widget _buildCompletedState() {
+    final c = context.colors;
+    final s = context.strings;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.check_circle_outline,
-              color: IslamicColors.gold,
+              color: c.accent,
               size: 72,
             ),
             const SizedBox(height: 24),
             Text(
-              'Completed',
+              s.completed,
               style: GoogleFonts.amiri(
-                color: IslamicColors.gold,
+                color: c.accent,
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'May Allah accept your remembrance',
+              s.acceptanceMessage,
               style: GoogleFonts.poppins(
-                color: IslamicColors.lightGold,
+                color: c.accentLight,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -215,15 +221,15 @@ class _AthkarScreenState extends State<AthkarScreen> {
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: IslamicColors.gold,
-                foregroundColor: IslamicColors.deepGreen,
+                backgroundColor: c.accent,
+                foregroundColor: c.scaffold,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
-                'Done',
+                s.done,
                 style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
             ),

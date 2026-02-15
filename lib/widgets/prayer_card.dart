@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/prayer_times.dart';
-import '../theme/app_theme.dart';
+import '../settings/settings_provider.dart';
 
 class PrayerCard extends StatelessWidget {
   final PrayerEntry prayer;
@@ -23,17 +23,16 @@ class PrayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final highEmphasis = c.isLight ? c.scaffold : Colors.white;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isNext
-            ? IslamicColors.darkGreen.withValues(alpha: 0.9)
-            : IslamicColors.darkGreen,
+        color: isNext ? c.card.withValues(alpha: 0.9) : c.card,
         borderRadius: BorderRadius.circular(16),
         border: isNext
-            ? const Border(
-                left: BorderSide(color: IslamicColors.gold, width: 4),
-              )
+            ? Border(left: BorderSide(color: c.accent, width: 4))
             : null,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -41,7 +40,7 @@ class PrayerCard extends StatelessWidget {
         children: [
           Icon(
             prayer.icon,
-            color: isNext ? IslamicColors.gold : IslamicColors.lightGold,
+            color: isNext ? c.accent : c.accentLight,
             size: 28,
           ),
           const SizedBox(width: 16),
@@ -52,14 +51,14 @@ class PrayerCard extends StatelessWidget {
                 Text(
                   prayer.name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: isNext ? Colors.white : IslamicColors.cream,
+                        color: isNext ? highEmphasis : c.bodyText,
                       ),
                 ),
                 if (isNext)
                   Text(
                     'Up next',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: IslamicColors.gold,
+                          color: c.accent,
                         ),
                   ),
               ],
@@ -69,7 +68,7 @@ class PrayerCard extends StatelessWidget {
             _formattedTime,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontSize: 18,
-                  color: isNext ? IslamicColors.gold : Colors.white,
+                  color: isNext ? c.accent : highEmphasis,
                 ),
           ),
         ],

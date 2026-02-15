@@ -15,6 +15,7 @@ dependencies:
   intl: ^0.19.0
   google_fonts: ^6.2.1
   flutter_compass: ^0.8.1
+  shared_preferences: ^2.3.0
 
 dev_dependencies:
   flutter_test:

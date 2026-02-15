@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../theme/app_theme.dart';
+import '../settings/settings_provider.dart';
 
 class NextPrayerBanner extends StatelessWidget {
   final String prayerName;
@@ -25,6 +25,7 @@ class NextPrayerBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final hours = timeRemaining.inHours;
     final minutes = timeRemaining.inMinutes.remainder(60);
     final seconds = timeRemaining.inSeconds.remainder(60);
@@ -32,19 +33,19 @@ class NextPrayerBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [IslamicColors.forestGreen, IslamicColors.darkGreen],
+        gradient: LinearGradient(
+          colors: [c.surface, c.card],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: IslamicColors.gold.withValues(alpha: 0.6),
+          color: c.accent.withValues(alpha: 0.6),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: IslamicColors.gold.withValues(alpha: 0.15),
+            color: c.accent.withValues(alpha: 0.15),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -54,7 +55,7 @@ class NextPrayerBanner extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'NEXT PRAYER',
+            context.strings.nextPrayer.toUpperCase(),
             style: Theme.of(context).textTheme.labelSmall,
           ),
           const SizedBox(height: 8),
@@ -68,18 +69,18 @@ class NextPrayerBanner extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: IslamicColors.gold,
+              color: c.accent,
             ),
           ),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _CountdownBox(value: hours.toString().padLeft(2, '0'), label: 'hr'),
+              _CountdownBox(value: hours.toString().padLeft(2, '0'), label: context.strings.hours.toLowerCase()),
               _CountdownSeparator(),
-              _CountdownBox(value: minutes.toString().padLeft(2, '0'), label: 'min'),
+              _CountdownBox(value: minutes.toString().padLeft(2, '0'), label: context.strings.minutes.toLowerCase()),
               _CountdownSeparator(),
-              _CountdownBox(value: seconds.toString().padLeft(2, '0'), label: 'sec'),
+              _CountdownBox(value: seconds.toString().padLeft(2, '0'), label: context.strings.seconds.toLowerCase()),
             ],
           ),
           const SizedBox(height: 8),
@@ -101,11 +102,14 @@ class _CountdownBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final highEmphasis = c.isLight ? c.scaffold : Colors.white;
+
     return Container(
       width: 64,
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: IslamicColors.deepGreen.withValues(alpha: 0.6),
+        color: c.scaffold.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -115,14 +119,14 @@ class _CountdownBox extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: highEmphasis,
             ),
           ),
           Text(
             label,
             style: GoogleFonts.poppins(
               fontSize: 11,
-              color: IslamicColors.lightGold,
+              color: c.accentLight,
             ),
           ),
         ],
@@ -141,7 +145,7 @@ class _CountdownSeparator extends StatelessWidget {
         style: GoogleFonts.poppins(
           fontSize: 28,
           fontWeight: FontWeight.w700,
-          color: IslamicColors.gold,
+          color: context.colors.accent,
         ),
       ),
     );

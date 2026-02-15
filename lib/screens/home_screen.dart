@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../settings/settings_provider.dart';
 import 'dashboard_screen.dart';
 import 'hadith_athkar_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,10 +18,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = const [
     DashboardScreen(),
     HadithAthkarScreen(),
+    SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final s = context.strings;
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -29,9 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        backgroundColor: IslamicColors.darkGreen,
-        selectedItemColor: IslamicColors.gold,
-        unselectedItemColor: IslamicColors.lightGold.withValues(alpha: 0.45),
+        backgroundColor: c.card,
+        selectedItemColor: c.accent,
+        unselectedItemColor: c.accentLight.withValues(alpha: 0.45),
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: GoogleFonts.poppins(
           fontSize: 12,
@@ -41,14 +46,18 @@ class _HomeScreenState extends State<HomeScreen> {
           fontSize: 12,
           fontWeight: FontWeight.w400,
         ),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.access_time),
-            label: 'Prayer Times',
+            icon: const Icon(Icons.access_time),
+            label: s.prayerTimes,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
-            label: 'Hadith & Athkar',
+            icon: const Icon(Icons.menu_book),
+            label: s.hadithAthkar,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.settings_outlined),
+            label: s.settings,
           ),
         ],
       ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../settings/app_colors.dart';
 
+// Kept for backward compatibility — maps to the green palette.
+// Prefer using context.colors from SettingsProvider instead.
 class IslamicColors {
   static const Color deepGreen = Color(0xFF0D4A2E);
   static const Color darkGreen = Color(0xFF0A3D24);
@@ -12,17 +15,28 @@ class IslamicColors {
 }
 
 class AppTheme {
-  static ThemeData get darkTheme {
+  static ThemeData get darkTheme => fromColors(AppColorPalettes.green);
+
+  static ThemeData fromColors(AppColors c) {
+    final brightness = c.isLight ? Brightness.light : Brightness.dark;
+    final highEmphasis = c.isLight ? c.scaffold : Colors.white;
+
     return ThemeData(
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: IslamicColors.deepGreen,
-      colorScheme: const ColorScheme.dark(
-        primary: IslamicColors.forestGreen,
-        secondary: IslamicColors.gold,
-        surface: IslamicColors.darkGreen,
+      brightness: brightness,
+      scaffoldBackgroundColor: c.scaffold,
+      colorScheme: ColorScheme(
+        brightness: brightness,
+        primary: c.surface,
+        secondary: c.accent,
+        surface: c.card,
+        onPrimary: c.bodyText,
+        onSecondary: c.scaffold,
+        onSurface: c.bodyText,
+        error: Colors.red,
+        onError: Colors.white,
       ),
       cardTheme: CardThemeData(
-        color: IslamicColors.darkGreen,
+        color: c.card,
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -32,42 +46,42 @@ class AppTheme {
         displayLarge: GoogleFonts.amiri(
           fontSize: 28,
           fontWeight: FontWeight.w700,
-          color: IslamicColors.gold,
+          color: c.accent,
         ),
         displayMedium: GoogleFonts.amiri(
           fontSize: 22,
           fontWeight: FontWeight.w700,
-          color: IslamicColors.gold,
+          color: c.accent,
         ),
         headlineMedium: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: highEmphasis,
         ),
         titleLarge: GoogleFonts.amiri(
           fontSize: 36,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: highEmphasis,
         ),
         titleMedium: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: IslamicColors.cream,
+          color: c.bodyText,
         ),
         bodyMedium: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: IslamicColors.lightGold,
+          color: c.accentLight,
         ),
         bodySmall: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          color: IslamicColors.lightGold,
+          color: c.accentLight,
         ),
         labelSmall: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          color: IslamicColors.lightGold,
+          color: c.accentLight,
           letterSpacing: 3,
         ),
       ),
