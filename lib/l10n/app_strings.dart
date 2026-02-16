@@ -60,6 +60,22 @@ abstract class AppStrings {
   String get hajj;
   String get laylatulQadr;
 
+  // Masjid
+  String get masjid;
+  String get nearbyMasjids;
+  String get searchingMasjids;
+  String get noMasjidsFound;
+  String get distance;
+  String get openNow;
+  String get closed;
+  String get getDirections;
+  String get call;
+  String get websiteLabel;
+  String get openingHours;
+  String get km;
+  String get noDetails;
+  String get apiKeyMissing;
+
   static AppStrings of(AppLanguage language) {
     switch (language) {
       case AppLanguage.arabic:

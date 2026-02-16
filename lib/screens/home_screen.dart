@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_provider.dart';
 import 'dashboard_screen.dart';
 import 'hadith_athkar_screen.dart';
+import 'masjid_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = const [
     DashboardScreen(),
     HadithAthkarScreen(),
+    MasjidScreen(),
     SettingsScreen(),
   ];
 
@@ -54,6 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.menu_book),
             label: s.hadithAthkar,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.mosque_outlined),
+            label: s.masjid,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.settings_outlined),

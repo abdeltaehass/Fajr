@@ -47,4 +47,19 @@ class UrduStrings extends AppStrings {
   @override String get eid => 'عید';
   @override String get hajj => 'حج';
   @override String get laylatulQadr => 'شب قدر';
+
+  @override String get masjid => 'مسجد';
+  @override String get nearbyMasjids => 'قریبی مساجد';
+  @override String get searchingMasjids => 'قریبی مساجد تلاش کی جا رہی ہیں...';
+  @override String get noMasjidsFound => 'قریب کوئی مسجد نہیں ملی';
+  @override String get distance => 'فاصلہ';
+  @override String get openNow => 'ابھی کھلا ہے';
+  @override String get closed => 'بند';
+  @override String get getDirections => 'راستہ حاصل کریں';
+  @override String get call => 'کال کریں';
+  @override String get websiteLabel => 'ویب سائٹ';
+  @override String get openingHours => 'اوقات کار';
+  @override String get km => 'کلومیٹر';
+  @override String get noDetails => 'مزید تفصیلات دستیاب نہیں';
+  @override String get apiKeyMissing => 'براہ کرم api_keys.dart میں اپنی Google Places API کلید شامل کریں';
 }

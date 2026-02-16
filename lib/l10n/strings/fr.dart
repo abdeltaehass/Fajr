@@ -47,4 +47,19 @@ class FrenchStrings extends AppStrings {
   @override String get eid => 'Aïd';
   @override String get hajj => 'Hajj';
   @override String get laylatulQadr => 'Laylat al-Qadr';
+
+  @override String get masjid => 'Mosquée';
+  @override String get nearbyMasjids => 'Mosquées à proximité';
+  @override String get searchingMasjids => 'Recherche de mosquées à proximité...';
+  @override String get noMasjidsFound => 'Aucune mosquée trouvée à proximité';
+  @override String get distance => 'Distance';
+  @override String get openNow => 'Ouvert maintenant';
+  @override String get closed => 'Fermé';
+  @override String get getDirections => 'Itinéraire';
+  @override String get call => 'Appeler';
+  @override String get websiteLabel => 'Site web';
+  @override String get openingHours => 'Horaires d\'ouverture';
+  @override String get km => 'km';
+  @override String get noDetails => 'Aucun détail supplémentaire disponible';
+  @override String get apiKeyMissing => 'Veuillez ajouter votre clé API Google Places dans api_keys.dart';
 }

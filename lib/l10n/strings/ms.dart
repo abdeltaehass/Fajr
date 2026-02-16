@@ -47,4 +47,19 @@ class MalayStrings extends AppStrings {
   @override String get eid => 'Hari Raya';
   @override String get hajj => 'Haji';
   @override String get laylatulQadr => 'Lailatul Qadar';
+
+  @override String get masjid => 'Masjid';
+  @override String get nearbyMasjids => 'Masjid Berdekatan';
+  @override String get searchingMasjids => 'Mencari masjid berdekatan...';
+  @override String get noMasjidsFound => 'Tiada masjid ditemui berdekatan';
+  @override String get distance => 'Jarak';
+  @override String get openNow => 'Buka Sekarang';
+  @override String get closed => 'Tutup';
+  @override String get getDirections => 'Dapatkan Arah';
+  @override String get call => 'Hubungi';
+  @override String get websiteLabel => 'Laman Web';
+  @override String get openingHours => 'Waktu Operasi';
+  @override String get km => 'km';
+  @override String get noDetails => 'Tiada maklumat tambahan';
+  @override String get apiKeyMissing => 'Sila tambah kunci API Google Places dalam api_keys.dart';
 }

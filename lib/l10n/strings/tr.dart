@@ -47,4 +47,19 @@ class TurkishStrings extends AppStrings {
   @override String get eid => 'Bayram';
   @override String get hajj => 'Hac';
   @override String get laylatulQadr => 'Kadir Gecesi';
+
+  @override String get masjid => 'Cami';
+  @override String get nearbyMasjids => 'Yakındaki Camiler';
+  @override String get searchingMasjids => 'Yakındaki camiler aranıyor...';
+  @override String get noMasjidsFound => 'Yakında cami bulunamadı';
+  @override String get distance => 'Mesafe';
+  @override String get openNow => 'Açık';
+  @override String get closed => 'Kapalı';
+  @override String get getDirections => 'Yol Tarifi';
+  @override String get call => 'Ara';
+  @override String get websiteLabel => 'Web Sitesi';
+  @override String get openingHours => 'Çalışma Saatleri';
+  @override String get km => 'km';
+  @override String get noDetails => 'Ek bilgi mevcut değil';
+  @override String get apiKeyMissing => 'Lütfen api_keys.dart dosyasına Google Places API anahtarınızı ekleyin';
 }

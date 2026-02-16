@@ -47,4 +47,19 @@ class EnglishStrings extends AppStrings {
   @override String get eid => 'Eid';
   @override String get hajj => 'Hajj';
   @override String get laylatulQadr => 'Laylatul Qadr';
+
+  @override String get masjid => 'Masjid';
+  @override String get nearbyMasjids => 'Nearby Masjids';
+  @override String get searchingMasjids => 'Searching for nearby masjids...';
+  @override String get noMasjidsFound => 'No masjids found nearby';
+  @override String get distance => 'Distance';
+  @override String get openNow => 'Open Now';
+  @override String get closed => 'Closed';
+  @override String get getDirections => 'Get Directions';
+  @override String get call => 'Call';
+  @override String get websiteLabel => 'Website';
+  @override String get openingHours => 'Opening Hours';
+  @override String get km => 'km';
+  @override String get noDetails => 'No additional details available';
+  @override String get apiKeyMissing => 'Please add your Google Places API key in api_keys.dart';
 }

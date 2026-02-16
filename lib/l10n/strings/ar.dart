@@ -47,4 +47,19 @@ class ArabicStrings extends AppStrings {
   @override String get eid => 'العيد';
   @override String get hajj => 'الحج';
   @override String get laylatulQadr => 'ليلة القدر';
+
+  @override String get masjid => 'مسجد';
+  @override String get nearbyMasjids => 'المساجد القريبة';
+  @override String get searchingMasjids => 'جاري البحث عن المساجد القريبة...';
+  @override String get noMasjidsFound => 'لم يتم العثور على مساجد قريبة';
+  @override String get distance => 'المسافة';
+  @override String get openNow => 'مفتوح الآن';
+  @override String get closed => 'مغلق';
+  @override String get getDirections => 'الاتجاهات';
+  @override String get call => 'اتصال';
+  @override String get websiteLabel => 'الموقع الإلكتروني';
+  @override String get openingHours => 'ساعات العمل';
+  @override String get km => 'كم';
+  @override String get noDetails => 'لا تتوفر تفاصيل إضافية';
+  @override String get apiKeyMissing => 'يرجى إضافة مفتاح Google Places API في api_keys.dart';
 }
