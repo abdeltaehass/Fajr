@@ -62,4 +62,10 @@ class EnglishStrings extends AppStrings {
   @override String get km => 'km';
   @override String get noDetails => 'No additional details available';
   @override String get apiKeyMissing => 'Please add your Google Places API key in api_keys.dart';
+
+  @override String get myMasjid => 'My Masjid';
+  @override String get setAsMyMasjid => 'Set as My Masjid';
+  @override String get removeMyMasjid => 'Remove My Masjid';
+  @override String get myMasjidSet => 'Set as your masjid';
+  @override String get selectYourMasjid => 'Tap a masjid below to set it as yours';
 }

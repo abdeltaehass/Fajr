@@ -62,4 +62,10 @@ class MalayStrings extends AppStrings {
   @override String get km => 'km';
   @override String get noDetails => 'Tiada maklumat tambahan';
   @override String get apiKeyMissing => 'Sila tambah kunci API Google Places dalam api_keys.dart';
+
+  @override String get myMasjid => 'Masjid Saya';
+  @override String get setAsMyMasjid => 'Tetapkan sebagai masjid saya';
+  @override String get removeMyMasjid => 'Buang masjid saya';
+  @override String get myMasjidSet => 'Ditetapkan sebagai masjid anda';
+  @override String get selectYourMasjid => 'Ketik masjid di bawah untuk memilihnya';
 }

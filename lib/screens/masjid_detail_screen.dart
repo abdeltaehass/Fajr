@@ -73,6 +73,100 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
     }
   }
 
+  bool get _isSelected =>
+      context.settings.selectedMasjid?.placeId == _masjid.placeId;
+
+  Widget _buildMyMasjidButton(dynamic c, dynamic s, Color textColor) {
+    if (_isSelected) {
+      return GestureDetector(
+        onTap: () {
+          context.settings.clearSelectedMasjid();
+          setState(() {});
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: c.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: c.accent.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: c.accent, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                s.myMasjid,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: c.accent,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '—',
+                style: GoogleFonts.poppins(color: c.accent),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                s.removeMyMasjid,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: c.accent.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () {
+        context.settings.setSelectedMasjid(_masjid);
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${_masjid.name} — ${s.myMasjidSet}',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: c.card,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: c.accent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.mosque, color: c.scaffold, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              s.setAsMyMasjid,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: c.scaffold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -249,6 +343,10 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                       ],
                     ],
                   ),
+                  const SizedBox(height: 16),
+
+                  // Set as My Masjid button
+                  _buildMyMasjidButton(c, s, textColor),
                   const SizedBox(height: 24),
 
                   // Address

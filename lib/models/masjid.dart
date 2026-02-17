@@ -88,4 +88,44 @@ class Masjid {
       distanceKm: km,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'placeId': placeId,
+        'name': name,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'phoneNumber': phoneNumber,
+        'website': website,
+        'rating': rating,
+        'userRatingsTotal': userRatingsTotal,
+        'openNow': openNow,
+        'openingHours': openingHours,
+        'photoReferences': photoReferences,
+        'distanceKm': distanceKm,
+      };
+
+  factory Masjid.fromJson(Map<String, dynamic> json) {
+    return Masjid(
+      placeId: json['placeId'] as String,
+      name: json['name'] as String,
+      address: json['address'] as String?,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      phoneNumber: json['phoneNumber'] as String?,
+      website: json['website'] as String?,
+      rating: (json['rating'] as num?)?.toDouble(),
+      userRatingsTotal: json['userRatingsTotal'] as int?,
+      openNow: json['openNow'] as bool?,
+      openingHours: (json['openingHours'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      photoReferences: (json['photoReferences'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      distanceKm: (json['distanceKm'] as num?)?.toDouble(),
+    );
+  }
 }

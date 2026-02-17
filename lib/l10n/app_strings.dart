@@ -75,6 +75,11 @@ abstract class AppStrings {
   String get km;
   String get noDetails;
   String get apiKeyMissing;
+  String get myMasjid;
+  String get setAsMyMasjid;
+  String get removeMyMasjid;
+  String get myMasjidSet;
+  String get selectYourMasjid;
 
   static AppStrings of(AppLanguage language) {
     switch (language) {

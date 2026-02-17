@@ -62,4 +62,10 @@ class FrenchStrings extends AppStrings {
   @override String get km => 'km';
   @override String get noDetails => 'Aucun détail supplémentaire disponible';
   @override String get apiKeyMissing => 'Veuillez ajouter votre clé API Google Places dans api_keys.dart';
+
+  @override String get myMasjid => 'Ma Mosquée';
+  @override String get setAsMyMasjid => 'Définir comme ma mosquée';
+  @override String get removeMyMasjid => 'Retirer ma mosquée';
+  @override String get myMasjidSet => 'Définie comme votre mosquée';
+  @override String get selectYourMasjid => 'Appuyez sur une mosquée pour la sélectionner';
 }

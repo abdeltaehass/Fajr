@@ -62,4 +62,10 @@ class UrduStrings extends AppStrings {
   @override String get km => 'کلومیٹر';
   @override String get noDetails => 'مزید تفصیلات دستیاب نہیں';
   @override String get apiKeyMissing => 'براہ کرم api_keys.dart میں اپنی Google Places API کلید شامل کریں';
+
+  @override String get myMasjid => 'میری مسجد';
+  @override String get setAsMyMasjid => 'میری مسجد کے طور پر مقرر کریں';
+  @override String get removeMyMasjid => 'میری مسجد ہٹائیں';
+  @override String get myMasjidSet => 'آپ کی مسجد مقرر ہو گئی';
+  @override String get selectYourMasjid => 'اپنی مسجد منتخب کرنے کے لیے نیچے ٹیپ کریں';
 }
