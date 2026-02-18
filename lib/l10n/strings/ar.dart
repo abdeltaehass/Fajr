@@ -59,7 +59,7 @@ class ArabicStrings extends AppStrings {
   @override String get call => 'اتصال';
   @override String get websiteLabel => 'الموقع الإلكتروني';
   @override String get openingHours => 'ساعات العمل';
-  @override String get km => 'كم';
+  @override String get km => 'ميل';
   @override String get noDetails => 'لا تتوفر تفاصيل إضافية';
   @override String get apiKeyMissing => 'يرجى إضافة مفتاح Google Places API في api_keys.dart';
 
@@ -68,4 +68,5 @@ class ArabicStrings extends AppStrings {
   @override String get removeMyMasjid => 'إزالة مسجدي';
   @override String get myMasjidSet => 'تم تعيينه كمسجدك';
   @override String get selectYourMasjid => 'اضغط على مسجد أدناه لتعيينه';
+  @override String get masjidPrayerTimes => 'مواقيت الصلاة';
 }

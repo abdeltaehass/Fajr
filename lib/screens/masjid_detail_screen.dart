@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../settings/settings_provider.dart';
 import '../models/masjid.dart';
+import '../models/prayer_times.dart';
 import '../services/masjid_service.dart';
+import '../services/prayer_time_service.dart';
 
 class MasjidDetailScreen extends StatefulWidget {
   final Masjid masjid;
@@ -22,12 +24,15 @@ class MasjidDetailScreen extends StatefulWidget {
 class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
   late Masjid _masjid;
   bool _isLoadingDetails = true;
+  final PrayerTimeService _prayerTimeService = PrayerTimeService();
+  PrayerTimings? _prayerTimings;
 
   @override
   void initState() {
     super.initState();
     _masjid = widget.masjid;
     _loadDetails();
+    _loadPrayerTimes();
   }
 
   Future<void> _loadDetails() async {
@@ -43,6 +48,21 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
       setState(() {
         _isLoadingDetails = false;
       });
+    }
+  }
+
+  Future<void> _loadPrayerTimes() async {
+    try {
+      final response = await _prayerTimeService.fetchPrayerTimes(
+        latitude: _masjid.latitude,
+        longitude: _masjid.longitude,
+      );
+      if (!mounted) return;
+      setState(() {
+        _prayerTimings = response.timings;
+      });
+    } catch (_) {
+      // Prayer times are supplementary; fail silently
     }
   }
 
@@ -204,6 +224,15 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                             maxWidth: 800,
                           ),
                           fit: BoxFit.cover,
+                          cacheWidth: 800,
+                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) return child;
+                            return AnimatedOpacity(
+                              opacity: frame == null ? 0 : 1,
+                              duration: const Duration(milliseconds: 300),
+                              child: child,
+                            );
+                          },
                           errorBuilder: (_, e, st) => Container(
                             color: c.surface,
                             child: Icon(
@@ -348,6 +377,45 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                   // Set as My Masjid button
                   _buildMyMasjidButton(c, s, textColor),
                   const SizedBox(height: 24),
+
+                  // Prayer times
+                  if (_prayerTimings != null) ...[
+                    _DetailSection(
+                      icon: Icons.access_time,
+                      title: s.masjidPrayerTimes,
+                      child: Column(
+                        children: _prayerTimings!.dailyPrayers.map((prayer) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Icon(prayer.icon, size: 18, color: c.accent),
+                                const SizedBox(width: 10),
+                                Text(
+                                  prayer.name,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: textColor.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  prayer.time,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: c.accent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
 
                   // Address
                   if (_masjid.address != null) ...[

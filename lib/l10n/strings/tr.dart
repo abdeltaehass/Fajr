@@ -59,7 +59,7 @@ class TurkishStrings extends AppStrings {
   @override String get call => 'Ara';
   @override String get websiteLabel => 'Web Sitesi';
   @override String get openingHours => 'Çalışma Saatleri';
-  @override String get km => 'km';
+  @override String get km => 'mi';
   @override String get noDetails => 'Ek bilgi mevcut değil';
   @override String get apiKeyMissing => 'Lütfen api_keys.dart dosyasına Google Places API anahtarınızı ekleyin';
 
@@ -68,4 +68,5 @@ class TurkishStrings extends AppStrings {
   @override String get removeMyMasjid => 'Camimi kaldır';
   @override String get myMasjidSet => 'Caminiz olarak ayarlandı';
   @override String get selectYourMasjid => 'Seçmek için aşağıdaki bir camiye dokunun';
+  @override String get masjidPrayerTimes => 'Namaz Vakitleri';
 }

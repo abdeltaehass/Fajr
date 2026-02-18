@@ -103,7 +103,7 @@ class MasjidService {
 
   double _calculateDistance(
       double lat1, double lon1, double lat2, double lon2) {
-    const earthRadius = 6371.0;
+    const earthRadius = 3958.8;
     final dLat = _toRadians(lat2 - lat1);
     final dLon = _toRadians(lon2 - lon1);
     final a = sin(dLat / 2) * sin(dLat / 2) +

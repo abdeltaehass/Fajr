@@ -59,7 +59,7 @@ class FrenchStrings extends AppStrings {
   @override String get call => 'Appeler';
   @override String get websiteLabel => 'Site web';
   @override String get openingHours => 'Horaires d\'ouverture';
-  @override String get km => 'km';
+  @override String get km => 'mi';
   @override String get noDetails => 'Aucun détail supplémentaire disponible';
   @override String get apiKeyMissing => 'Veuillez ajouter votre clé API Google Places dans api_keys.dart';
 
@@ -68,4 +68,5 @@ class FrenchStrings extends AppStrings {
   @override String get removeMyMasjid => 'Retirer ma mosquée';
   @override String get myMasjidSet => 'Définie comme votre mosquée';
   @override String get selectYourMasjid => 'Appuyez sur une mosquée pour la sélectionner';
+  @override String get masjidPrayerTimes => 'Horaires de prière';
 }

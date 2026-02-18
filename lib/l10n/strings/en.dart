@@ -59,7 +59,7 @@ class EnglishStrings extends AppStrings {
   @override String get call => 'Call';
   @override String get websiteLabel => 'Website';
   @override String get openingHours => 'Opening Hours';
-  @override String get km => 'km';
+  @override String get km => 'mi';
   @override String get noDetails => 'No additional details available';
   @override String get apiKeyMissing => 'Please add your Google Places API key in api_keys.dart';
 
@@ -68,4 +68,5 @@ class EnglishStrings extends AppStrings {
   @override String get removeMyMasjid => 'Remove My Masjid';
   @override String get myMasjidSet => 'Set as your masjid';
   @override String get selectYourMasjid => 'Tap a masjid below to set it as yours';
+  @override String get masjidPrayerTimes => 'Prayer Times';
 }

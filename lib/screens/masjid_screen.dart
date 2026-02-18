@@ -4,8 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/api_keys.dart';
 import '../settings/settings_provider.dart';
 import '../models/masjid.dart';
+import '../models/prayer_times.dart';
 import '../services/location_service.dart';
 import '../services/masjid_service.dart';
+import '../services/prayer_time_service.dart';
 import '../widgets/crescent_decoration.dart';
 import 'masjid_detail_screen.dart';
 
@@ -19,15 +21,18 @@ class MasjidScreen extends StatefulWidget {
 class _MasjidScreenState extends State<MasjidScreen> {
   final LocationService _locationService = LocationService();
   final MasjidService _masjidService = MasjidService();
+  final PrayerTimeService _prayerTimeService = PrayerTimeService();
 
   bool _isLoading = true;
   String? _errorMessage;
   List<Masjid> _masjids = [];
+  PrayerTimings? _myMasjidPrayerTimings;
 
   @override
   void initState() {
     super.initState();
     _loadMasjids();
+    _loadMyMasjidPrayerTimes();
   }
 
   Future<void> _loadMasjids() async {
@@ -75,6 +80,23 @@ class _MasjidScreenState extends State<MasjidScreen> {
         _isLoading = false;
         _errorMessage = 'Something went wrong. Please try again.';
       });
+    }
+  }
+
+  Future<void> _loadMyMasjidPrayerTimes() async {
+    final myMasjid = context.settings.selectedMasjid;
+    if (myMasjid == null) return;
+    try {
+      final response = await _prayerTimeService.fetchPrayerTimes(
+        latitude: myMasjid.latitude,
+        longitude: myMasjid.longitude,
+      );
+      if (!mounted) return;
+      setState(() {
+        _myMasjidPrayerTimings = response.timings;
+      });
+    } catch (_) {
+      // Supplementary data; fail silently
     }
   }
 
@@ -158,7 +180,10 @@ class _MasjidScreenState extends State<MasjidScreen> {
         ),
       ),
     );
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+      _loadMyMasjidPrayerTimes();
+    }
   }
 
   Widget _buildContent() {
@@ -212,6 +237,7 @@ class _MasjidScreenState extends State<MasjidScreen> {
             _MyMasjidCard(
               masjid: selectedMasjid,
               masjidService: _masjidService,
+              prayerTimings: _myMasjidPrayerTimings,
               onTap: () => _navigateToDetail(selectedMasjid),
             ),
             const SizedBox(height: 20),
@@ -256,11 +282,13 @@ class _MasjidScreenState extends State<MasjidScreen> {
 class _MyMasjidCard extends StatelessWidget {
   final Masjid masjid;
   final MasjidService masjidService;
+  final PrayerTimings? prayerTimings;
   final VoidCallback onTap;
 
   const _MyMasjidCard({
     required this.masjid,
     required this.masjidService,
+    this.prayerTimings,
     required this.onTap,
   });
 
@@ -302,6 +330,15 @@ class _MyMasjidCard extends StatelessWidget {
                       maxWidth: 600,
                     ),
                     fit: BoxFit.cover,
+                    cacheWidth: 600,
+                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                      if (wasSynchronouslyLoaded) return child;
+                      return AnimatedOpacity(
+                        opacity: frame == null ? 0 : 1,
+                        duration: const Duration(milliseconds: 300),
+                        child: child,
+                      );
+                    },
                     errorBuilder: (_, e, st) => Container(
                       color: c.surface,
                       child: Center(
@@ -430,6 +467,68 @@ class _MyMasjidCard extends StatelessWidget {
                                 color: textColor.withValues(alpha: 0.4),
                               ),
                             ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Prayer times
+                  if (prayerTimings != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: c.surface.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.access_time,
+                                  size: 14, color: c.accent),
+                              const SizedBox(width: 6),
+                              Text(
+                                s.masjidPrayerTimes,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: c.accent,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ...prayerTimings!.dailyPrayers.map((prayer) =>
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    Icon(prayer.icon,
+                                        size: 14, color: c.accent),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      prayer.name,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: textColor
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      prayer.time,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: c.accent,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
                         ],
                       ),
                     ),

@@ -80,6 +80,7 @@ abstract class AppStrings {
   String get removeMyMasjid;
   String get myMasjidSet;
   String get selectYourMasjid;
+  String get masjidPrayerTimes;
 
   static AppStrings of(AppLanguage language) {
     switch (language) {
