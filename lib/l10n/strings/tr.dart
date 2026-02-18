@@ -69,4 +69,14 @@ class TurkishStrings extends AppStrings {
   @override String get myMasjidSet => 'Caminiz olarak ayarlandı';
   @override String get selectYourMasjid => 'Seçmek için aşağıdaki bir camiye dokunun';
   @override String get masjidPrayerTimes => 'Namaz Vakitleri';
+
+  @override String get quran => 'Kuran';
+  @override String get searchSurahs => 'Sure ara...';
+  @override String get verses => 'ayet';
+  @override String get meccan => 'Mekki';
+  @override String get medinan => 'Medeni';
+  @override String get loadingVerses => 'Ayetler yükleniyor...';
+  @override String get couldNotLoadSurah => 'Sure yüklenemedi. Bağlantınızı kontrol edin.';
+  @override String get showTranslation => 'Çeviri';
+  @override String get hideTranslation => 'Sadece Arapça';
 }

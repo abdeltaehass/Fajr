@@ -82,6 +82,17 @@ abstract class AppStrings {
   String get selectYourMasjid;
   String get masjidPrayerTimes;
 
+  // Quran
+  String get quran;
+  String get searchSurahs;
+  String get verses;
+  String get meccan;
+  String get medinan;
+  String get loadingVerses;
+  String get couldNotLoadSurah;
+  String get showTranslation;
+  String get hideTranslation;
+
   static AppStrings of(AppLanguage language) {
     switch (language) {
       case AppLanguage.arabic:

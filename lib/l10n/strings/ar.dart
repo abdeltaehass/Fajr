@@ -69,4 +69,14 @@ class ArabicStrings extends AppStrings {
   @override String get myMasjidSet => 'تم تعيينه كمسجدك';
   @override String get selectYourMasjid => 'اضغط على مسجد أدناه لتعيينه';
   @override String get masjidPrayerTimes => 'مواقيت الصلاة';
+
+  @override String get quran => 'القرآن';
+  @override String get searchSurahs => 'ابحث عن سورة...';
+  @override String get verses => 'آيات';
+  @override String get meccan => 'مكية';
+  @override String get medinan => 'مدنية';
+  @override String get loadingVerses => 'جاري تحميل الآيات...';
+  @override String get couldNotLoadSurah => 'تعذر تحميل السورة. تحقق من اتصالك وحاول مجدداً.';
+  @override String get showTranslation => 'الترجمة';
+  @override String get hideTranslation => 'عربي فقط';
 }

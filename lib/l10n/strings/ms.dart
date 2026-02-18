@@ -69,4 +69,14 @@ class MalayStrings extends AppStrings {
   @override String get myMasjidSet => 'Ditetapkan sebagai masjid anda';
   @override String get selectYourMasjid => 'Ketik masjid di bawah untuk memilihnya';
   @override String get masjidPrayerTimes => 'Waktu Solat';
+
+  @override String get quran => 'Al-Quran';
+  @override String get searchSurahs => 'Cari surah...';
+  @override String get verses => 'ayat';
+  @override String get meccan => 'Makkiyyah';
+  @override String get medinan => 'Madaniyyah';
+  @override String get loadingVerses => 'Memuat ayat...';
+  @override String get couldNotLoadSurah => 'Tidak dapat memuatkan surah. Semak sambungan anda.';
+  @override String get showTranslation => 'Terjemahan';
+  @override String get hideTranslation => 'Arab sahaja';
 }

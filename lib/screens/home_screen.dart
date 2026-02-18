@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_provider.dart';
 import 'dashboard_screen.dart';
 import 'hadith_athkar_screen.dart';
+import 'quran_screen.dart';
 import 'masjid_screen.dart';
 import 'settings_screen.dart';
 
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = const [
     DashboardScreen(),
+    QuranScreen(),
     HadithAthkarScreen(),
     MasjidScreen(),
     SettingsScreen(),
@@ -41,17 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: c.accentLight.withValues(alpha: 0.45),
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: GoogleFonts.poppins(
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
         unselectedLabelStyle: GoogleFonts.poppins(
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: FontWeight.w400,
         ),
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.access_time),
             label: s.prayerTimes,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.auto_stories_outlined),
+            activeIcon: const Icon(Icons.auto_stories),
+            label: s.quran,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.menu_book),

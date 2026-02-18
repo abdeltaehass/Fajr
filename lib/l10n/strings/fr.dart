@@ -69,4 +69,14 @@ class FrenchStrings extends AppStrings {
   @override String get myMasjidSet => 'Définie comme votre mosquée';
   @override String get selectYourMasjid => 'Appuyez sur une mosquée pour la sélectionner';
   @override String get masjidPrayerTimes => 'Horaires de prière';
+
+  @override String get quran => 'Coran';
+  @override String get searchSurahs => 'Rechercher une sourate...';
+  @override String get verses => 'versets';
+  @override String get meccan => 'Mecquoise';
+  @override String get medinan => 'Médinoise';
+  @override String get loadingVerses => 'Chargement des versets...';
+  @override String get couldNotLoadSurah => 'Impossible de charger la sourate. Vérifiez votre connexion.';
+  @override String get showTranslation => 'Traduction';
+  @override String get hideTranslation => 'Arabe seulement';
 }

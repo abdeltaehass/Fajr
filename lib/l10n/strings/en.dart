@@ -69,4 +69,14 @@ class EnglishStrings extends AppStrings {
   @override String get myMasjidSet => 'Set as your masjid';
   @override String get selectYourMasjid => 'Tap a masjid below to set it as yours';
   @override String get masjidPrayerTimes => 'Prayer Times';
+
+  @override String get quran => 'Quran';
+  @override String get searchSurahs => 'Search surahs...';
+  @override String get verses => 'verses';
+  @override String get meccan => 'Meccan';
+  @override String get medinan => 'Medinan';
+  @override String get loadingVerses => 'Loading verses...';
+  @override String get couldNotLoadSurah => 'Could not load surah. Check your connection and try again.';
+  @override String get showTranslation => 'Translation';
+  @override String get hideTranslation => 'Arabic only';
 }
