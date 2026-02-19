@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,10 +26,37 @@ class _SurahScreenState extends State<SurahScreen> {
   SurahContent? _content;
   bool _showTranslation = true;
 
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  PlayerState _playerState = PlayerState.stopped;
+  int? _playingVerseNumber;
+  bool _isPlayingSurah = false;
+
+  static const String _reciterBase =
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy';
+  static const String _surahBase =
+      'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy';
+
   @override
   void initState() {
     super.initState();
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) setState(() => _playerState = state);
+    });
+    _audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() {
+          _playingVerseNumber = null;
+          _isPlayingSurah = false;
+        });
+      }
+    });
     _loadSurah();
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSurah() async {
@@ -37,7 +65,8 @@ class _SurahScreenState extends State<SurahScreen> {
       _error = null;
     });
     try {
-      final content = await widget.quranService.getSurah(widget.surahInfo.number);
+      final content =
+          await widget.quranService.getSurah(widget.surahInfo.number);
       if (!mounted) return;
       setState(() {
         _content = content;
@@ -52,8 +81,46 @@ class _SurahScreenState extends State<SurahScreen> {
     }
   }
 
+  Future<void> _playSurah() async {
+    await _audioPlayer
+        .play(UrlSource('$_surahBase/${widget.surahInfo.number}.mp3'));
+    setState(() {
+      _isPlayingSurah = true;
+      _playingVerseNumber = null;
+    });
+  }
+
+  Future<void> _playVerse(Ayah ayah) async {
+    await _audioPlayer
+        .play(UrlSource('$_reciterBase/${ayah.globalNumber}.mp3'));
+    setState(() {
+      _playingVerseNumber = ayah.number;
+      _isPlayingSurah = false;
+    });
+  }
+
+  Future<void> _togglePlayPause() async {
+    if (_playerState == PlayerState.playing) {
+      await _audioPlayer.pause();
+    } else if (_playerState == PlayerState.paused) {
+      await _audioPlayer.resume();
+    }
+  }
+
+  Future<void> _stop() async {
+    await _audioPlayer.stop();
+    setState(() {
+      _playingVerseNumber = null;
+      _isPlayingSurah = false;
+    });
+  }
+
   bool get _showBismillah =>
       widget.surahInfo.number != 1 && widget.surahInfo.number != 9;
+
+  bool get _isPlaying => _playerState == PlayerState.playing;
+  bool get _isPaused => _playerState == PlayerState.paused;
+  bool get _isActive => _isPlaying || _isPaused;
 
   @override
   Widget build(BuildContext context) {
@@ -88,19 +155,20 @@ class _SurahScreenState extends State<SurahScreen> {
           ],
         ),
         actions: [
-          // Translation toggle
           GestureDetector(
             onTap: () => setState(() => _showTranslation = !_showTranslation),
             child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              margin: const EdgeInsets.only(right: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: _showTranslation
                     ? c.accent.withValues(alpha: 0.15)
                     : c.accent.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: c.accent.withValues(alpha: _showTranslation ? 0.4 : 0.15),
+                  color: c.accent
+                      .withValues(alpha: _showTranslation ? 0.4 : 0.15),
                 ),
               ),
               child: Text(
@@ -113,13 +181,112 @@ class _SurahScreenState extends State<SurahScreen> {
               ),
             ),
           ),
+          if (!_isLoading && _error == null)
+            GestureDetector(
+              onTap: _isActive ? _togglePlayPause : _playSurah,
+              child: Container(
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: c.accent.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _isPlaying && _isPlayingSurah
+                      ? Icons.pause
+                      : Icons.play_arrow,
+                  color: c.accent,
+                  size: 22,
+                ),
+              ),
+            ),
         ],
       ),
-      body: _isLoading
-          ? _buildLoading(c, s)
-          : _error != null
-              ? _buildError(c, s, textColor)
-              : _buildContent(c, s, textColor),
+      body: Column(
+        children: [
+          Expanded(
+            child: _isLoading
+                ? _buildLoading(c, s)
+                : _error != null
+                    ? _buildError(c, s, textColor)
+                    : _buildContent(c, s, textColor),
+          ),
+          if (_isActive) _buildAudioBar(c, textColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAudioBar(dynamic c, Color textColor) {
+    final label = _isPlayingSurah
+        ? widget.surahInfo.name
+        : 'Verse $_playingVerseNumber';
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      decoration: BoxDecoration(
+        color: c.card,
+        border:
+            Border(top: BorderSide(color: c.accent.withValues(alpha: 0.15))),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.headphones, size: 18, color: c.accent),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'Mishary Rashid Al-Afasy',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    color: textColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: _togglePlayPause,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: c.accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isPlaying ? Icons.pause : Icons.play_arrow,
+                color: c.accent,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _stop,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.stop, color: Colors.red, size: 20),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -130,13 +297,9 @@ class _SurahScreenState extends State<SurahScreen> {
         children: [
           CircularProgressIndicator(color: c.accent),
           const SizedBox(height: 16),
-          Text(
-            s.loadingVerses,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: c.accentLight,
-            ),
-          ),
+          Text(s.loadingVerses,
+              style:
+                  GoogleFonts.poppins(fontSize: 14, color: c.accentLight)),
         ],
       ),
     );
@@ -165,15 +328,14 @@ class _SurahScreenState extends State<SurahScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.accent,
                 foregroundColor: c.scaffold,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                    borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text(
-                s.retry,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
+              child: Text(s.retry,
+                  style:
+                      GoogleFonts.poppins(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -183,22 +345,23 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Widget _buildContent(dynamic c, dynamic s, Color textColor) {
     final ayahs = _content!.ayahs;
-
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       itemCount: ayahs.length + (_showBismillah ? 1 : 0),
       itemBuilder: (context, index) {
-        // Bismillah header for all surahs except 1 and 9
         if (_showBismillah && index == 0) {
           return _BismillahHeader(c: c);
         }
-
         final ayah = _showBismillah ? ayahs[index - 1] : ayahs[index];
+        final isThisPlaying =
+            _isPlaying && _playingVerseNumber == ayah.number;
         return _AyahTile(
           ayah: ayah,
           showTranslation: _showTranslation,
+          isPlaying: isThisPlaying,
           c: c,
           textColor: textColor,
+          onPlay: () => _playVerse(ayah),
         );
       },
     );
@@ -223,11 +386,8 @@ class _BismillahHeader extends StatelessWidget {
         'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
         textAlign: TextAlign.center,
         textDirection: TextDirection.rtl,
-        style: GoogleFonts.amiri(
-          fontSize: 26,
-          color: c.accent,
-          height: 2.0,
-        ),
+        style:
+            GoogleFonts.amiri(fontSize: 26, color: c.accent, height: 2.0),
       ),
     );
   }
@@ -236,14 +396,18 @@ class _BismillahHeader extends StatelessWidget {
 class _AyahTile extends StatelessWidget {
   final Ayah ayah;
   final bool showTranslation;
+  final bool isPlaying;
   final dynamic c;
   final Color textColor;
+  final VoidCallback onPlay;
 
   const _AyahTile({
     required this.ayah,
     required this.showTranslation,
+    required this.isPlaying,
     required this.c,
     required this.textColor,
+    required this.onPlay,
   });
 
   void _copyAyah(BuildContext context) {
@@ -251,13 +415,11 @@ class _AyahTile extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Verse copied',
-          style: GoogleFonts.poppins(),
-        ),
+        content: Text('Verse copied', style: GoogleFonts.poppins()),
         backgroundColor: c.card,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -271,14 +433,17 @@ class _AyahTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: c.card,
+          color: isPlaying ? c.accent.withValues(alpha: 0.06) : c.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: c.accent.withValues(alpha: 0.08)),
+          border: Border.all(
+            color: isPlaying
+                ? c.accent.withValues(alpha: 0.3)
+                : c.accent.withValues(alpha: 0.08),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Verse number badge + divider
             Row(
               children: [
                 Container(
@@ -302,15 +467,30 @@ class _AyahTile extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Container(
-                    height: 1,
-                    color: c.accent.withValues(alpha: 0.08),
+                      height: 1,
+                      color: c.accent.withValues(alpha: 0.08)),
+                ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: onPlay,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: isPlaying
+                          ? c.accent.withValues(alpha: 0.2)
+                          : c.accent.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isPlaying ? Icons.volume_up : Icons.play_arrow,
+                      size: 14,
+                      color: c.accent,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
-
-            // Arabic text
             Text(
               ayah.arabic,
               textAlign: TextAlign.right,
@@ -321,14 +501,11 @@ class _AyahTile extends StatelessWidget {
                 height: 2.0,
               ),
             ),
-
-            // Translation
             if (showTranslation) ...[
               const SizedBox(height: 10),
               Container(
-                height: 1,
-                color: c.accent.withValues(alpha: 0.06),
-              ),
+                  height: 1,
+                  color: c.accent.withValues(alpha: 0.06)),
               const SizedBox(height: 10),
               Text(
                 ayah.translation,

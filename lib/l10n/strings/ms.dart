@@ -70,6 +70,18 @@ class MalayStrings extends AppStrings {
   @override String get selectYourMasjid => 'Ketik masjid di bawah untuk memilihnya';
   @override String get masjidPrayerTimes => 'Waktu Solat';
 
+  @override String get iqamaTimes => 'Waktu Iqama';
+  @override String get setIqamaTimes => 'Tetapkan Waktu Iqama';
+  @override String get jumuah => 'Jumaat';
+  @override String get events => 'Acara';
+  @override String get addEvent => 'Tambah Acara';
+  @override String get noEvents => 'Tiada acara ditambah';
+  @override String get eventTitle => 'Tajuk Acara';
+  @override String get eventDate => 'Tarikh & Masa';
+  @override String get eventDescription => 'Penerangan (pilihan)';
+  @override String get save => 'Simpan';
+  @override String get cancel => 'Batal';
+
   @override String get quran => 'Al-Quran';
   @override String get searchSurahs => 'Cari surah...';
   @override String get verses => 'ayat';

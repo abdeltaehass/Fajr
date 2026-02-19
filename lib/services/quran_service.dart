@@ -35,6 +35,7 @@ class QuranService {
     final ayahs = List<Ayah>.generate(arabicAyahs.length, (i) {
       return Ayah(
         number: arabicAyahs[i]['numberInSurah'] as int,
+        globalNumber: arabicAyahs[i]['number'] as int,
         arabic: arabicAyahs[i]['text'] as String,
         translation: englishAyahs[i]['text'] as String,
       );

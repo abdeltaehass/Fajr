@@ -70,6 +70,18 @@ class FrenchStrings extends AppStrings {
   @override String get selectYourMasjid => 'Appuyez sur une mosquée pour la sélectionner';
   @override String get masjidPrayerTimes => 'Horaires de prière';
 
+  @override String get iqamaTimes => 'Horaires d\'Iqama';
+  @override String get setIqamaTimes => 'Définir les horaires d\'Iqama';
+  @override String get jumuah => 'Jumu\'ah';
+  @override String get events => 'Événements';
+  @override String get addEvent => 'Ajouter un événement';
+  @override String get noEvents => 'Aucun événement ajouté';
+  @override String get eventTitle => 'Titre de l\'événement';
+  @override String get eventDate => 'Date et heure';
+  @override String get eventDescription => 'Description (optionnel)';
+  @override String get save => 'Enregistrer';
+  @override String get cancel => 'Annuler';
+
   @override String get quran => 'Coran';
   @override String get searchSurahs => 'Rechercher une sourate...';
   @override String get verses => 'versets';

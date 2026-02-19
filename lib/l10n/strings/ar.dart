@@ -70,6 +70,18 @@ class ArabicStrings extends AppStrings {
   @override String get selectYourMasjid => 'اضغط على مسجد أدناه لتعيينه';
   @override String get masjidPrayerTimes => 'مواقيت الصلاة';
 
+  @override String get iqamaTimes => 'أوقات الإقامة';
+  @override String get setIqamaTimes => 'تعيين أوقات الإقامة';
+  @override String get jumuah => 'الجمعة';
+  @override String get events => 'الفعاليات';
+  @override String get addEvent => 'إضافة فعالية';
+  @override String get noEvents => 'لا توجد فعاليات بعد';
+  @override String get eventTitle => 'اسم الفعالية';
+  @override String get eventDate => 'التاريخ والوقت';
+  @override String get eventDescription => 'الوصف (اختياري)';
+  @override String get save => 'حفظ';
+  @override String get cancel => 'إلغاء';
+
   @override String get quran => 'القرآن';
   @override String get searchSurahs => 'ابحث عن سورة...';
   @override String get verses => 'آيات';

@@ -70,6 +70,18 @@ class TurkishStrings extends AppStrings {
   @override String get selectYourMasjid => 'Seçmek için aşağıdaki bir camiye dokunun';
   @override String get masjidPrayerTimes => 'Namaz Vakitleri';
 
+  @override String get iqamaTimes => 'İkamet Vakitleri';
+  @override String get setIqamaTimes => 'İkamet Vakitlerini Ayarla';
+  @override String get jumuah => 'Cuma';
+  @override String get events => 'Etkinlikler';
+  @override String get addEvent => 'Etkinlik Ekle';
+  @override String get noEvents => 'Henüz etkinlik yok';
+  @override String get eventTitle => 'Etkinlik Adı';
+  @override String get eventDate => 'Tarih ve Saat';
+  @override String get eventDescription => 'Açıklama (isteğe bağlı)';
+  @override String get save => 'Kaydet';
+  @override String get cancel => 'İptal';
+
   @override String get quran => 'Kuran';
   @override String get searchSurahs => 'Sure ara...';
   @override String get verses => 'ayet';

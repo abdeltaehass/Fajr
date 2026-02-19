@@ -6,6 +6,7 @@ import '../models/masjid.dart';
 import '../models/prayer_times.dart';
 import '../services/masjid_service.dart';
 import '../services/prayer_time_service.dart';
+import 'masjid_iqama_sheet.dart';
 
 class MasjidDetailScreen extends StatefulWidget {
   final Masjid masjid;
@@ -184,6 +185,179 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _openIqamaSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const IqamaTimesSheet(),
+    ).then((_) => setState(() {}));
+  }
+
+  void _openAddEventSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AddEventSheet(),
+    ).then((_) => setState(() {}));
+  }
+
+  Widget _buildIqamaSection(dynamic c, dynamic s, Color textColor) {
+    final iqama = context.settings.iqamaTimes;
+    final prayers = iqama == null
+        ? <MapEntry<String, String>>[]
+        : [
+            MapEntry('Fajr', iqama.fajr),
+            MapEntry('Dhuhr', iqama.dhuhr),
+            MapEntry('Asr', iqama.asr),
+            MapEntry('Maghrib', iqama.maghrib),
+            MapEntry('Isha', iqama.isha),
+            MapEntry(s.jumuah, iqama.jumuah),
+          ].where((e) => e.value.isNotEmpty).toList();
+
+    return _DetailSection(
+      icon: Icons.access_time_filled,
+      title: s.iqamaTimes,
+      trailing: GestureDetector(
+        onTap: _openIqamaSheet,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: c.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            s.setIqamaTimes,
+            style: GoogleFonts.poppins(
+                fontSize: 11, fontWeight: FontWeight.w600, color: c.accent),
+          ),
+        ),
+      ),
+      child: prayers.isEmpty
+          ? Text(
+              '—',
+              style: GoogleFonts.poppins(
+                  fontSize: 13, color: textColor.withValues(alpha: 0.4)),
+            )
+          : Column(
+              children: prayers
+                  .map((e) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Text(
+                              e.key,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: textColor.withValues(alpha: 0.8),
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              e.value,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: c.accent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ))
+                  .toList(),
+            ),
+    );
+  }
+
+  Widget _buildEventsSection(dynamic c, dynamic s, Color textColor) {
+    final events = context.settings.masjidEvents;
+    final upcoming = events
+        .where((e) => e.date.isAfter(DateTime.now().subtract(const Duration(hours: 1))))
+        .toList();
+
+    return _DetailSection(
+      icon: Icons.event,
+      title: s.events,
+      trailing: GestureDetector(
+        onTap: _openAddEventSheet,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: c.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            s.addEvent,
+            style: GoogleFonts.poppins(
+                fontSize: 11, fontWeight: FontWeight.w600, color: c.accent),
+          ),
+        ),
+      ),
+      child: upcoming.isEmpty
+          ? Text(
+              s.noEvents,
+              style: GoogleFonts.poppins(
+                  fontSize: 13, color: textColor.withValues(alpha: 0.4)),
+            )
+          : Column(
+              children: upcoming.map((event) {
+                final d = event.date;
+                final dateStr =
+                    '${d.day}/${d.month}/${d.year}  ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event.title,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            Text(
+                              dateStr,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: c.accent,
+                              ),
+                            ),
+                            if (event.description.isNotEmpty)
+                              Text(
+                                event.description,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: textColor.withValues(alpha: 0.5),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          context.settings.removeMasjidEvent(event.id);
+                          setState(() {});
+                        },
+                        child: Icon(Icons.close,
+                            size: 18,
+                            color: textColor.withValues(alpha: 0.3)),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
     );
   }
 
@@ -376,7 +550,15 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
 
                   // Set as My Masjid button
                   _buildMyMasjidButton(c, s, textColor),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+
+                  // Iqama times & events (only when this is My Masjid)
+                  if (_isSelected) ...[
+                    _buildIqamaSection(c, s, textColor),
+                    const SizedBox(height: 16),
+                    _buildEventsSection(c, s, textColor),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Prayer times
                   if (_prayerTimings != null) ...[
@@ -589,11 +771,13 @@ class _DetailSection extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget child;
+  final Widget? trailing;
 
   const _DetailSection({
     required this.icon,
     required this.title,
     required this.child,
+    this.trailing,
   });
 
   @override
@@ -624,6 +808,10 @@ class _DetailSection extends StatelessWidget {
                   color: textColor,
                 ),
               ),
+              if (trailing != null) ...[
+                const Spacer(),
+                trailing!,
+              ],
             ],
           ),
           const SizedBox(height: 10),

@@ -70,6 +70,18 @@ class EnglishStrings extends AppStrings {
   @override String get selectYourMasjid => 'Tap a masjid below to set it as yours';
   @override String get masjidPrayerTimes => 'Prayer Times';
 
+  @override String get iqamaTimes => 'Iqama Times';
+  @override String get setIqamaTimes => 'Set Iqama Times';
+  @override String get jumuah => "Jumu'ah";
+  @override String get events => 'Events';
+  @override String get addEvent => 'Add Event';
+  @override String get noEvents => 'No events added yet';
+  @override String get eventTitle => 'Event Title';
+  @override String get eventDate => 'Date & Time';
+  @override String get eventDescription => 'Description (optional)';
+  @override String get save => 'Save';
+  @override String get cancel => 'Cancel';
+
   @override String get quran => 'Quran';
   @override String get searchSurahs => 'Search surahs...';
   @override String get verses => 'verses';

@@ -18,11 +18,13 @@ class SurahInfo {
 
 class Ayah {
   final int number;
+  final int globalNumber;
   final String arabic;
   final String translation;
 
   const Ayah({
     required this.number,
+    required this.globalNumber,
     required this.arabic,
     required this.translation,
   });

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/masjid.dart';
+import '../models/iqama_times.dart';
+import '../models/masjid_event.dart';
 import 'app_colors.dart';
 
 enum AppLanguage { english, arabic, french, turkish, urdu, malay }
@@ -11,6 +13,8 @@ class AppSettings extends ChangeNotifier {
   SeasonalTheme _seasonalTheme = SeasonalTheme.normal;
   AppLanguage _language = AppLanguage.english;
   Masjid? _selectedMasjid;
+  IqamaTimes? _iqamaTimes;
+  List<MasjidEvent> _masjidEvents = [];
 
   AppColors get colors =>
       AppColorPalettes.withSeason(AppColorPalettes.forTheme(_colorTheme), _seasonalTheme);
@@ -18,8 +22,9 @@ class AppSettings extends ChangeNotifier {
   ColorTheme get colorTheme => _colorTheme;
   SeasonalTheme get seasonalTheme => _seasonalTheme;
   AppLanguage get language => _language;
-
   Masjid? get selectedMasjid => _selectedMasjid;
+  IqamaTimes? get iqamaTimes => _iqamaTimes;
+  List<MasjidEvent> get masjidEvents => List.unmodifiable(_masjidEvents);
 
   bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu;
 
@@ -54,9 +59,24 @@ class AppSettings extends ChangeNotifier {
     if (masjidJson != null) {
       try {
         _selectedMasjid = Masjid.fromJson(jsonDecode(masjidJson) as Map<String, dynamic>);
-      } catch (_) {
-        // Ignore corrupted data
-      }
+      } catch (_) {}
+    }
+
+    final iqamaJson = prefs.getString('iqamaTimes');
+    if (iqamaJson != null) {
+      try {
+        _iqamaTimes = IqamaTimes.fromJson(jsonDecode(iqamaJson) as Map<String, dynamic>);
+      } catch (_) {}
+    }
+
+    final eventsJson = prefs.getString('masjidEvents');
+    if (eventsJson != null) {
+      try {
+        final list = jsonDecode(eventsJson) as List<dynamic>;
+        _masjidEvents = list
+            .map((e) => MasjidEvent.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } catch (_) {}
     }
 
     notifyListeners();
@@ -92,8 +112,40 @@ class AppSettings extends ChangeNotifier {
 
   Future<void> clearSelectedMasjid() async {
     _selectedMasjid = null;
+    _iqamaTimes = null;
+    _masjidEvents = [];
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('selectedMasjid');
+    await prefs.remove('iqamaTimes');
+    await prefs.remove('masjidEvents');
+  }
+
+  Future<void> setIqamaTimes(IqamaTimes times) async {
+    _iqamaTimes = times;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('iqamaTimes', jsonEncode(times.toJson()));
+  }
+
+  Future<void> addMasjidEvent(MasjidEvent event) async {
+    _masjidEvents.add(event);
+    _masjidEvents.sort((a, b) => a.date.compareTo(b.date));
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'masjidEvents',
+      jsonEncode(_masjidEvents.map((e) => e.toJson()).toList()),
+    );
+  }
+
+  Future<void> removeMasjidEvent(String id) async {
+    _masjidEvents.removeWhere((e) => e.id == id);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'masjidEvents',
+      jsonEncode(_masjidEvents.map((e) => e.toJson()).toList()),
+    );
   }
 }

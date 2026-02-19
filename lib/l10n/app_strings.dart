@@ -82,6 +82,19 @@ abstract class AppStrings {
   String get selectYourMasjid;
   String get masjidPrayerTimes;
 
+  // Iqama & Events
+  String get iqamaTimes;
+  String get setIqamaTimes;
+  String get jumuah;
+  String get events;
+  String get addEvent;
+  String get noEvents;
+  String get eventTitle;
+  String get eventDate;
+  String get eventDescription;
+  String get save;
+  String get cancel;
+
   // Quran
   String get quran;
   String get searchSurahs;

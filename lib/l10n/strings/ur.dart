@@ -70,6 +70,18 @@ class UrduStrings extends AppStrings {
   @override String get selectYourMasjid => 'اپنی مسجد منتخب کرنے کے لیے نیچے ٹیپ کریں';
   @override String get masjidPrayerTimes => 'نماز کے اوقات';
 
+  @override String get iqamaTimes => 'اقامت کے اوقات';
+  @override String get setIqamaTimes => 'اقامت کے اوقات مقرر کریں';
+  @override String get jumuah => 'جمعہ';
+  @override String get events => 'تقریبات';
+  @override String get addEvent => 'تقریب شامل کریں';
+  @override String get noEvents => 'ابھی تک کوئی تقریب نہیں';
+  @override String get eventTitle => 'تقریب کا نام';
+  @override String get eventDate => 'تاریخ اور وقت';
+  @override String get eventDescription => 'تفصیل (اختیاری)';
+  @override String get save => 'محفوظ کریں';
+  @override String get cancel => 'منسوخ';
+
   @override String get quran => 'قرآن';
   @override String get searchSurahs => 'سورہ تلاش کریں...';
   @override String get verses => 'آیات';
