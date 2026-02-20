@@ -13,6 +13,18 @@ class PrayerTimesResponse {
       date: PrayerDate.fromJson(data['date']),
     );
   }
+
+  factory PrayerTimesResponse.fromCached(Map<String, dynamic> json) {
+    return PrayerTimesResponse(
+      timings: PrayerTimings.fromCached(json['timings'] as Map<String, dynamic>),
+      date: PrayerDate.fromCached(json['date'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'timings': timings.toJson(),
+        'date': date.toJson(),
+      };
 }
 
 class PrayerTimings {
@@ -42,6 +54,26 @@ class PrayerTimings {
       isha: _cleanTime(json['Isha']),
     );
   }
+
+  factory PrayerTimings.fromCached(Map<String, dynamic> json) {
+    return PrayerTimings(
+      fajr: json['fajr'] as String,
+      sunrise: json['sunrise'] as String,
+      dhuhr: json['dhuhr'] as String,
+      asr: json['asr'] as String,
+      maghrib: json['maghrib'] as String,
+      isha: json['isha'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'fajr': fajr,
+        'sunrise': sunrise,
+        'dhuhr': dhuhr,
+        'asr': asr,
+        'maghrib': maghrib,
+        'isha': isha,
+      };
 
   static String _cleanTime(String raw) {
     final parenIndex = raw.indexOf(' (');
@@ -110,6 +142,24 @@ class PrayerDate {
       hijriYear: hijri['year'] as String,
     );
   }
+
+  factory PrayerDate.fromCached(Map<String, dynamic> json) {
+    return PrayerDate(
+      gregorianReadable: json['gregorianReadable'] as String,
+      gregorianWeekday: json['gregorianWeekday'] as String,
+      hijriDay: json['hijriDay'] as String,
+      hijriMonthEn: json['hijriMonthEn'] as String,
+      hijriYear: json['hijriYear'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'gregorianReadable': gregorianReadable,
+        'gregorianWeekday': gregorianWeekday,
+        'hijriDay': hijriDay,
+        'hijriMonthEn': hijriMonthEn,
+        'hijriYear': hijriYear,
+      };
 
   String get hijriFormatted => '$hijriDay $hijriMonthEn $hijriYear AH';
 

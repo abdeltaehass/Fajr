@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_provider.dart';
 import '../models/prayer_times.dart';
@@ -27,11 +29,14 @@ class _DashboardScreenState extends State<DashboardScreen>
   bool _isLoading = true;
   String? _errorMessage;
   PrayerTimesResponse? _prayerTimes;
+  bool _isUsingCachedData = false;
   int _nextPrayerIndex = 0;
   Duration _timeUntilNext = Duration.zero;
   Timer? _countdownTimer;
   double? _latitude;
   double? _longitude;
+
+  static const _cacheKey = 'cachedPrayerTimes';
 
   @override
   void initState() {
@@ -71,8 +76,13 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       if (!mounted) return;
 
+      // Persist for offline use
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_cacheKey, jsonEncode(prayerTimes.toJson()));
+
       setState(() {
         _prayerTimes = prayerTimes;
+        _isUsingCachedData = false;
         _isLoading = false;
       });
 
@@ -81,22 +91,54 @@ class _DashboardScreenState extends State<DashboardScreen>
       _scheduleNotifications(prayerTimes);
     } on LocationServiceException catch (e) {
       if (!mounted) return;
+      if (await _tryLoadCache()) return;
       setState(() {
         _isLoading = false;
         _errorMessage = e.message;
       });
     } on PrayerTimeServiceException catch (e) {
       if (!mounted) return;
+      if (await _tryLoadCache()) return;
+      final isServerError =
+          e.message.contains('503') || e.message.contains('502');
       setState(() {
         _isLoading = false;
-        _errorMessage = e.message;
+        _errorMessage = isServerError
+            ? 'Prayer times service is temporarily unavailable. Retrying...'
+            : e.message;
       });
+      if (isServerError) {
+        await Future.delayed(const Duration(seconds: 5));
+        if (mounted) _loadPrayerTimes();
+      }
     } catch (e) {
       if (!mounted) return;
+      if (await _tryLoadCache()) return;
       setState(() {
         _isLoading = false;
         _errorMessage = 'Something went wrong. Please try again.';
       });
+    }
+  }
+
+  Future<bool> _tryLoadCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_cacheKey);
+      if (raw == null || !mounted) return false;
+      final cached = PrayerTimesResponse.fromCached(
+          jsonDecode(raw) as Map<String, dynamic>);
+      setState(() {
+        _prayerTimes = cached;
+        _isUsingCachedData = true;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+      _determineNextPrayer();
+      _startCountdown();
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -256,7 +298,37 @@ class _DashboardScreenState extends State<DashboardScreen>
 
             // Hijri date
             HijriDateHeader(date: _prayerTimes!.date),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+
+            // Offline banner
+            if (_isUsingCachedData)
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: c.accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: c.accent.withValues(alpha: 0.3), width: 1),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cloud_off_outlined,
+                        size: 15, color: c.accentLight),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Showing last saved times — no connection',
+                      style: TextStyle(
+                          color: c.accentLight,
+                          fontSize: 12,
+                          fontFamily: 'Poppins'),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 12),
 
             // Next prayer banner
             NextPrayerBanner(
