@@ -10,12 +10,15 @@ An Islamic prayer times app built with Flutter. Displays accurate salah times ba
 - Hijri and Gregorian date display
 - GPS-based location detection
 - Pull-to-refresh support
+- **Offline mode**: last successfully fetched prayer times are cached and displayed automatically when the API is unavailable, with a subtle banner indicating offline status
+- Auto-retries every 5 seconds on any network or server failure
 
 ### Qibla Compass
 - Live compass with smooth low-pass filtering
 - Points toward the Kaaba in Mecca
 - Shows the Qibla bearing in degrees from North
 - Accuracy indicator (High / Medium / Low)
+- Remains available in offline mode using GPS (no internet required)
 
 ### Quran
 - All 114 surahs with Arabic text and Sahih International translation
