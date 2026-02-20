@@ -15,6 +15,9 @@ class AppSettings extends ChangeNotifier {
   Masjid? _selectedMasjid;
   IqamaTimes? _iqamaTimes;
   List<MasjidEvent> _masjidEvents = [];
+  bool _adhanEnabled = false;
+  bool _reminderEnabled = false;
+  String _reciterId = 'ar.alafasy';
 
   AppColors get colors =>
       AppColorPalettes.withSeason(AppColorPalettes.forTheme(_colorTheme), _seasonalTheme);
@@ -25,6 +28,9 @@ class AppSettings extends ChangeNotifier {
   Masjid? get selectedMasjid => _selectedMasjid;
   IqamaTimes? get iqamaTimes => _iqamaTimes;
   List<MasjidEvent> get masjidEvents => List.unmodifiable(_masjidEvents);
+  bool get adhanEnabled => _adhanEnabled;
+  bool get reminderEnabled => _reminderEnabled;
+  String get reciterId => _reciterId;
 
   bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu;
 
@@ -61,6 +67,10 @@ class AppSettings extends ChangeNotifier {
         _selectedMasjid = Masjid.fromJson(jsonDecode(masjidJson) as Map<String, dynamic>);
       } catch (_) {}
     }
+
+    _adhanEnabled = prefs.getBool('adhanEnabled') ?? false;
+    _reminderEnabled = prefs.getBool('reminderEnabled') ?? false;
+    _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
 
     final iqamaJson = prefs.getString('iqamaTimes');
     if (iqamaJson != null) {
@@ -147,5 +157,26 @@ class AppSettings extends ChangeNotifier {
       'masjidEvents',
       jsonEncode(_masjidEvents.map((e) => e.toJson()).toList()),
     );
+  }
+
+  Future<void> setAdhanEnabled(bool value) async {
+    _adhanEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('adhanEnabled', value);
+  }
+
+  Future<void> setReminderEnabled(bool value) async {
+    _reminderEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('reminderEnabled', value);
+  }
+
+  Future<void> setReciter(String id) async {
+    _reciterId = id;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('reciterId', id);
   }
 }

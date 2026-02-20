@@ -91,4 +91,10 @@ class MalayStrings extends AppStrings {
   @override String get couldNotLoadSurah => 'Tidak dapat memuatkan surah. Semak sambungan anda.';
   @override String get showTranslation => 'Terjemahan';
   @override String get hideTranslation => 'Arab sahaja';
+  @override String get quranReciter => 'Qari Al-Quran';
+
+  @override String get notifications => 'Pemberitahuan';
+  @override String get adhanNotification => 'Notifikasi Azan';
+  @override String get preReminderNotif => 'Peringatan 30 Minit Sebelum Solat';
+  @override String get notifPermDenied => 'Aktifkan pemberitahuan di Tetapan iPhone untuk menerima amaran solat';
 }

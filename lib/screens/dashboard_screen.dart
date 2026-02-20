@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_provider.dart';
 import '../models/prayer_times.dart';
 import '../services/location_service.dart';
+import '../services/notification_service.dart';
 import '../services/prayer_time_service.dart';
 import '../widgets/crescent_decoration.dart';
 import '../widgets/hijri_date_header.dart';
@@ -77,6 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       _determineNextPrayer();
       _startCountdown();
+      _scheduleNotifications(prayerTimes);
     } on LocationServiceException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -120,6 +122,27 @@ class _DashboardScreenState extends State<DashboardScreen>
       _nextPrayerIndex = 0;
       _timeUntilNext = tomorrowFajr.difference(now);
     });
+  }
+
+  void _scheduleNotifications(PrayerTimesResponse prayerTimes) {
+    if (!context.settings.adhanEnabled && !context.settings.reminderEnabled) {
+      NotificationService.cancelAll();
+      return;
+    }
+    final now = DateTime.now();
+    final entries = prayerTimes.timings.dailyPrayers
+        .where((p) => p.isPrayer)
+        .map((p) => PrayerNotificationEntry(
+              prayerName: p.name,
+              localTime: p.todayDateTime,
+            ))
+        .where((e) => e.localTime.isAfter(now))
+        .toList();
+    NotificationService.schedulePrayerNotifications(
+      entries: entries,
+      adhanEnabled: context.settings.adhanEnabled,
+      reminderEnabled: context.settings.reminderEnabled,
+    );
   }
 
   void _startCountdown() {

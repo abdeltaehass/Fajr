@@ -105,6 +105,13 @@ abstract class AppStrings {
   String get couldNotLoadSurah;
   String get showTranslation;
   String get hideTranslation;
+  String get quranReciter;
+
+  // Notifications
+  String get notifications;
+  String get adhanNotification;
+  String get preReminderNotif;
+  String get notifPermDenied;
 
   static AppStrings of(AppLanguage language) {
     switch (language) {

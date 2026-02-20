@@ -91,4 +91,10 @@ class FrenchStrings extends AppStrings {
   @override String get couldNotLoadSurah => 'Impossible de charger la sourate. Vérifiez votre connexion.';
   @override String get showTranslation => 'Traduction';
   @override String get hideTranslation => 'Arabe seulement';
+  @override String get quranReciter => 'Récitateur du Coran';
+
+  @override String get notifications => 'Notifications';
+  @override String get adhanNotification => 'Notification Adhan';
+  @override String get preReminderNotif => 'Rappel 30 min avant la prière';
+  @override String get notifPermDenied => 'Activez les notifications dans les paramètres iPhone pour recevoir les alertes de prière';
 }

@@ -91,4 +91,10 @@ class UrduStrings extends AppStrings {
   @override String get couldNotLoadSurah => 'سورہ لوڈ نہیں ہو سکی۔ اپنا انٹرنیٹ چیک کریں۔';
   @override String get showTranslation => 'ترجمہ';
   @override String get hideTranslation => 'صرف عربی';
+  @override String get quranReciter => 'قرآن قاری';
+
+  @override String get notifications => 'اطلاعات';
+  @override String get adhanNotification => 'اذان کا اطلاع';
+  @override String get preReminderNotif => '30 منٹ پہلے یاددہانی';
+  @override String get notifPermDenied => 'نماز کے اطلاعات کے لیے iPhone ترتیبات میں اطلاعات فعال کریں';
 }

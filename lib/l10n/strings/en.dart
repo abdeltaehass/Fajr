@@ -91,4 +91,10 @@ class EnglishStrings extends AppStrings {
   @override String get couldNotLoadSurah => 'Could not load surah. Check your connection and try again.';
   @override String get showTranslation => 'Translation';
   @override String get hideTranslation => 'Arabic only';
+  @override String get quranReciter => 'Quran Reciter';
+
+  @override String get notifications => 'Notifications';
+  @override String get adhanNotification => 'Adhan Notification';
+  @override String get preReminderNotif => '30-Min Pre-Prayer Reminder';
+  @override String get notifPermDenied => 'Enable notifications in iPhone Settings to receive prayer alerts';
 }

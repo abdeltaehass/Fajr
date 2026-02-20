@@ -91,4 +91,10 @@ class ArabicStrings extends AppStrings {
   @override String get couldNotLoadSurah => 'تعذر تحميل السورة. تحقق من اتصالك وحاول مجدداً.';
   @override String get showTranslation => 'الترجمة';
   @override String get hideTranslation => 'عربي فقط';
+  @override String get quranReciter => 'قارئ القرآن';
+
+  @override String get notifications => 'الإشعارات';
+  @override String get adhanNotification => 'إشعار الأذان';
+  @override String get preReminderNotif => 'تذكير قبل ٣٠ دقيقة';
+  @override String get notifPermDenied => 'يرجى تفعيل الإشعارات من الإعدادات لاستقبال تنبيهات الصلاة';
 }

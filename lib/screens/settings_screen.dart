@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../data/reciter_list.dart';
+import '../services/notification_service.dart';
 import '../settings/app_colors.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_provider.dart';
@@ -24,6 +26,66 @@ class SettingsScreen extends StatelessWidget {
                 s.settings,
                 style: Theme.of(context).textTheme.displayLarge,
               ),
+            ),
+            const SizedBox(height: 32),
+
+            // Notifications Section
+            _SectionHeader(title: s.notifications),
+            const SizedBox(height: 12),
+            _NotifToggleTile(
+              icon: Icons.notifications_active_outlined,
+              title: s.adhanNotification,
+              value: settings.adhanEnabled,
+              onChanged: (val) async {
+                if (val) {
+                  final granted =
+                      await NotificationService.requestPermissions();
+                  if (!granted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          s.notifPermDenied,
+                          style: GoogleFonts.poppins(fontSize: 13),
+                        ),
+                        backgroundColor: context.colors.card,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                    return;
+                  }
+                }
+                settings.setAdhanEnabled(val);
+              },
+            ),
+            const SizedBox(height: 8),
+            _NotifToggleTile(
+              icon: Icons.alarm_outlined,
+              title: s.preReminderNotif,
+              value: settings.reminderEnabled,
+              onChanged: (val) async {
+                if (val) {
+                  final granted =
+                      await NotificationService.requestPermissions();
+                  if (!granted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          s.notifPermDenied,
+                          style: GoogleFonts.poppins(fontSize: 13),
+                        ),
+                        backgroundColor: context.colors.card,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                    return;
+                  }
+                }
+                settings.setReminderEnabled(val);
+              },
             ),
             const SizedBox(height: 32),
 
@@ -55,6 +117,16 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () => settings.setLanguage(lang),
                 )),
             const SizedBox(height: 32),
+
+            // Quran Reciter Section
+            _SectionHeader(title: s.quranReciter),
+            const SizedBox(height: 12),
+            ...reciters.map((reciter) => _ReciterTile(
+                  reciter: reciter,
+                  isSelected: settings.reciterId == reciter.id,
+                  onTap: () => settings.setReciter(reciter.id),
+                )),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -76,6 +148,62 @@ class _SectionHeader extends StatelessWidget {
         fontSize: 12,
         fontWeight: FontWeight.w600,
         letterSpacing: 2,
+      ),
+    );
+  }
+}
+
+class _NotifToggleTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool value;
+  final Future<void> Function(bool) onChanged;
+
+  const _NotifToggleTile({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final textColor = c.isLight ? c.scaffold : Colors.white;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: value ? c.surface.withValues(alpha: 0.4) : c.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: value ? c.accent : c.accent.withValues(alpha: 0.15),
+          width: value ? 1.5 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: value ? c.accent : c.accentLight, size: 22),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: value ? c.accent : c.bodyText,
+                fontSize: 14,
+                fontWeight: value ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: c.accent,
+            activeTrackColor: c.accent.withValues(alpha: 0.3),
+            inactiveThumbColor: textColor.withValues(alpha: 0.4),
+            inactiveTrackColor: textColor.withValues(alpha: 0.1),
+          ),
+        ],
       ),
     );
   }
@@ -108,11 +236,17 @@ class _ColorThemePicker extends StatelessWidget {
                   color: palette.scaffold,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isSelected ? c.accent : c.accentLight.withValues(alpha: 0.3),
+                    color: isSelected
+                        ? c.accent
+                        : c.accentLight.withValues(alpha: 0.3),
                     width: isSelected ? 3 : 1.5,
                   ),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: c.accent.withValues(alpha: 0.4), blurRadius: 8)]
+                      ? [
+                          BoxShadow(
+                              color: c.accent.withValues(alpha: 0.4),
+                              blurRadius: 8)
+                        ]
                       : [],
                 ),
                 child: isSelected
@@ -125,7 +259,8 @@ class _ColorThemePicker extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   color: isSelected ? c.accent : c.accentLight,
                   fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ],
@@ -197,7 +332,8 @@ class _SeasonalThemeTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(_icon, color: isSelected ? c.accent : c.accentLight, size: 22),
+            Icon(_icon,
+                color: isSelected ? c.accent : c.accentLight, size: 22),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
@@ -205,12 +341,12 @@ class _SeasonalThemeTile extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   color: isSelected ? c.accent : c.bodyText,
                   fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check_circle, color: c.accent, size: 20),
+            if (isSelected) Icon(Icons.check_circle, color: c.accent, size: 20),
           ],
         ),
       ),
@@ -290,12 +426,78 @@ class _LanguageTile extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   color: isSelected ? c.accent : c.bodyText,
                   fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check_circle, color: c.accent, size: 20),
+            if (isSelected) Icon(Icons.check_circle, color: c.accent, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReciterTile extends StatelessWidget {
+  final dynamic reciter;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ReciterTile({
+    required this.reciter,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? c.surface.withValues(alpha: 0.4) : c.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? c.accent : c.accent.withValues(alpha: 0.15),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.mic_outlined,
+                color: isSelected ? c.accent : c.accentLight, size: 22),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    reciter.name as String,
+                    style: GoogleFonts.poppins(
+                      color: isSelected ? c.accent : c.bodyText,
+                      fontSize: 14,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    reciter.arabicName as String,
+                    style: GoogleFonts.amiri(
+                      color: (isSelected ? c.accent : c.accentLight)
+                          .withValues(alpha: 0.8),
+                      fontSize: 14,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected) Icon(Icons.check_circle, color: c.accent, size: 20),
           ],
         ),
       ),

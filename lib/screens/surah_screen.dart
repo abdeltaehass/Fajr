@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../data/reciter_list.dart';
 import '../models/quran_models.dart';
 import '../services/quran_service.dart';
 import '../settings/settings_provider.dart';
@@ -31,10 +32,10 @@ class _SurahScreenState extends State<SurahScreen> {
   int? _playingVerseNumber;
   bool _isPlayingSurah = false;
 
-  static const String _reciterBase =
-      'https://cdn.islamic.network/quran/audio/128/ar.alafasy';
-  static const String _surahBase =
-      'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy';
+  static const String _cdnVerseBase =
+      'https://cdn.islamic.network/quran/audio/128';
+  static const String _cdnSurahBase =
+      'https://cdn.islamic.network/quran/audio-surah/128';
 
   @override
   void initState() {
@@ -82,8 +83,9 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Future<void> _playSurah() async {
+    final id = context.settings.reciterId;
     await _audioPlayer
-        .play(UrlSource('$_surahBase/${widget.surahInfo.number}.mp3'));
+        .play(UrlSource('$_cdnSurahBase/$id/${widget.surahInfo.number}.mp3'));
     setState(() {
       _isPlayingSurah = true;
       _playingVerseNumber = null;
@@ -91,8 +93,9 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Future<void> _playVerse(Ayah ayah) async {
+    final id = context.settings.reciterId;
     await _audioPlayer
-        .play(UrlSource('$_reciterBase/${ayah.globalNumber}.mp3'));
+        .play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
     setState(() {
       _playingVerseNumber = ayah.number;
       _isPlayingSurah = false;
@@ -249,7 +252,7 @@ class _SurahScreenState extends State<SurahScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'Mishary Rashid Al-Afasy',
+                  reciterById(context.settings.reciterId).name,
                   style: GoogleFonts.poppins(
                     fontSize: 10,
                     color: textColor.withValues(alpha: 0.5),

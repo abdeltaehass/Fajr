@@ -91,4 +91,10 @@ class TurkishStrings extends AppStrings {
   @override String get couldNotLoadSurah => 'Sure yüklenemedi. Bağlantınızı kontrol edin.';
   @override String get showTranslation => 'Çeviri';
   @override String get hideTranslation => 'Sadece Arapça';
+  @override String get quranReciter => 'Kuran Okuyucusu';
+
+  @override String get notifications => 'Bildirimler';
+  @override String get adhanNotification => 'Ezan Bildirimi';
+  @override String get preReminderNotif => '30 Dakika Öncesi Hatırlatıcı';
+  @override String get notifPermDenied => 'Namaz uyarıları için iPhone Ayarlarından bildirimleri etkinleştirin';
 }
