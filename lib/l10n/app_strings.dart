@@ -113,6 +113,11 @@ abstract class AppStrings {
   String get preReminderNotif;
   String get notifPermDenied;
 
+  // Dashboard misc
+  String get upNext;
+  String get remaining;
+  String get offlineData;
+
   static AppStrings of(AppLanguage language) {
     switch (language) {
       case AppLanguage.arabic:

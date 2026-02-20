@@ -12,23 +12,27 @@ class IqamaTimesSheet extends StatefulWidget {
 }
 
 class _IqamaTimesSheetState extends State<IqamaTimesSheet> {
-  late TextEditingController _fajr;
-  late TextEditingController _dhuhr;
-  late TextEditingController _asr;
-  late TextEditingController _maghrib;
-  late TextEditingController _isha;
-  late TextEditingController _jumuah;
+  final TextEditingController _fajr = TextEditingController();
+  final TextEditingController _dhuhr = TextEditingController();
+  final TextEditingController _asr = TextEditingController();
+  final TextEditingController _maghrib = TextEditingController();
+  final TextEditingController _isha = TextEditingController();
+  final TextEditingController _jumuah = TextEditingController();
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    final existing = context.settings.iqamaTimes;
-    _fajr = TextEditingController(text: existing?.fajr ?? '');
-    _dhuhr = TextEditingController(text: existing?.dhuhr ?? '');
-    _asr = TextEditingController(text: existing?.asr ?? '');
-    _maghrib = TextEditingController(text: existing?.maghrib ?? '');
-    _isha = TextEditingController(text: existing?.isha ?? '');
-    _jumuah = TextEditingController(text: existing?.jumuah ?? '');
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      final existing = context.settings.iqamaTimes;
+      _fajr.text = existing?.fajr ?? '';
+      _dhuhr.text = existing?.dhuhr ?? '';
+      _asr.text = existing?.asr ?? '';
+      _maghrib.text = existing?.maghrib ?? '';
+      _isha.text = existing?.isha ?? '';
+      _jumuah.text = existing?.jumuah ?? '';
+    }
   }
 
   @override

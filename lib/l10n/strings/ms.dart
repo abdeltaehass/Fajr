@@ -97,4 +97,8 @@ class MalayStrings extends AppStrings {
   @override String get adhanNotification => 'Notifikasi Azan';
   @override String get preReminderNotif => 'Peringatan 30 Minit Sebelum Solat';
   @override String get notifPermDenied => 'Aktifkan pemberitahuan di Tetapan iPhone untuk menerima amaran solat';
+
+  @override String get upNext => 'Seterusnya';
+  @override String get remaining => 'lagi';
+  @override String get offlineData => 'Memaparkan waktu terkini — tiada sambungan';
 }

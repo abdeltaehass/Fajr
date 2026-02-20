@@ -97,4 +97,8 @@ class UrduStrings extends AppStrings {
   @override String get adhanNotification => 'اذان کا اطلاع';
   @override String get preReminderNotif => '30 منٹ پہلے یاددہانی';
   @override String get notifPermDenied => 'نماز کے اطلاعات کے لیے iPhone ترتیبات میں اطلاعات فعال کریں';
+
+  @override String get upNext => 'اگلا';
+  @override String get remaining => 'باقی';
+  @override String get offlineData => 'آخری محفوظ اوقات — انٹرنیٹ نہیں';
 }

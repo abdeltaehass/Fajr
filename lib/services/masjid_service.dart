@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import '../config/api_keys.dart';
@@ -20,9 +22,14 @@ class MasjidService {
       '&key=${ApiKeys.googlePlaces}',
     );
 
-    final response = await http.get(uri).timeout(
-      const Duration(seconds: 15),
-    );
+    final http.Response response;
+    try {
+      response = await http.get(uri).timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      throw MasjidServiceException('Request timed out. Check your connection.');
+    } on SocketException {
+      throw MasjidServiceException('No internet connection.');
+    }
 
     if (response.statusCode != 200) {
       throw MasjidServiceException(
@@ -63,24 +70,29 @@ class MasjidService {
       '&key=${ApiKeys.googlePlaces}',
     );
 
-    final response = await http.get(uri).timeout(
-      const Duration(seconds: 15),
-    );
+    final http.Response detailResponse;
+    try {
+      detailResponse = await http.get(uri).timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      throw MasjidServiceException('Request timed out. Check your connection.');
+    } on SocketException {
+      throw MasjidServiceException('No internet connection.');
+    }
 
-    if (response.statusCode != 200) {
+    if (detailResponse.statusCode != 200) {
       throw MasjidServiceException(
-        'API returned status ${response.statusCode}',
+        'API returned status ${detailResponse.statusCode}',
       );
     }
 
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    final json = jsonDecode(detailResponse.body) as Map<String, dynamic>;
     final status = json['status'] as String;
 
     if (status != 'OK') {
       throw MasjidServiceException('Places API error: $status');
     }
 
-    final result = json['result'] as Map<String, dynamic>;
+    final result = (json['result'] ?? {}) as Map<String, dynamic>;
     final photos = result['photos'] as List<dynamic>? ?? [];
     final hours = result['opening_hours']?['weekday_text'] as List<dynamic>? ?? [];
 
@@ -90,7 +102,7 @@ class MasjidService {
       openingHours: hours.map((h) => h as String).toList(),
       photoReferences: photos.isNotEmpty
           ? photos.map((p) => p['photo_reference'] as String).toList()
-          : null,
+          : const [],
     );
   }
 

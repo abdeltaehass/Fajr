@@ -85,7 +85,7 @@ class NextPrayerBanner extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'remaining',
+            context.strings.remaining,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],

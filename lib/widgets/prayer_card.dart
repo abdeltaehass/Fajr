@@ -56,7 +56,7 @@ class PrayerCard extends StatelessWidget {
                 ),
                 if (isNext)
                   Text(
-                    'Up next',
+                    context.strings.upNext,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: c.accent,
                         ),

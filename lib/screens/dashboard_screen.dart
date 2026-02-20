@@ -319,7 +319,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         size: 15, color: c.accentLight),
                     const SizedBox(width: 6),
                     Text(
-                      'Showing last saved times — no connection',
+                      context.strings.offlineData,
                       style: TextStyle(
                           color: c.accentLight,
                           fontSize: 12,

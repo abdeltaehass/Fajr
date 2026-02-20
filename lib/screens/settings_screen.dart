@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../data/reciter_list.dart';
+import '../models/quran_reciter.dart';
 import '../services/notification_service.dart';
 import '../settings/app_colors.dart';
 import '../settings/app_settings.dart';
@@ -440,7 +441,7 @@ class _LanguageTile extends StatelessWidget {
 }
 
 class _ReciterTile extends StatelessWidget {
-  final dynamic reciter;
+  final QuranReciter reciter;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -477,7 +478,7 @@ class _ReciterTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    reciter.name as String,
+                    reciter.name,
                     style: GoogleFonts.poppins(
                       color: isSelected ? c.accent : c.bodyText,
                       fontSize: 14,
@@ -486,7 +487,7 @@ class _ReciterTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    reciter.arabicName as String,
+                    reciter.arabicName,
                     style: GoogleFonts.amiri(
                       color: (isSelected ? c.accent : c.accentLight)
                           .withValues(alpha: 0.8),
