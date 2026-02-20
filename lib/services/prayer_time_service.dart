@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/prayer_times.dart';
 
@@ -19,9 +21,14 @@ class PrayerTimeService {
       '&method=$method',
     );
 
-    final response = await http.get(uri).timeout(
-      const Duration(seconds: 15),
-    );
+    final http.Response response;
+    try {
+      response = await http.get(uri).timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      throw PrayerTimeServiceException('503');
+    } on SocketException {
+      throw PrayerTimeServiceException('503');
+    }
 
     if (response.statusCode != 200) {
       throw PrayerTimeServiceException(
