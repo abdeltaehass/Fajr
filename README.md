@@ -24,10 +24,11 @@ An Islamic prayer times app built with Flutter. Displays accurate salah times ba
 - Bismillah header displayed automatically (except Al-Fatiha and At-Tawbah)
 - Toggle translation on/off per surah
 - Long-press any verse to copy Arabic and translation to clipboard
-- **Audio recitation** by Mishary Rashid Al-Afasy
+- **Audio recitation** with 7 selectable reciters (choose in Settings)
+  - Mishary Rashid Al-Afasy, Abdul Rahman Al-Sudais, Mahmoud Khalil Al-Husary, Mohamed Siddiq El-Minshawi, Abu Bakr Al-Shatri, Maher Al-Muaiqly, Muhammad Jibreel
   - Play a full surah from the AppBar
   - Tap the play icon on any verse to hear that verse individually
-  - Sticky audio bar with play/pause/stop controls
+  - Sticky audio bar with play/pause/stop controls and reciter name
   - Currently playing verse highlighted in the list
 
 ### Hadith of the Day
@@ -54,10 +55,17 @@ An Islamic prayer times app built with Flutter. Displays accurate salah times ba
 - **Iqama times**: manually enter iqama times for each prayer (Fajr, Dhuhr, Asr, Maghrib, Isha, Jumu'ah) with a time picker — saved persistently
 - **Masjid events**: add custom events with title, date/time, and optional description; upcoming events sorted chronologically and persisted
 
+### Notifications
+- **Adhan notification**: receive an alert at each prayer time (toggleable)
+- **30-min pre-prayer reminder**: get notified 30 minutes before each prayer (toggleable)
+- Notifications are scheduled from your live prayer times each time you open the app
+- Permissions requested on first enable; guidance shown if denied
+
 ### Settings & Customization
 - **Color Themes**: Green, Blue, Black, White, Pink, Yellow, Purple
 - **Seasonal Themes**: Normal, Ramadan, Eid, Hajj, Laylatul Qadr
 - **Language Support**: English, Arabic, French, Turkish, Urdu, Malay
+- **Quran Reciter**: choose from 7 reciters for audio playback
 - RTL layout support for Arabic and Urdu
 
 ### Navigation
@@ -95,4 +103,4 @@ flutter run
 - **Prayer Times**: [Aladhan API](https://aladhan.com/prayer-times-api) (ISNA calculation method)
 - **Nearby Masjids**: [Google Places API](https://developers.google.com/maps/documentation/places/web-service)
 - **Quran Text**: [AlQuran Cloud API](https://alquran.cloud/api) — `quran-uthmani` (Arabic) + `en.sahih` (Sahih International)
-- **Quran Audio**: [Islamic Network CDN](https://cdn.islamic.network) — Mishary Rashid Al-Afasy, 128 kbps
+- **Quran Audio**: [Islamic Network CDN](https://cdn.islamic.network) — 7 reciters, 128 kbps
