@@ -142,6 +142,16 @@ class _DashboardScreenState extends State<DashboardScreen>
       });
       _determineNextPrayer();
       _startCountdown();
+      // GPS works without internet — fetch location in background for compass
+      if (_latitude == null || _longitude == null) {
+        _locationService.getCurrentPosition().then((pos) {
+          if (!mounted) return;
+          setState(() {
+            _latitude = pos.latitude;
+            _longitude = pos.longitude;
+          });
+        }).catchError((_) {});
+      }
       return true;
     } catch (_) {
       return false;
