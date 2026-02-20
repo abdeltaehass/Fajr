@@ -78,7 +78,11 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       // Persist for offline use
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_cacheKey, jsonEncode(prayerTimes.toJson()));
+      await Future.wait([
+        prefs.setString(_cacheKey, jsonEncode(prayerTimes.toJson())),
+        prefs.setDouble('cachedLat', position.latitude),
+        prefs.setDouble('cachedLng', position.longitude),
+      ]);
 
       setState(() {
         _prayerTimes = prayerTimes;
@@ -128,6 +132,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       if (raw == null || !mounted) return false;
       final cached = PrayerTimesResponse.fromCached(
           jsonDecode(raw) as Map<String, dynamic>);
+      _latitude = prefs.getDouble('cachedLat');
+      _longitude = prefs.getDouble('cachedLng');
       setState(() {
         _prayerTimes = cached;
         _isUsingCachedData = true;
