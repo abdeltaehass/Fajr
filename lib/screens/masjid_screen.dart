@@ -27,12 +27,16 @@ class _MasjidScreenState extends State<MasjidScreen> {
   String? _errorMessage;
   List<Masjid> _masjids = [];
   PrayerTimings? _myMasjidPrayerTimings;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _loadMasjids();
-    _loadMyMasjidPrayerTimes();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _loadMasjids();
+      _loadMyMasjidPrayerTimes();
+    }
   }
 
   Future<void> _loadMasjids() async {

@@ -396,8 +396,8 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Widget _buildContent(dynamic c, dynamic s, Color textColor) {
     final ayahs = _content!.ayahs;
-    // If showing bismillah header and verse 1 starts with bismillah text,
-    // strip it from the display (we show it in the header card above).
+    // Strip bismillah from verse 1's display text — it's already shown in the
+    // header above, and the audio recording for verse 1 does not recite it.
     String? firstAyahStripped;
     if (_showBismillah && ayahs.isNotEmpty && ayahs[0].arabic.startsWith('بِسْمِ')) {
       final stripped = ayahs[0].arabic
