@@ -93,13 +93,19 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Future<void> _playVerse(Ayah ayah) async {
-    final id = context.settings.reciterId;
-    await _audioPlayer
-        .play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
-    setState(() {
-      _playingVerseNumber = ayah.number;
-      _isPlayingSurah = false;
-    });
+    if (!mounted) return;
+    try {
+      final id = context.settings.reciterId;
+      await _audioPlayer
+          .play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
+      if (!mounted) return;
+      setState(() {
+        _playingVerseNumber = ayah.number;
+        _isPlayingSurah = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
+    }
   }
 
   Future<void> _togglePlayPause() async {
