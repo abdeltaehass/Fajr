@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/iqama_times.dart';
 import '../models/masjid_event.dart';
+import '../models/prayer_times.dart';
 import '../settings/settings_provider.dart';
 
 class IqamaTimesSheet extends StatefulWidget {
-  const IqamaTimesSheet({super.key});
+  final PrayerTimings? prayerTimings;
+  const IqamaTimesSheet({super.key, this.prayerTimings});
 
   @override
   State<IqamaTimesSheet> createState() => _IqamaTimesSheetState();
@@ -20,18 +22,48 @@ class _IqamaTimesSheetState extends State<IqamaTimesSheet> {
   final TextEditingController _jumuah = TextEditingController();
   bool _initialized = false;
 
+  // Parse "HH:mm" (24h), add offsetMinutes, round to nearest 5, return "h:mm AM/PM"
+  String _calcIqama(String raw, int offsetMinutes) {
+    final clean = raw.split(' ').first; // strip any suffix like "(EST)"
+    final parts = clean.split(':');
+    if (parts.length < 2) return '';
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final total = h * 60 + m + offsetMinutes;
+    final rawH = (total ~/ 60) % 24;
+    final rawM = total % 60;
+    // Round to nearest 5 minutes
+    final rounded = ((rawM + 2) ~/ 5) * 5;
+    final carry = rounded ~/ 60;
+    final finalH = (rawH + carry) % 24;
+    final finalM = rounded % 60;
+    final period = finalH < 12 ? 'AM' : 'PM';
+    final displayH = finalH % 12 == 0 ? 12 : finalH % 12;
+    return '$displayH:${finalM.toString().padLeft(2, '0')} $period';
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
       _initialized = true;
       final existing = context.settings.iqamaTimes;
-      _fajr.text = existing?.fajr ?? '';
-      _dhuhr.text = existing?.dhuhr ?? '';
-      _asr.text = existing?.asr ?? '';
-      _maghrib.text = existing?.maghrib ?? '';
-      _isha.text = existing?.isha ?? '';
-      _jumuah.text = existing?.jumuah ?? '';
+      final pt = widget.prayerTimings;
+      if (existing != null) {
+        // Use saved times
+        _fajr.text = existing.fajr;
+        _dhuhr.text = existing.dhuhr;
+        _asr.text = existing.asr;
+        _maghrib.text = existing.maghrib;
+        _isha.text = existing.isha;
+        _jumuah.text = existing.jumuah;
+      } else if (pt != null) {
+        // Auto-calculate from prayer times
+        _dhuhr.text = _calcIqama(pt.dhuhr, 60);
+        _asr.text = _calcIqama(pt.asr, 60);
+        _isha.text = _calcIqama(pt.isha, 40);
+        // Fajr, Maghrib, Jumuah left empty for user to set
+      }
     }
   }
 

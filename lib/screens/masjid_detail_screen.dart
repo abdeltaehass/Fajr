@@ -193,7 +193,7 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const IqamaTimesSheet(),
+      builder: (_) => IqamaTimesSheet(prayerTimings: _prayerTimings),
     ).then((_) => setState(() {}));
   }
 
