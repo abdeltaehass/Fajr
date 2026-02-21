@@ -395,10 +395,15 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Widget _buildContent(dynamic c, dynamic s, Color textColor) {
-    var ayahs = _content!.ayahs;
-    // Skip the first ayah if it contains the bismillah and we're already showing the header
+    final ayahs = _content!.ayahs;
+    // If showing bismillah header and verse 1 starts with bismillah text,
+    // strip it from the display (we show it in the header card above).
+    String? firstAyahStripped;
     if (_showBismillah && ayahs.isNotEmpty && ayahs[0].arabic.startsWith('بِسْمِ')) {
-      ayahs = ayahs.sublist(1);
+      final stripped = ayahs[0].arabic
+          .replaceFirst(RegExp(r'^بِسْمِ.*?الرَّحِيمِ\s*'), '')
+          .trim();
+      if (stripped.isNotEmpty) firstAyahStripped = stripped;
     }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -410,8 +415,10 @@ class _SurahScreenState extends State<SurahScreen> {
         final ayah = _showBismillah ? ayahs[index - 1] : ayahs[index];
         final isThisPlaying =
             _isPlaying && _playingVerseNumber == ayah.number;
+        final isFirst = _showBismillah ? index == 1 : index == 0;
         return _AyahTile(
           ayah: ayah,
+          displayArabic: (isFirst && firstAyahStripped != null) ? firstAyahStripped : null,
           showTranslation: _showTranslation,
           isPlaying: isThisPlaying,
           c: c,
@@ -450,6 +457,7 @@ class _BismillahHeader extends StatelessWidget {
 
 class _AyahTile extends StatelessWidget {
   final Ayah ayah;
+  final String? displayArabic;
   final bool showTranslation;
   final bool isPlaying;
   final dynamic c;
@@ -458,6 +466,7 @@ class _AyahTile extends StatelessWidget {
 
   const _AyahTile({
     required this.ayah,
+    this.displayArabic,
     required this.showTranslation,
     required this.isPlaying,
     required this.c,
@@ -547,7 +556,7 @@ class _AyahTile extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              ayah.arabic,
+              displayArabic ?? ayah.arabic,
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
               style: GoogleFonts.amiri(
