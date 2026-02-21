@@ -98,6 +98,13 @@ class FrenchStrings extends AppStrings {
   @override String get preReminderNotif => 'Rappel 30 min avant la prière';
   @override String get notifPermDenied => 'Activez les notifications dans les paramètres iPhone pour recevoir les alertes de prière';
 
+  @override String get prayerFajr => 'Fajr';
+  @override String get prayerSunrise => 'Lever du soleil';
+  @override String get prayerDhuhr => 'Dhohr';
+  @override String get prayerAsr => 'Asr';
+  @override String get prayerMaghrib => 'Maghrib';
+  @override String get prayerIsha => 'Isha';
+
   @override String get upNext => 'Suivant';
   @override String get remaining => 'restant';
   @override String get offlineData => 'Derniers horaires enregistrés — pas de connexion';

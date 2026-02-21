@@ -98,6 +98,13 @@ class EnglishStrings extends AppStrings {
   @override String get preReminderNotif => '30-Min Pre-Prayer Reminder';
   @override String get notifPermDenied => 'Enable notifications in iPhone Settings to receive prayer alerts';
 
+  @override String get prayerFajr => 'Fajr';
+  @override String get prayerSunrise => 'Sunrise';
+  @override String get prayerDhuhr => 'Dhuhr';
+  @override String get prayerAsr => 'Asr';
+  @override String get prayerMaghrib => 'Maghrib';
+  @override String get prayerIsha => 'Isha';
+
   @override String get upNext => 'Up next';
   @override String get remaining => 'remaining';
   @override String get offlineData => 'Showing last saved times — no connection';

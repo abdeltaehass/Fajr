@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_strings.dart';
 
 class PrayerTimesResponse {
   final PrayerTimings timings;
@@ -113,6 +114,18 @@ class PrayerEntry {
       int.parse(parts[0]),
       int.parse(parts[1]),
     );
+  }
+
+  String localizedName(AppStrings s) {
+    switch (name) {
+      case 'Fajr': return s.prayerFajr;
+      case 'Sunrise': return s.prayerSunrise;
+      case 'Dhuhr': return s.prayerDhuhr;
+      case 'Asr': return s.prayerAsr;
+      case 'Maghrib': return s.prayerMaghrib;
+      case 'Isha': return s.prayerIsha;
+      default: return name;
+    }
   }
 }
 

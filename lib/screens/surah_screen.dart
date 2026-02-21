@@ -35,8 +35,6 @@ class _SurahScreenState extends State<SurahScreen> {
 
   static const String _cdnVerseBase =
       'https://cdn.islamic.network/quran/audio/128';
-  static const String _cdnSurahBase =
-      'https://cdn.islamic.network/quran/audio-surah/128';
 
   @override
   void initState() {
@@ -90,14 +88,8 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Future<void> _playSurah() async {
-    final id = context.settings.reciterId;
-    final paddedNumber = widget.surahInfo.number.toString().padLeft(3, '0');
-    await _audioPlayer
-        .play(UrlSource('$_cdnSurahBase/$id/$paddedNumber.mp3'));
-    setState(() {
-      _isPlayingSurah = true;
-      _playingVerseNumber = null;
-    });
+    if (_content == null || _content!.ayahs.isEmpty) return;
+    await _playVerse(_content!.ayahs[0]);
   }
 
   Future<void> _playVerse(Ayah ayah) async {
@@ -224,9 +216,7 @@ class _SurahScreenState extends State<SurahScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  _isPlaying && _isPlayingSurah
-                      ? Icons.pause
-                      : Icons.play_arrow,
+                  _isPlaying ? Icons.pause : Icons.play_arrow,
                   color: c.accent,
                   size: 22,
                 ),

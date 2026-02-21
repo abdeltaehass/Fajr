@@ -49,7 +49,7 @@ class PrayerCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  prayer.name,
+                  prayer.localizedName(context.strings),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: isNext ? highEmphasis : c.bodyText,
                       ),

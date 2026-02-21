@@ -113,6 +113,14 @@ abstract class AppStrings {
   String get preReminderNotif;
   String get notifPermDenied;
 
+  // Prayer names
+  String get prayerFajr;
+  String get prayerSunrise;
+  String get prayerDhuhr;
+  String get prayerAsr;
+  String get prayerMaghrib;
+  String get prayerIsha;
+
   // Dashboard misc
   String get upNext;
   String get remaining;

@@ -355,7 +355,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
             // Next prayer banner
             NextPrayerBanner(
-              prayerName: nextPrayer.name,
+              prayerName: nextPrayer.localizedName(context.strings),
               prayerTime: nextPrayer.time,
               timeRemaining: _timeUntilNext,
             ),
