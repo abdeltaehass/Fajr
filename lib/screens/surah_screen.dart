@@ -398,12 +398,28 @@ class _SurahScreenState extends State<SurahScreen> {
     final ayahs = _content!.ayahs;
     // Strip bismillah from verse 1's display text — it's already shown in the
     // header above, and the audio recording for verse 1 does not recite it.
+    // The API uses Uthmani Unicode (ٱ, ۡ) which differs from standard Arabic,
+    // so we normalize diacritics before checking, then match through first حيم.
     String? firstAyahStripped;
-    if (_showBismillah && ayahs.isNotEmpty && ayahs[0].arabic.startsWith('بِسْمِ')) {
-      final stripped = ayahs[0].arabic
-          .replaceFirst(RegExp(r'^بِسْمِ.*?الرَّحِيمِ\s*'), '')
-          .trim();
-      if (stripped.isNotEmpty) firstAyahStripped = stripped;
+    if (_showBismillah && ayahs.isNotEmpty) {
+      final arabic = ayahs[0].arabic;
+      final bare = arabic
+          .replaceAll(RegExp(r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]'), '')
+          .replaceAll('ٱ', 'ا');
+      if (bare.startsWith('بسم الله')) {
+        final stripped = arabic
+            .replaceFirst(
+              RegExp(
+                r'^.+?ح[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*'
+                r'ي[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*'
+                r'م[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*\s*',
+                dotAll: true,
+              ),
+              '',
+            )
+            .trim();
+        if (stripped.isNotEmpty) firstAyahStripped = stripped;
+      }
     }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
