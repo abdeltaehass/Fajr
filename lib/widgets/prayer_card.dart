@@ -13,18 +13,19 @@ class PrayerCard extends StatelessWidget {
     required this.isNext,
   });
 
-  String get _formattedTime {
+  String _formattedTime(String locale) {
     final parts = prayer.time.split(':');
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
     final dt = DateTime(2000, 1, 1, hour, minute);
-    return DateFormat.jm().format(dt);
+    return DateFormat.jm(locale).format(dt);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final highEmphasis = c.isLight ? c.scaffold : Colors.white;
+    final locale = context.settings.locale.toLanguageTag();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -65,7 +66,7 @@ class PrayerCard extends StatelessWidget {
             ),
           ),
           Text(
-            _formattedTime,
+            _formattedTime(locale),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontSize: 18,
                   color: isNext ? c.accent : highEmphasis,

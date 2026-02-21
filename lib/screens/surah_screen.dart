@@ -246,7 +246,7 @@ class _SurahScreenState extends State<SurahScreen> {
         : '${s.verse} $_playingVerseNumber';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       decoration: BoxDecoration(
         color: c.card,
         border:
@@ -254,8 +254,8 @@ class _SurahScreenState extends State<SurahScreen> {
       ),
       child: Row(
         children: [
-          Icon(Icons.headphones, size: 18, color: c.accent),
-          const SizedBox(width: 10),
+          Icon(Icons.headphones, size: 24, color: c.accent),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +264,7 @@ class _SurahScreenState extends State<SurahScreen> {
                 Text(
                   label,
                   style: GoogleFonts.poppins(
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: textColor,
                   ),
@@ -274,7 +274,7 @@ class _SurahScreenState extends State<SurahScreen> {
                 Text(
                   reciterById(context.settings.reciterId).name,
                   style: GoogleFonts.poppins(
-                    fontSize: 10,
+                    fontSize: 13,
                     color: textColor.withValues(alpha: 0.5),
                   ),
                 ),
@@ -285,20 +285,20 @@ class _SurahScreenState extends State<SurahScreen> {
             GestureDetector(
               onTap: _playPreviousVerse,
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: c.accent.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.skip_previous, color: c.accent, size: 20),
+                child: Icon(Icons.skip_previous, color: c.accent, size: 26),
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
           ],
           GestureDetector(
             onTap: _togglePlayPause,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: c.accent.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
@@ -306,34 +306,34 @@ class _SurahScreenState extends State<SurahScreen> {
               child: Icon(
                 _isPlaying ? Icons.pause : Icons.play_arrow,
                 color: c.accent,
-                size: 20,
+                size: 26,
               ),
             ),
           ),
           if (!_isPlayingSurah) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: _playNextVerse,
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: c.accent.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.skip_next, color: c.accent, size: 20),
+                child: Icon(Icons.skip_next, color: c.accent, size: 26),
               ),
             ),
           ],
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: _stop,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.red.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.stop, color: Colors.red, size: 20),
+              child: const Icon(Icons.stop, color: Colors.red, size: 26),
             ),
           ),
         ],
@@ -395,7 +395,11 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Widget _buildContent(dynamic c, dynamic s, Color textColor) {
-    final ayahs = _content!.ayahs;
+    var ayahs = _content!.ayahs;
+    // Skip the first ayah if it contains the bismillah and we're already showing the header
+    if (_showBismillah && ayahs.isNotEmpty && ayahs[0].arabic.startsWith('بِسْمِ')) {
+      ayahs = ayahs.sublist(1);
+    }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       itemCount: ayahs.length + (_showBismillah ? 1 : 0),

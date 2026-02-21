@@ -15,17 +15,18 @@ class NextPrayerBanner extends StatelessWidget {
     required this.timeRemaining,
   });
 
-  String get _formattedTime {
+  String _formattedTime(String locale) {
     final parts = prayerTime.split(':');
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
     final dt = DateTime(2000, 1, 1, hour, minute);
-    return DateFormat.jm().format(dt);
+    return DateFormat.jm(locale).format(dt);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final locale = context.settings.locale.toLanguageTag();
     final hours = timeRemaining.inHours;
     final minutes = timeRemaining.inMinutes.remainder(60);
     final seconds = timeRemaining.inSeconds.remainder(60);
@@ -65,7 +66,7 @@ class NextPrayerBanner extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            _formattedTime,
+            _formattedTime(locale),
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.w500,
