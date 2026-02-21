@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../settings/settings_provider.dart';
+import '../models/iqama_times.dart';
 import '../models/masjid.dart';
 import '../models/prayer_times.dart';
 import '../services/masjid_service.dart';
@@ -188,15 +189,6 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
     );
   }
 
-  void _openIqamaSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => IqamaTimesSheet(prayerTimings: _prayerTimings),
-    ).then((_) => setState(() {}));
-  }
-
   void _openAddEventSheet() {
     showModalBottomSheet(
       context: context,
@@ -206,70 +198,251 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
     ).then((_) => setState(() {}));
   }
 
-  Widget _buildIqamaSection(dynamic c, dynamic s, Color textColor) {
+  static String _to12h(String raw) {
+    final parts = raw.split(':');
+    if (parts.length < 2) return raw;
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final period = h < 12 ? 'AM' : 'PM';
+    final displayH = h % 12 == 0 ? 12 : h % 12;
+    return '$displayH:${m.toString().padLeft(2, '0')} $period';
+  }
+
+  String _calcIqama(String raw24, int offsetMinutes) {
+    final parts = raw24.split(':');
+    if (parts.length < 2) return '';
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final total = h * 60 + m + offsetMinutes;
+    final rawH = (total ~/ 60) % 24;
+    final rawM = total % 60;
+    final rounded = ((rawM + 2) ~/ 5) * 5;
+    final carry = rounded ~/ 60;
+    final finalH = (rawH + carry) % 24;
+    final finalM = rounded % 60;
+    final period = finalH < 12 ? 'AM' : 'PM';
+    final displayH = finalH % 12 == 0 ? 12 : finalH % 12;
+    return '$displayH:${finalM.toString().padLeft(2, '0')} $period';
+  }
+
+  TimeOfDay _roundTo5(TimeOfDay t) {
+    final rounded = ((t.minute + 2) ~/ 5) * 5;
+    final carry = rounded ~/ 60;
+    return TimeOfDay(hour: (t.hour + carry) % 24, minute: rounded % 60);
+  }
+
+  TimeOfDay _parseTime12h(String text) {
+    try {
+      final parts = text.trim().split(' ');
+      final hm = parts[0].split(':');
+      int h = int.parse(hm[0]);
+      final m = int.parse(hm[1]);
+      if (parts.length > 1) {
+        if (parts[1] == 'PM' && h != 12) h += 12;
+        if (parts[1] == 'AM' && h == 12) h = 0;
+      }
+      return TimeOfDay(hour: h % 24, minute: m);
+    } catch (_) {
+      return TimeOfDay.now();
+    }
+  }
+
+  Future<void> _pickIqamaTime(String field, String currentValue) async {
+    final initial =
+        currentValue.isEmpty ? TimeOfDay.now() : _parseTime12h(currentValue);
+    final picked =
+        await showTimePicker(context: context, initialTime: initial);
+    if (picked == null || !mounted) return;
+    final rounded = _roundTo5(picked);
+    final timeStr = rounded.format(context);
+    final existing = context.settings.iqamaTimes ?? const IqamaTimes();
+    final updated = IqamaTimes(
+      fajr: field == 'fajr' ? timeStr : existing.fajr,
+      dhuhr: field == 'dhuhr' ? timeStr : existing.dhuhr,
+      asr: field == 'asr' ? timeStr : existing.asr,
+      maghrib: field == 'maghrib' ? timeStr : existing.maghrib,
+      isha: field == 'isha' ? timeStr : existing.isha,
+      jumuah: field == 'jumuah' ? timeStr : existing.jumuah,
+    );
+    await context.settings.setIqamaTimes(updated);
+    setState(() {});
+  }
+
+  Widget _buildPrayerScheduleSection(dynamic c, dynamic s, Color textColor) {
+    final pt = _prayerTimings;
     final iqama = context.settings.iqamaTimes;
-    final prayers = iqama == null
-        ? <MapEntry<String, String>>[]
-        : [
-            MapEntry('Fajr', iqama.fajr),
-            MapEntry('Dhuhr', iqama.dhuhr),
-            MapEntry('Asr', iqama.asr),
-            MapEntry('Maghrib', iqama.maghrib),
-            MapEntry('Isha', iqama.isha),
-            MapEntry(s.jumuah, iqama.jumuah),
-          ].where((e) => e.value.isNotEmpty).toList();
+    final showIqama = _isSelected;
+
+    // Effective iqama: saved > auto-calc > ''
+    final iqamaFajr = iqama?.fajr ?? '';
+    final iqamaDhuhr = (iqama?.dhuhr.isNotEmpty ?? false)
+        ? iqama!.dhuhr
+        : (pt != null ? _calcIqama(pt.dhuhr, 60) : '');
+    final iqamaAsr = (iqama?.asr.isNotEmpty ?? false)
+        ? iqama!.asr
+        : (pt != null ? _calcIqama(pt.asr, 25) : '');
+    final iqamaMaghrib = iqama?.maghrib ?? '';
+    final iqamaIsha = (iqama?.isha.isNotEmpty ?? false)
+        ? iqama!.isha
+        : (pt != null ? _calcIqama(pt.isha, 40) : '');
+    final iqamaJumuah = iqama?.jumuah ?? '';
+
+    // (label, adhan raw24 or null, field key, iqama value)
+    final rows = <(String, String?, String, String)>[
+      if (pt != null) ...[
+        (s.prayerFajr, pt.fajr, 'fajr', iqamaFajr),
+        (s.prayerDhuhr, pt.dhuhr, 'dhuhr', iqamaDhuhr),
+        (s.prayerAsr, pt.asr, 'asr', iqamaAsr),
+        (s.prayerMaghrib, pt.maghrib, 'maghrib', iqamaMaghrib),
+        (s.prayerIsha, pt.isha, 'isha', iqamaIsha),
+      ],
+      if (showIqama) (s.jumuah, null, 'jumuah', iqamaJumuah),
+    ];
+
+    if (!showIqama && pt == null) return const SizedBox.shrink();
 
     return _DetailSection(
       icon: Icons.access_time_filled,
-      title: s.iqamaTimes,
-      trailing: GestureDetector(
-        onTap: _openIqamaSheet,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: c.accent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            s.setIqamaTimes,
-            style: GoogleFonts.poppins(
-                fontSize: 11, fontWeight: FontWeight.w600, color: c.accent),
-          ),
-        ),
-      ),
-      child: prayers.isEmpty
-          ? Text(
-              '—',
-              style: GoogleFonts.poppins(
-                  fontSize: 13, color: textColor.withValues(alpha: 0.4)),
+      title: s.masjidPrayerTimes,
+      trailing: showIqama && iqama != null
+          ? GestureDetector(
+              onTap: () async {
+                await context.settings.clearIqamaTimes();
+                setState(() {});
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: c.accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'Reset',
+                  style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: c.accent),
+                ),
+              ),
+            )
+          : null,
+      child: pt == null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child:
+                    CircularProgressIndicator(color: c.accent, strokeWidth: 2),
+              ),
             )
           : Column(
-              children: prayers
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Text(
-                              e.key,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: textColor.withValues(alpha: 0.8),
-                              ),
+              children: [
+                if (showIqama)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 90),
+                        Expanded(
+                          child: Text(
+                            'Adhan',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: textColor.withValues(alpha: 0.4),
                             ),
-                            const Spacer(),
-                            Text(
-                              e.value,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: c.accent,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ))
-                  .toList(),
+                        SizedBox(
+                          width: 104,
+                          child: Text(
+                            'Iqama',
+                            textAlign: TextAlign.right,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: textColor.withValues(alpha: 0.4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ...rows.map((row) {
+                  final (label, adhan24, field, iqamaVal) = row;
+                  final adhanStr =
+                      adhan24 != null ? _to12h(adhan24) : '—';
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 90,
+                          child: Text(
+                            label,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: textColor.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            adhanStr,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: adhan24 != null
+                                  ? c.accent
+                                  : textColor.withValues(alpha: 0.3),
+                            ),
+                          ),
+                        ),
+                        if (showIqama)
+                          GestureDetector(
+                            onTap: () => _pickIqamaTime(field, iqamaVal),
+                            child: Container(
+                              width: 104,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: c.accent.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: c.accent.withValues(alpha: 0.2)),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      iqamaVal.isEmpty ? 'Tap' : iqamaVal,
+                                      textAlign: TextAlign.right,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: iqamaVal.isEmpty
+                                            ? textColor.withValues(alpha: 0.3)
+                                            : c.accent,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 10,
+                                    color: c.accent.withValues(alpha: 0.5),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
             ),
     );
   }
@@ -552,51 +725,14 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                   _buildMyMasjidButton(c, s, textColor),
                   const SizedBox(height: 16),
 
-                  // Iqama times & events (only when this is My Masjid)
+                  // Combined prayer schedule (adhan + iqama)
+                  _buildPrayerScheduleSection(c, s, textColor),
+                  const SizedBox(height: 16),
+
+                  // Events (only when this is My Masjid)
                   if (_isSelected) ...[
-                    _buildIqamaSection(c, s, textColor),
-                    const SizedBox(height: 16),
                     _buildEventsSection(c, s, textColor),
                     const SizedBox(height: 16),
-                  ],
-
-                  // Prayer times
-                  if (_prayerTimings != null) ...[
-                    _DetailSection(
-                      icon: Icons.access_time,
-                      title: s.masjidPrayerTimes,
-                      child: Column(
-                        children: _prayerTimings!.dailyPrayers.map((prayer) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                Icon(prayer.icon, size: 18, color: c.accent),
-                                const SizedBox(width: 10),
-                                Text(
-                                  prayer.name,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: textColor.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  prayer.time,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: c.accent,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                   ],
 
                   // Address
