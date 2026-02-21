@@ -60,7 +60,7 @@ class _IqamaTimesSheetState extends State<IqamaTimesSheet> {
       } else if (pt != null) {
         // Auto-calculate from prayer times
         _dhuhr.text = _calcIqama(pt.dhuhr, 60);
-        _asr.text = _calcIqama(pt.asr, 60);
+        _asr.text = _calcIqama(pt.asr, 25);
         _isha.text = _calcIqama(pt.isha, 40);
         // Fajr, Maghrib, Jumuah left empty for user to set
       }
