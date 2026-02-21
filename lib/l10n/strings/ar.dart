@@ -98,6 +98,7 @@ class ArabicStrings extends AppStrings {
   @override String get adhanNotification => 'إشعار الأذان';
   @override String get preReminderNotif => 'تذكير قبل ٣٠ دقيقة';
   @override String get notifPermDenied => 'يرجى تفعيل الإشعارات من الإعدادات لاستقبال تنبيهات الصلاة';
+  @override String get athkarReminders => 'تذكيرات الأذكار';
 
   @override String get prayerFajr => 'الفجر';
   @override String get prayerSunrise => 'الشروق';

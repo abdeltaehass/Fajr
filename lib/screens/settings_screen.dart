@@ -90,6 +90,52 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
+            // Athkar Reminders Section
+            _SectionHeader(title: s.athkarReminders),
+            const SizedBox(height: 12),
+            ...[
+              ('morning',     Icons.wb_sunny_outlined,     s.morningAthkar,     '6:00 AM'),
+              ('evening',     Icons.wb_twilight,           s.eveningAthkar,     '5:00 PM'),
+              ('afterPrayer', Icons.self_improvement,      s.afterPrayerAthkar, '1:30 PM'),
+              ('sleep',       Icons.bedtime_outlined,      s.sleepAthkar,       '10:00 PM'),
+            ].map((entry) {
+              final (key, icon, title, time) = entry;
+              final isOn = settings.athkarNotifEnabled.contains(key);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _NotifToggleTile(
+                  icon: icon,
+                  title: '$title  ·  $time',
+                  value: isOn,
+                  onChanged: (val) async {
+                    if (val) {
+                      final granted =
+                          await NotificationService.requestPermissions();
+                      if (!granted && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              s.notifPermDenied,
+                              style: GoogleFonts.poppins(fontSize: 13),
+                            ),
+                            backgroundColor: context.colors.card,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                        );
+                        return;
+                      }
+                    }
+                    await settings.setAthkarNotifEnabled(key, val);
+                    await NotificationService.scheduleAthkarNotifications(
+                        settings.athkarNotifEnabled);
+                  },
+                ),
+              );
+            }),
+            const SizedBox(height: 32),
+
             // Color Theme Section
             _SectionHeader(title: s.colorTheme),
             const SizedBox(height: 16),

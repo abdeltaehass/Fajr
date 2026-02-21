@@ -38,12 +38,19 @@ class NotificationService {
 
   static Future<void> cancelAll() async => _plugin.cancelAll();
 
+  // Cancel only prayer notification IDs (0–59), leaving athkar IDs intact
+  static Future<void> _cancelPrayerNotifications() async {
+    for (int i = 0; i < 60; i++) {
+      await _plugin.cancel(i);
+    }
+  }
+
   static Future<void> schedulePrayerNotifications({
     required List<PrayerNotificationEntry> entries,
     required bool adhanEnabled,
     required bool reminderEnabled,
   }) async {
-    await _plugin.cancelAll();
+    await _cancelPrayerNotifications();
     if (!adhanEnabled && !reminderEnabled) return;
 
     final now = DateTime.now();
@@ -76,6 +83,57 @@ class NotificationService {
 
       if (id >= 60) break;
     }
+  }
+
+  static Future<void> scheduleAthkarNotifications(Set<String> enabled) async {
+    // Athkar use IDs 200–203
+    for (int i = 200; i <= 203; i++) {
+      await _plugin.cancel(i);
+    }
+
+    const configs = [
+      ('morning',    200, 'Morning Athkar',      'Time for Athkar Al-Sabah',       6,  0),
+      ('evening',    201, 'Evening Athkar',       'Time for Athkar Al-Masa',        17, 0),
+      ('afterPrayer',202, 'After Prayer Athkar',  "Time for Athkar Ba'd As-Salah",  13, 30),
+      ('sleep',      203, 'Sleep Athkar',         'Time for Athkar An-Nawm',        22, 0),
+    ];
+
+    for (final (key, id, title, body, hour, minute) in configs) {
+      if (!enabled.contains(key)) continue;
+      await _scheduleDailyAthkar(
+          id: id, title: title, body: body, hour: hour, minute: minute);
+    }
+  }
+
+  static Future<void> _scheduleDailyAthkar({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+  }) async {
+    final now = tz.TZDateTime.now(tz.UTC);
+    var scheduled =
+        tz.TZDateTime(tz.UTC, now.year, now.month, now.day, hour, minute);
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduled,
+      const NotificationDetails(
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: false,
+          presentSound: true,
+        ),
+      ),
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
   }
 
   static Future<void> _schedule({

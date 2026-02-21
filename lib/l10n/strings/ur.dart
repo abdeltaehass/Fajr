@@ -98,6 +98,7 @@ class UrduStrings extends AppStrings {
   @override String get adhanNotification => 'اذان کا اطلاع';
   @override String get preReminderNotif => '30 منٹ پہلے یاددہانی';
   @override String get notifPermDenied => 'نماز کے اطلاعات کے لیے iPhone ترتیبات میں اطلاعات فعال کریں';
+  @override String get athkarReminders => 'اذکار یاددہانی';
 
   @override String get prayerFajr => 'فجر';
   @override String get prayerSunrise => 'طلوع آفتاب';

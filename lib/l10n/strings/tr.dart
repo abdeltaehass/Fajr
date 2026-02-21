@@ -98,6 +98,7 @@ class TurkishStrings extends AppStrings {
   @override String get adhanNotification => 'Ezan Bildirimi';
   @override String get preReminderNotif => '30 Dakika Öncesi Hatırlatıcı';
   @override String get notifPermDenied => 'Namaz uyarıları için iPhone Ayarlarından bildirimleri etkinleştirin';
+  @override String get athkarReminders => 'Zikir Hatırlatmaları';
 
   @override String get prayerFajr => 'Sabah';
   @override String get prayerSunrise => 'Güneş Doğuşu';

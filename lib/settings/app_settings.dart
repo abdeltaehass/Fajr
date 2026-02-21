@@ -18,6 +18,7 @@ class AppSettings extends ChangeNotifier {
   Map<String, List<MasjidEvent>> _masjidEventsMap = {};
   bool _adhanEnabled = false;
   bool _reminderEnabled = false;
+  Set<String> _athkarNotifEnabled = {};
   String _reciterId = 'ar.alafasy';
 
   AppColors get colors =>
@@ -35,6 +36,7 @@ class AppSettings extends ChangeNotifier {
   }
   bool get adhanEnabled => _adhanEnabled;
   bool get reminderEnabled => _reminderEnabled;
+  Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   String get reciterId => _reciterId;
 
   bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu;
@@ -93,6 +95,14 @@ class AppSettings extends ChangeNotifier {
     _adhanEnabled = prefs.getBool('adhanEnabled') ?? false;
     _reminderEnabled = prefs.getBool('reminderEnabled') ?? false;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
+
+    final athkarJson = prefs.getString('athkarNotifEnabled');
+    if (athkarJson != null) {
+      try {
+        _athkarNotifEnabled =
+            Set<String>.from(jsonDecode(athkarJson) as List);
+      } catch (_) {}
+    }
 
     final iqamaMapJson = prefs.getString('iqamaTimesMap');
     if (iqamaMapJson != null) {
@@ -244,6 +254,18 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('reminderEnabled', value);
+  }
+
+  Future<void> setAthkarNotifEnabled(String key, bool enabled) async {
+    if (enabled) {
+      _athkarNotifEnabled.add(key);
+    } else {
+      _athkarNotifEnabled.remove(key);
+    }
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'athkarNotifEnabled', jsonEncode(_athkarNotifEnabled.toList()));
   }
 
   Future<void> setReciter(String id) async {

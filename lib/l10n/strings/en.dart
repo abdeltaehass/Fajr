@@ -98,6 +98,7 @@ class EnglishStrings extends AppStrings {
   @override String get adhanNotification => 'Adhan Notification';
   @override String get preReminderNotif => '30-Min Pre-Prayer Reminder';
   @override String get notifPermDenied => 'Enable notifications in iPhone Settings to receive prayer alerts';
+  @override String get athkarReminders => 'Athkar Reminders';
 
   @override String get prayerFajr => 'Fajr';
   @override String get prayerSunrise => 'Sunrise';
