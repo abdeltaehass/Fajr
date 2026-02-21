@@ -189,6 +189,18 @@ class AppSettings extends ChangeNotifier {
     );
   }
 
+  Future<void> clearIqamaTimes() async {
+    final id = _selectedMasjid?.placeId;
+    if (id == null) return;
+    _iqamaTimesMap.remove(id);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'iqamaTimesMap',
+      jsonEncode(_iqamaTimesMap.map((k, v) => MapEntry(k, v.toJson()))),
+    );
+  }
+
   Future<void> addMasjidEvent(MasjidEvent event) async {
     final id = _selectedMasjid?.placeId;
     if (id == null) return;

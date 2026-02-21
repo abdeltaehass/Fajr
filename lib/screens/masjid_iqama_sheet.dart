@@ -78,14 +78,43 @@ class _IqamaTimesSheetState extends State<IqamaTimesSheet> {
     super.dispose();
   }
 
-  Future<void> _pickTime(TextEditingController controller) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null && mounted) {
-      controller.text = picked.format(context);
+  // Round a TimeOfDay to the nearest 5 minutes
+  TimeOfDay _roundTo5(TimeOfDay t) {
+    final rounded = ((t.minute + 2) ~/ 5) * 5;
+    final carry = rounded ~/ 60;
+    return TimeOfDay(hour: (t.hour + carry) % 24, minute: rounded % 60);
+  }
+
+  // Parse "h:mm AM/PM" back to TimeOfDay for use as initialTime in picker
+  TimeOfDay _parseTime(String text) {
+    try {
+      final parts = text.trim().split(' ');
+      final hm = parts[0].split(':');
+      int h = int.parse(hm[0]);
+      final m = int.parse(hm[1]);
+      if (parts.length > 1) {
+        if (parts[1] == 'PM' && h != 12) h += 12;
+        if (parts[1] == 'AM' && h == 12) h = 0;
+      }
+      return TimeOfDay(hour: h % 24, minute: m);
+    } catch (_) {
+      return TimeOfDay.now();
     }
+  }
+
+  Future<void> _pickTime(TextEditingController controller) async {
+    final initial = controller.text.trim().isEmpty
+        ? TimeOfDay.now()
+        : _parseTime(controller.text);
+    final picked = await showTimePicker(context: context, initialTime: initial);
+    if (picked != null && mounted) {
+      final rounded = _roundTo5(picked);
+      setState(() => controller.text = rounded.format(context));
+    }
+  }
+
+  void _clearField(TextEditingController controller) {
+    setState(() => controller.text = '');
   }
 
   void _save() {
@@ -97,7 +126,11 @@ class _IqamaTimesSheetState extends State<IqamaTimesSheet> {
       isha: _isha.text.trim(),
       jumuah: _jumuah.text.trim(),
     );
-    context.settings.setIqamaTimes(times);
+    if (times.isEmpty) {
+      context.settings.clearIqamaTimes();
+    } else {
+      context.settings.setIqamaTimes(times);
+    }
     Navigator.pop(context);
   }
 
@@ -150,6 +183,7 @@ class _IqamaTimesSheetState extends State<IqamaTimesSheet> {
                 c: c,
                 textColor: textColor,
                 onTap: () => _pickTime(entry.$2),
+                onClear: () => _clearField(entry.$2),
               )),
           const SizedBox(height: 16),
           Row(
@@ -211,6 +245,7 @@ class _TimeRow extends StatelessWidget {
   final dynamic c;
   final Color textColor;
   final VoidCallback onTap;
+  final VoidCallback onClear;
 
   const _TimeRow({
     required this.label,
@@ -218,6 +253,7 @@ class _TimeRow extends StatelessWidget {
     required this.c,
     required this.textColor,
     required this.onTap,
+    required this.onClear,
   });
 
   @override
@@ -258,8 +294,15 @@ class _TimeRow extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(Icons.access_time, size: 18,
-                  color: textColor.withValues(alpha: 0.3)),
+              if (controller.text.isNotEmpty)
+                GestureDetector(
+                  onTap: onClear,
+                  child: Icon(Icons.close, size: 18,
+                      color: textColor.withValues(alpha: 0.5)),
+                )
+              else
+                Icon(Icons.access_time, size: 18,
+                    color: textColor.withValues(alpha: 0.3)),
             ],
           ),
         ),
