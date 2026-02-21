@@ -157,9 +157,16 @@ class PrayerDate {
   }
 
   factory PrayerDate.fromCached(Map<String, dynamic> json) {
+    // Always use today's actual Gregorian date — the device clock is accurate.
+    // Hijri date comes from the cache (may be ±1 day off when stale).
+    final now = DateTime.now();
+    final weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    final todayWeekday = weekdays[now.weekday - 1];
+    final todayReadable =
+        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
     return PrayerDate(
-      gregorianReadable: json['gregorianReadable'] as String,
-      gregorianWeekday: json['gregorianWeekday'] as String,
+      gregorianReadable: todayReadable,
+      gregorianWeekday: todayWeekday,
       hijriDay: json['hijriDay'] as String,
       hijriMonthEn: json['hijriMonthEn'] as String,
       hijriYear: json['hijriYear'] as String,
