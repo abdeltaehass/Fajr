@@ -329,34 +329,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             HijriDateHeader(date: _prayerTimes!.date),
             const SizedBox(height: 12),
 
-            // Offline banner
-            if (_isUsingCachedData)
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: c.accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: c.accent.withValues(alpha: 0.3), width: 1),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cloud_off_outlined,
-                        size: 15, color: c.accentLight),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.strings.offlineData,
-                      style: TextStyle(
-                          color: c.accentLight,
-                          fontSize: 12,
-                          fontFamily: 'Poppins'),
-                    ),
-                  ],
-                ),
-              ),
             const SizedBox(height: 12),
 
             // Next prayer banner
