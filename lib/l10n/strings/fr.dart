@@ -101,4 +101,5 @@ class FrenchStrings extends AppStrings {
   @override String get upNext => 'Suivant';
   @override String get remaining => 'restant';
   @override String get offlineData => 'Derniers horaires enregistrés — pas de connexion';
+  @override String get verse => 'Verset';
 }

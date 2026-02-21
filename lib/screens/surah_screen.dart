@@ -26,6 +26,7 @@ class _SurahScreenState extends State<SurahScreen> {
   String? _error;
   SurahContent? _content;
   bool _showTranslation = true;
+  String? _loadedEdition;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   PlayerState _playerState = PlayerState.stopped;
@@ -44,14 +45,18 @@ class _SurahScreenState extends State<SurahScreen> {
       if (mounted) setState(() => _playerState = state);
     });
     _audioPlayer.onPlayerComplete.listen((_) {
-      if (mounted) {
-        setState(() {
-          _playingVerseNumber = null;
-          _isPlayingSurah = false;
-        });
-      }
+      if (mounted) _playNextVerse();
     });
-    _loadSurah();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final edition = context.settings.quranEdition;
+    if (_loadedEdition != edition) {
+      _loadedEdition = edition;
+      _loadSurah();
+    }
   }
 
   @override
@@ -66,8 +71,10 @@ class _SurahScreenState extends State<SurahScreen> {
       _error = null;
     });
     try {
-      final content =
-          await widget.quranService.getSurah(widget.surahInfo.number);
+      final content = await widget.quranService.getSurah(
+        widget.surahInfo.number,
+        edition: _loadedEdition ?? 'en.sahih',
+      );
       if (!mounted) return;
       setState(() {
         _content = content;
@@ -116,6 +123,27 @@ class _SurahScreenState extends State<SurahScreen> {
       _playingVerseNumber = null;
       _isPlayingSurah = false;
     });
+  }
+
+  Future<void> _playNextVerse() async {
+    if (_isPlayingSurah || _content == null) {
+      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
+      return;
+    }
+    final ayahs = _content!.ayahs;
+    final currentIndex = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
+    if (currentIndex >= 0 && currentIndex < ayahs.length - 1) {
+      await _playVerse(ayahs[currentIndex + 1]);
+    } else {
+      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
+    }
+  }
+
+  Future<void> _playPreviousVerse() async {
+    if (_content == null || _playingVerseNumber == null) return;
+    final ayahs = _content!.ayahs;
+    final currentIndex = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
+    if (currentIndex > 0) await _playVerse(ayahs[currentIndex - 1]);
   }
 
   bool get _showBismillah =>
@@ -221,9 +249,10 @@ class _SurahScreenState extends State<SurahScreen> {
   }
 
   Widget _buildAudioBar(dynamic c, Color textColor) {
+    final s = context.strings;
     final label = _isPlayingSurah
         ? widget.surahInfo.name
-        : 'Verse $_playingVerseNumber';
+        : '${s.verse} $_playingVerseNumber';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
@@ -261,6 +290,20 @@ class _SurahScreenState extends State<SurahScreen> {
               ],
             ),
           ),
+          if (!_isPlayingSurah) ...[
+            GestureDetector(
+              onTap: _playPreviousVerse,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: c.accent.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.skip_previous, color: c.accent, size: 20),
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
           GestureDetector(
             onTap: _togglePlayPause,
             child: Container(
@@ -276,7 +319,21 @@ class _SurahScreenState extends State<SurahScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          if (!_isPlayingSurah) ...[
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: _playNextVerse,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: c.accent.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.skip_next, color: c.accent, size: 20),
+              ),
+            ),
+          ],
+          const SizedBox(width: 6),
           GestureDetector(
             onTap: _stop,
             child: Container(

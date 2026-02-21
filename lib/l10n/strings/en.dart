@@ -101,4 +101,5 @@ class EnglishStrings extends AppStrings {
   @override String get upNext => 'Up next';
   @override String get remaining => 'remaining';
   @override String get offlineData => 'Showing last saved times — no connection';
+  @override String get verse => 'Verse';
 }

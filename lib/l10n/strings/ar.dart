@@ -101,4 +101,5 @@ class ArabicStrings extends AppStrings {
   @override String get upNext => 'التالي';
   @override String get remaining => 'متبقٍ';
   @override String get offlineData => 'عرض آخر أوقات محفوظة — لا يوجد اتصال';
+  @override String get verse => 'آية';
 }

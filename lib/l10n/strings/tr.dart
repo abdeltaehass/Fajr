@@ -101,4 +101,5 @@ class TurkishStrings extends AppStrings {
   @override String get upNext => 'Sıradaki';
   @override String get remaining => 'kaldı';
   @override String get offlineData => 'Son kaydedilen vakitler gösteriliyor — bağlantı yok';
+  @override String get verse => 'Ayet';
 }

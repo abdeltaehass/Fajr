@@ -34,6 +34,23 @@ class AppSettings extends ChangeNotifier {
 
   bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu;
 
+  String get quranEdition {
+    switch (_language) {
+      case AppLanguage.arabic:
+        return 'ar.muyassar';
+      case AppLanguage.french:
+        return 'fr.hamidullah';
+      case AppLanguage.turkish:
+        return 'tr.diyanet';
+      case AppLanguage.urdu:
+        return 'ur.jalandhry';
+      case AppLanguage.malay:
+        return 'ms.basmeih';
+      case AppLanguage.english:
+        return 'en.sahih';
+    }
+  }
+
   Locale get locale {
     switch (_language) {
       case AppLanguage.arabic:

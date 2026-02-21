@@ -46,28 +46,28 @@ class _FajrAppState extends State<FajrApp> {
       );
     }
 
-    return SettingsProvider(
-      settings: _settings,
-      child: ListenableBuilder(
-        listenable: _settings,
-        builder: (context, _) {
-          final colors = _settings.colors;
-          final isLight = colors.isLight;
+    return ListenableBuilder(
+      listenable: _settings,
+      builder: (context, _) {
+        final colors = _settings.colors;
+        final isLight = colors.isLight;
 
-          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
-          ));
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
+        ));
 
-          return MaterialApp(
+        return SettingsProvider(
+          settings: _settings,
+          child: MaterialApp(
             title: 'Fajr',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.fromColors(colors),
             locale: _settings.locale,
             home: const HomeScreen(),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

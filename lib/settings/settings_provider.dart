@@ -19,8 +19,7 @@ class SettingsProvider extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(SettingsProvider oldWidget) =>
-      settings != oldWidget.settings;
+  bool updateShouldNotify(SettingsProvider oldWidget) => true;
 }
 
 extension SettingsContext on BuildContext {

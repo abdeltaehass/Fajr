@@ -101,4 +101,5 @@ class UrduStrings extends AppStrings {
   @override String get upNext => 'اگلا';
   @override String get remaining => 'باقی';
   @override String get offlineData => 'آخری محفوظ اوقات — انٹرنیٹ نہیں';
+  @override String get verse => 'آیت';
 }

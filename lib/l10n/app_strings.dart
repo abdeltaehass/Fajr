@@ -117,6 +117,7 @@ abstract class AppStrings {
   String get upNext;
   String get remaining;
   String get offlineData;
+  String get verse;
 
   static AppStrings of(AppLanguage language) {
     switch (language) {
