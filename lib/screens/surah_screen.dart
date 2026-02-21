@@ -32,6 +32,7 @@ class _SurahScreenState extends State<SurahScreen> {
   PlayerState _playerState = PlayerState.stopped;
   int? _playingVerseNumber;
   bool _isPlayingSurah = false;
+  bool _isAdvancing = false;
 
   static const String _cdnVerseBase =
       'https://cdn.islamic.network/quran/audio/128';
@@ -89,20 +90,18 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Future<void> _playSurah() async {
     if (_content == null || _content!.ayahs.isEmpty) return;
+    setState(() => _isPlayingSurah = true);
     await _playVerse(_content!.ayahs[0]);
   }
 
   Future<void> _playVerse(Ayah ayah) async {
     if (!mounted) return;
+    // Set verse number BEFORE play() to avoid race with onPlayerComplete
+    setState(() => _playingVerseNumber = ayah.number);
     try {
       final id = context.settings.reciterId;
       await _audioPlayer
           .play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
-      if (!mounted) return;
-      setState(() {
-        _playingVerseNumber = ayah.number;
-        _isPlayingSurah = false;
-      });
     } catch (_) {
       if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
     }
@@ -121,20 +120,23 @@ class _SurahScreenState extends State<SurahScreen> {
     setState(() {
       _playingVerseNumber = null;
       _isPlayingSurah = false;
+      _isAdvancing = false;
     });
   }
 
   Future<void> _playNextVerse() async {
-    if (_isPlayingSurah || _content == null) {
-      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
-      return;
-    }
-    final ayahs = _content!.ayahs;
-    final currentIndex = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
-    if (currentIndex >= 0 && currentIndex < ayahs.length - 1) {
-      await _playVerse(ayahs[currentIndex + 1]);
-    } else {
-      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
+    if (_isAdvancing || _content == null) return;
+    _isAdvancing = true;
+    try {
+      final ayahs = _content!.ayahs;
+      final currentIndex = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
+      if (currentIndex >= 0 && currentIndex < ayahs.length - 1) {
+        await _playVerse(ayahs[currentIndex + 1]);
+      } else {
+        if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; });
+      }
+    } finally {
+      _isAdvancing = false;
     }
   }
 
@@ -445,7 +447,10 @@ class _SurahScreenState extends State<SurahScreen> {
           isPlaying: isThisPlaying,
           c: c,
           textColor: textColor,
-          onPlay: () => _playVerse(ayah),
+          onPlay: () {
+            setState(() => _isPlayingSurah = false);
+            _playVerse(ayah);
+          },
         );
       },
     );
