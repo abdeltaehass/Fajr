@@ -28,11 +28,17 @@ class _SurahScreenState extends State<SurahScreen> {
   bool _showTranslation = true;
   String? _loadedEdition;
 
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  // Two players: _playerA plays while _playerB pre-buffers the next verse,
+  // then they swap on each verse transition for seamless playback.
+  final AudioPlayer _playerA = AudioPlayer();
+  final AudioPlayer _playerB = AudioPlayer();
+  bool _usingPlayerA = true;
+  AudioPlayer get _activePlayer => _usingPlayerA ? _playerA : _playerB;
+  AudioPlayer get _standbyPlayer => _usingPlayerA ? _playerB : _playerA;
+
   PlayerState _playerState = PlayerState.stopped;
   int? _playingVerseNumber;
   bool _isPlayingSurah = false;
-  // Index into _content.ayahs when playing surah; null when not in surah mode
   int? _surahIndex;
 
   static const String _cdnVerseBase =
@@ -41,31 +47,51 @@ class _SurahScreenState extends State<SurahScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (mounted) setState(() => _playerState = state);
+    _playerA.setReleaseMode(ReleaseMode.stop);
+    _playerB.setReleaseMode(ReleaseMode.stop);
+
+    _playerA.onPlayerStateChanged.listen((s) {
+      if (mounted && _usingPlayerA) setState(() => _playerState = s);
     });
-    _audioPlayer.onPlayerComplete.listen((_) {
-      if (!mounted) return;
-      // Only auto-advance when playing the whole surah
-      if (_isPlayingSurah && _surahIndex != null && _content != null) {
-        final next = _surahIndex! + 1;
-        if (next < _content!.ayahs.length) {
-          setState(() => _surahIndex = next);
-          // Small delay to let the audio engine settle before starting next track
-          Future.delayed(const Duration(milliseconds: 300), () {
-            if (mounted && _isPlayingSurah) {
-              _playVerse(_content!.ayahs[next]);
-            }
-          });
-        } else {
-          setState(() {
-            _isPlayingSurah = false;
-            _surahIndex = null;
-            _playingVerseNumber = null;
-          });
-        }
-      }
+    _playerB.onPlayerStateChanged.listen((s) {
+      if (mounted && !_usingPlayerA) setState(() => _playerState = s);
     });
+    _playerA.onPlayerComplete.listen((_) {
+      if (mounted && _usingPlayerA) _onVerseComplete();
+    });
+    _playerB.onPlayerComplete.listen((_) {
+      if (mounted && !_usingPlayerA) _onVerseComplete();
+    });
+  }
+
+  void _onVerseComplete() {
+    if (!_isPlayingSurah || _surahIndex == null || _content == null) return;
+    final next = _surahIndex! + 1;
+    if (next >= _content!.ayahs.length) {
+      setState(() { _isPlayingSurah = false; _surahIndex = null; _playingVerseNumber = null; });
+      return;
+    }
+    // Swap to the pre-buffered standby player and start it immediately
+    _usingPlayerA = !_usingPlayerA;
+    setState(() {
+      _surahIndex = next;
+      _playingVerseNumber = _content!.ayahs[next].number;
+      _playerState = PlayerState.playing;
+    });
+    _activePlayer.resume();
+    // Pre-buffer the verse after next on the now-free standby player
+    _prefetchVerse(next + 1);
+  }
+
+  Future<void> _prefetchVerse(int index) async {
+    if (_content == null || index >= _content!.ayahs.length || !mounted) return;
+    final id = context.settings.reciterId;
+    final ayah = _content!.ayahs[index];
+    try {
+      await _standbyPlayer.setSource(
+        UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'),
+      );
+    } catch (_) {}
   }
 
   @override
@@ -80,7 +106,8 @@ class _SurahScreenState extends State<SurahScreen> {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    _playerA.dispose();
+    _playerB.dispose();
     super.dispose();
   }
 
@@ -110,55 +137,71 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Future<void> _playSurah() async {
     if (_content == null || _content!.ayahs.isEmpty) return;
-    setState(() { _isPlayingSurah = true; _surahIndex = 0; });
-    await _playVerse(_content!.ayahs[0]);
+    _usingPlayerA = true;
+    setState(() { _isPlayingSurah = true; _surahIndex = 0; _playingVerseNumber = _content!.ayahs[0].number; });
+    final id = context.settings.reciterId;
+    try {
+      await _activePlayer.play(
+        UrlSource('$_cdnVerseBase/$id/${_content!.ayahs[0].globalNumber}.mp3'),
+      );
+      _prefetchVerse(1);
+    } catch (_) {
+      if (mounted) setState(() { _isPlayingSurah = false; _surahIndex = null; _playingVerseNumber = null; });
+    }
   }
 
   Future<void> _playVerse(Ayah ayah) async {
     if (!mounted) return;
+    // Stop both players, reset to playerA
+    final id = context.settings.reciterId;
+    await _playerA.stop();
+    await _playerB.stop();
+    _usingPlayerA = true;
     setState(() => _playingVerseNumber = ayah.number);
     try {
-      final id = context.settings.reciterId;
-      await _audioPlayer
-          .play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
+      await _activePlayer.play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
     } catch (_) {
-      if (mounted) {
-        setState(() { _playingVerseNumber = null; _isPlayingSurah = false; _surahIndex = null; });
-      }
+      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; _surahIndex = null; });
     }
   }
 
   Future<void> _togglePlayPause() async {
     if (_playerState == PlayerState.playing) {
-      await _audioPlayer.pause();
+      await _activePlayer.pause();
     } else if (_playerState == PlayerState.paused) {
-      await _audioPlayer.resume();
+      await _activePlayer.resume();
     }
   }
 
   Future<void> _stop() async {
-    await _audioPlayer.stop();
-    setState(() {
-      _playingVerseNumber = null;
-      _isPlayingSurah = false;
-      _surahIndex = null;
-    });
+    await _playerA.stop();
+    await _playerB.stop();
+    _usingPlayerA = true;
+    setState(() { _playingVerseNumber = null; _isPlayingSurah = false; _surahIndex = null; });
   }
 
-  Future<void> _playNextVerse() async {
-    if (_content == null || _playingVerseNumber == null) return;
-    final ayahs = _content!.ayahs;
-    final currentIndex = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
-    if (currentIndex >= 0 && currentIndex < ayahs.length - 1) {
-      await _playVerse(ayahs[currentIndex + 1]);
+  Future<void> _skip(int delta) async {
+    if (_content == null) return;
+    if (_isPlayingSurah && _surahIndex != null) {
+      final next = _surahIndex! + delta;
+      if (next < 0 || next >= _content!.ayahs.length) return;
+      final id = context.settings.reciterId;
+      await _playerA.stop();
+      await _playerB.stop();
+      _usingPlayerA = true;
+      final ayah = _content!.ayahs[next];
+      setState(() { _surahIndex = next; _playingVerseNumber = ayah.number; });
+      try {
+        await _activePlayer.play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
+        _prefetchVerse(next + 1);
+      } catch (_) {}
+    } else {
+      if (_playingVerseNumber == null) return;
+      final ayahs = _content!.ayahs;
+      final idx = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
+      final next = idx + delta;
+      if (next >= 0 && next < ayahs.length) await _playVerse(ayahs[next]);
     }
-  }
-
-  Future<void> _playPreviousVerse() async {
-    if (_content == null || _playingVerseNumber == null) return;
-    final ayahs = _content!.ayahs;
-    final currentIndex = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
-    if (currentIndex > 0) await _playVerse(ayahs[currentIndex - 1]);
   }
 
   bool get _showBismillah =>
@@ -303,20 +346,18 @@ class _SurahScreenState extends State<SurahScreen> {
               ],
             ),
           ),
-          if (!_isPlayingSurah) ...[
-            GestureDetector(
-              onTap: _playPreviousVerse,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: c.accent.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.skip_previous, color: c.accent, size: 26),
+          GestureDetector(
+            onTap: () => _skip(-1),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: c.accent.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
               ),
+              child: Icon(Icons.skip_previous, color: c.accent, size: 26),
             ),
-            const SizedBox(width: 8),
-          ],
+          ),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: _togglePlayPause,
             child: Container(
@@ -332,20 +373,18 @@ class _SurahScreenState extends State<SurahScreen> {
               ),
             ),
           ),
-          if (!_isPlayingSurah) ...[
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: _playNextVerse,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: c.accent.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.skip_next, color: c.accent, size: 26),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _skip(1),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: c.accent.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
               ),
+              child: Icon(Icons.skip_next, color: c.accent, size: 26),
             ),
-          ],
+          ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: _stop,
@@ -462,7 +501,8 @@ class _SurahScreenState extends State<SurahScreen> {
           c: c,
           textColor: textColor,
           onPlay: () {
-            setState(() { _isPlayingSurah = false; _surahIndex = null; });
+            _isPlayingSurah = false;
+            _surahIndex = null;
             _playVerse(ayah);
           },
         );
