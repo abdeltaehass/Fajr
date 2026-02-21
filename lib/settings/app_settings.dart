@@ -13,8 +13,9 @@ class AppSettings extends ChangeNotifier {
   SeasonalTheme _seasonalTheme = SeasonalTheme.normal;
   AppLanguage _language = AppLanguage.english;
   Masjid? _selectedMasjid;
-  IqamaTimes? _iqamaTimes;
-  List<MasjidEvent> _masjidEvents = [];
+  // Iqama times and events stored per masjid placeId
+  Map<String, IqamaTimes> _iqamaTimesMap = {};
+  Map<String, List<MasjidEvent>> _masjidEventsMap = {};
   bool _adhanEnabled = false;
   bool _reminderEnabled = false;
   String _reciterId = 'ar.alafasy';
@@ -26,8 +27,12 @@ class AppSettings extends ChangeNotifier {
   SeasonalTheme get seasonalTheme => _seasonalTheme;
   AppLanguage get language => _language;
   Masjid? get selectedMasjid => _selectedMasjid;
-  IqamaTimes? get iqamaTimes => _iqamaTimes;
-  List<MasjidEvent> get masjidEvents => List.unmodifiable(_masjidEvents);
+  IqamaTimes? get iqamaTimes =>
+      _selectedMasjid != null ? _iqamaTimesMap[_selectedMasjid!.placeId] : null;
+  List<MasjidEvent> get masjidEvents {
+    if (_selectedMasjid == null) return [];
+    return List.unmodifiable(_masjidEventsMap[_selectedMasjid!.placeId] ?? []);
+  }
   bool get adhanEnabled => _adhanEnabled;
   bool get reminderEnabled => _reminderEnabled;
   String get reciterId => _reciterId;
@@ -89,21 +94,48 @@ class AppSettings extends ChangeNotifier {
     _reminderEnabled = prefs.getBool('reminderEnabled') ?? false;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
 
-    final iqamaJson = prefs.getString('iqamaTimes');
-    if (iqamaJson != null) {
+    final iqamaMapJson = prefs.getString('iqamaTimesMap');
+    if (iqamaMapJson != null) {
       try {
-        _iqamaTimes = IqamaTimes.fromJson(jsonDecode(iqamaJson) as Map<String, dynamic>);
+        final map = jsonDecode(iqamaMapJson) as Map<String, dynamic>;
+        _iqamaTimesMap = map.map((k, v) =>
+            MapEntry(k, IqamaTimes.fromJson(v as Map<String, dynamic>)));
       } catch (_) {}
     }
+    // Migrate old single-masjid iqama format
+    if (_iqamaTimesMap.isEmpty && _selectedMasjid != null) {
+      final oldJson = prefs.getString('iqamaTimes');
+      if (oldJson != null) {
+        try {
+          _iqamaTimesMap[_selectedMasjid!.placeId] =
+              IqamaTimes.fromJson(jsonDecode(oldJson) as Map<String, dynamic>);
+        } catch (_) {}
+      }
+    }
 
-    final eventsJson = prefs.getString('masjidEvents');
-    if (eventsJson != null) {
+    final eventsMapJson = prefs.getString('masjidEventsMap');
+    if (eventsMapJson != null) {
       try {
-        final list = jsonDecode(eventsJson) as List<dynamic>;
-        _masjidEvents = list
-            .map((e) => MasjidEvent.fromJson(e as Map<String, dynamic>))
-            .toList();
+        final map = jsonDecode(eventsMapJson) as Map<String, dynamic>;
+        _masjidEventsMap = map.map((k, v) {
+          final list = (v as List<dynamic>)
+              .map((e) => MasjidEvent.fromJson(e as Map<String, dynamic>))
+              .toList();
+          return MapEntry(k, list);
+        });
       } catch (_) {}
+    }
+    // Migrate old single-masjid events format
+    if (_masjidEventsMap.isEmpty && _selectedMasjid != null) {
+      final oldJson = prefs.getString('masjidEvents');
+      if (oldJson != null) {
+        try {
+          final list = (jsonDecode(oldJson) as List<dynamic>)
+              .map((e) => MasjidEvent.fromJson(e as Map<String, dynamic>))
+              .toList();
+          _masjidEventsMap[_selectedMasjid!.placeId] = list;
+        } catch (_) {}
+      }
     }
 
     notifyListeners();
@@ -139,40 +171,52 @@ class AppSettings extends ChangeNotifier {
 
   Future<void> clearSelectedMasjid() async {
     _selectedMasjid = null;
-    _iqamaTimes = null;
-    _masjidEvents = [];
+    // Iqama times and events are retained per placeId for if the masjid is re-selected
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('selectedMasjid');
-    await prefs.remove('iqamaTimes');
-    await prefs.remove('masjidEvents');
   }
 
   Future<void> setIqamaTimes(IqamaTimes times) async {
-    _iqamaTimes = times;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('iqamaTimes', jsonEncode(times.toJson()));
-  }
-
-  Future<void> addMasjidEvent(MasjidEvent event) async {
-    _masjidEvents.add(event);
-    _masjidEvents.sort((a, b) => a.date.compareTo(b.date));
+    final id = _selectedMasjid?.placeId;
+    if (id == null) return;
+    _iqamaTimesMap[id] = times;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      'masjidEvents',
-      jsonEncode(_masjidEvents.map((e) => e.toJson()).toList()),
+      'iqamaTimesMap',
+      jsonEncode(_iqamaTimesMap.map((k, v) => MapEntry(k, v.toJson()))),
     );
   }
 
-  Future<void> removeMasjidEvent(String id) async {
-    _masjidEvents.removeWhere((e) => e.id == id);
+  Future<void> addMasjidEvent(MasjidEvent event) async {
+    final id = _selectedMasjid?.placeId;
+    if (id == null) return;
+    final events = List<MasjidEvent>.from(_masjidEventsMap[id] ?? []);
+    events.add(event);
+    events.sort((a, b) => a.date.compareTo(b.date));
+    _masjidEventsMap[id] = events;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      'masjidEvents',
-      jsonEncode(_masjidEvents.map((e) => e.toJson()).toList()),
+      'masjidEventsMap',
+      jsonEncode(_masjidEventsMap
+          .map((k, v) => MapEntry(k, v.map((e) => e.toJson()).toList()))),
+    );
+  }
+
+  Future<void> removeMasjidEvent(String eventId) async {
+    final id = _selectedMasjid?.placeId;
+    if (id == null) return;
+    final events = List<MasjidEvent>.from(_masjidEventsMap[id] ?? []);
+    events.removeWhere((e) => e.id == eventId);
+    _masjidEventsMap[id] = events;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'masjidEventsMap',
+      jsonEncode(_masjidEventsMap
+          .map((k, v) => MapEntry(k, v.map((e) => e.toJson()).toList()))),
     );
   }
 

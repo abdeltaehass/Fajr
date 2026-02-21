@@ -28,6 +28,7 @@ class _MasjidScreenState extends State<MasjidScreen> {
   List<Masjid> _masjids = [];
   PrayerTimings? _myMasjidPrayerTimings;
   bool _initialized = false;
+  String _searchQuery = '';
 
   @override
   void didChangeDependencies() {
@@ -212,6 +213,13 @@ class _MasjidScreenState extends State<MasjidScreen> {
       );
     }
 
+    final filtered = _searchQuery.isEmpty
+        ? _masjids
+        : _masjids
+            .where((m) =>
+                m.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
+
     return RefreshIndicator(
       onRefresh: _loadMasjids,
       color: c.accent,
@@ -219,6 +227,39 @@ class _MasjidScreenState extends State<MasjidScreen> {
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 4),
+            child: TextField(
+              onChanged: (v) => setState(() => _searchQuery = v.trim()),
+              style: GoogleFonts.poppins(color: textColor, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: s.searchMasjids,
+                hintStyle: GoogleFonts.poppins(
+                    color: textColor.withValues(alpha: 0.4), fontSize: 14),
+                prefixIcon: Icon(Icons.search, color: c.accent, size: 22),
+                filled: true,
+                fillColor: c.card,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      BorderSide(color: c.accent.withValues(alpha: 0.2)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      BorderSide(color: c.accent.withValues(alpha: 0.2)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: c.accent, width: 1.5),
+                ),
+              ),
+            ),
+          ),
+
           // My Masjid section
           if (selectedMasjid != null) ...[
             Padding(
@@ -266,8 +307,8 @@ class _MasjidScreenState extends State<MasjidScreen> {
             ),
           ),
 
-          // Nearby list
-          ..._masjids.map((masjid) {
+          // Nearby list (filtered by search query)
+          ...filtered.map((masjid) {
             final isSelected = selectedMasjid?.placeId == masjid.placeId;
             return _MasjidCard(
               masjid: masjid,

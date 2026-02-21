@@ -84,6 +84,7 @@ class TurkishStrings extends AppStrings {
 
   @override String get quran => 'Kuran';
   @override String get searchSurahs => 'Sure ara...';
+  @override String get searchMasjids => 'Cami ara...';
   @override String get verses => 'ayet';
   @override String get meccan => 'Mekki';
   @override String get medinan => 'Medeni';

@@ -84,6 +84,7 @@ class ArabicStrings extends AppStrings {
 
   @override String get quran => 'القرآن';
   @override String get searchSurahs => 'ابحث عن سورة...';
+  @override String get searchMasjids => 'ابحث عن مسجد...';
   @override String get verses => 'آيات';
   @override String get meccan => 'مكية';
   @override String get medinan => 'مدنية';

@@ -84,6 +84,7 @@ class MalayStrings extends AppStrings {
 
   @override String get quran => 'Al-Quran';
   @override String get searchSurahs => 'Cari surah...';
+  @override String get searchMasjids => 'Cari masjid...';
   @override String get verses => 'ayat';
   @override String get meccan => 'Makkiyyah';
   @override String get medinan => 'Madaniyyah';

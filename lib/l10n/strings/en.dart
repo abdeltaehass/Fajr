@@ -84,6 +84,7 @@ class EnglishStrings extends AppStrings {
 
   @override String get quran => 'Quran';
   @override String get searchSurahs => 'Search surahs...';
+  @override String get searchMasjids => 'Search masjids...';
   @override String get verses => 'verses';
   @override String get meccan => 'Meccan';
   @override String get medinan => 'Medinan';

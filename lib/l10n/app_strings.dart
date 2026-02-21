@@ -98,6 +98,7 @@ abstract class AppStrings {
   // Quran
   String get quran;
   String get searchSurahs;
+  String get searchMasjids;
   String get verses;
   String get meccan;
   String get medinan;

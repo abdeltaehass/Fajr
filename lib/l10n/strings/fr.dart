@@ -84,6 +84,7 @@ class FrenchStrings extends AppStrings {
 
   @override String get quran => 'Coran';
   @override String get searchSurahs => 'Rechercher une sourate...';
+  @override String get searchMasjids => 'Rechercher une mosquée...';
   @override String get verses => 'versets';
   @override String get meccan => 'Mecquoise';
   @override String get medinan => 'Médinoise';

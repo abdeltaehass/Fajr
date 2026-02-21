@@ -84,6 +84,7 @@ class UrduStrings extends AppStrings {
 
   @override String get quran => 'قرآن';
   @override String get searchSurahs => 'سورہ تلاش کریں...';
+  @override String get searchMasjids => 'مسجد تلاش کریں...';
   @override String get verses => 'آیات';
   @override String get meccan => 'مکی';
   @override String get medinan => 'مدنی';
