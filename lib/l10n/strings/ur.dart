@@ -102,4 +102,7 @@ class UrduStrings extends AppStrings {
   @override String get remaining => 'باقی';
   @override String get offlineData => 'آخری محفوظ اوقات — انٹرنیٹ نہیں';
   @override String get verse => 'آیت';
+  @override String get serviceUnavailable => 'نماز کے اوقات کی سروس عارضی طور پر دستیاب نہیں۔ دوبارہ کوشش ہو رہی ہے...';
+  @override String get somethingWentWrong => 'کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔';
+  @override String get verseCopied => 'آیت کاپی کر لی گئی';
 }

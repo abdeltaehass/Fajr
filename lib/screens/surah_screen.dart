@@ -91,8 +91,9 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Future<void> _playSurah() async {
     final id = context.settings.reciterId;
+    final paddedNumber = widget.surahInfo.number.toString().padLeft(3, '0');
     await _audioPlayer
-        .play(UrlSource('$_cdnSurahBase/$id/${widget.surahInfo.number}.mp3'));
+        .play(UrlSource('$_cdnSurahBase/$id/$paddedNumber.mp3'));
     setState(() {
       _isPlayingSurah = true;
       _playingVerseNumber = null;
@@ -475,7 +476,7 @@ class _AyahTile extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Verse copied', style: GoogleFonts.poppins()),
+        content: Text(context.strings.verseCopied, style: GoogleFonts.poppins()),
         backgroundColor: c.card,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

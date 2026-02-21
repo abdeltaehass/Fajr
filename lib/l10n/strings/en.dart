@@ -102,4 +102,7 @@ class EnglishStrings extends AppStrings {
   @override String get remaining => 'remaining';
   @override String get offlineData => 'Showing last saved times — no connection';
   @override String get verse => 'Verse';
+  @override String get serviceUnavailable => 'Prayer times service is temporarily unavailable. Retrying...';
+  @override String get somethingWentWrong => 'Something went wrong. Please try again.';
+  @override String get verseCopied => 'Verse copied';
 }

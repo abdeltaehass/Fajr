@@ -102,4 +102,7 @@ class MalayStrings extends AppStrings {
   @override String get remaining => 'lagi';
   @override String get offlineData => 'Memaparkan waktu terkini — tiada sambungan';
   @override String get verse => 'Ayat';
+  @override String get serviceUnavailable => 'Perkhidmatan waktu solat tidak tersedia sementara. Cuba semula...';
+  @override String get somethingWentWrong => 'Sesuatu telah berlaku. Sila cuba lagi.';
+  @override String get verseCopied => 'Ayat disalin';
 }

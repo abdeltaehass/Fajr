@@ -102,4 +102,7 @@ class ArabicStrings extends AppStrings {
   @override String get remaining => 'متبقٍ';
   @override String get offlineData => 'عرض آخر أوقات محفوظة — لا يوجد اتصال';
   @override String get verse => 'آية';
+  @override String get serviceUnavailable => 'خدمة أوقات الصلاة غير متاحة مؤقتاً. جارٍ إعادة المحاولة...';
+  @override String get somethingWentWrong => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
+  @override String get verseCopied => 'تم نسخ الآية';
 }

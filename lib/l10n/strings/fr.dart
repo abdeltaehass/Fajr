@@ -102,4 +102,7 @@ class FrenchStrings extends AppStrings {
   @override String get remaining => 'restant';
   @override String get offlineData => 'Derniers horaires enregistrés — pas de connexion';
   @override String get verse => 'Verset';
+  @override String get serviceUnavailable => 'Le service des horaires de prière est temporairement indisponible. Nouvelle tentative...';
+  @override String get somethingWentWrong => 'Une erreur s\'est produite. Veuillez réessayer.';
+  @override String get verseCopied => 'Verset copié';
 }

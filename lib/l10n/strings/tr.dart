@@ -102,4 +102,7 @@ class TurkishStrings extends AppStrings {
   @override String get remaining => 'kaldı';
   @override String get offlineData => 'Son kaydedilen vakitler gösteriliyor — bağlantı yok';
   @override String get verse => 'Ayet';
+  @override String get serviceUnavailable => 'Namaz vakitleri servisi geçici olarak kullanılamıyor. Yeniden deneniyor...';
+  @override String get somethingWentWrong => 'Bir hata oluştu. Lütfen tekrar deneyin.';
+  @override String get verseCopied => 'Ayet kopyalandı';
 }

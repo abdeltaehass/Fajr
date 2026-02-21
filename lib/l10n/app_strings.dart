@@ -118,6 +118,9 @@ abstract class AppStrings {
   String get remaining;
   String get offlineData;
   String get verse;
+  String get serviceUnavailable;
+  String get somethingWentWrong;
+  String get verseCopied;
 
   static AppStrings of(AppLanguage language) {
     switch (language) {

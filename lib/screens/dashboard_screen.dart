@@ -28,6 +28,8 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   bool _isLoading = true;
   String? _errorMessage;
+  bool _isServerUnavailable = false;
+  bool _isGenericError = false;
   PrayerTimesResponse? _prayerTimes;
   bool _isUsingCachedData = false;
   int _nextPrayerIndex = 0;
@@ -63,6 +65,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _isServerUnavailable = false;
+      _isGenericError = false;
     });
 
     try {
@@ -107,9 +111,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           e.message.contains('503') || e.message.contains('502');
       setState(() {
         _isLoading = false;
-        _errorMessage = isServerError
-            ? 'Prayer times service is temporarily unavailable. Retrying...'
-            : e.message;
+        _isServerUnavailable = isServerError;
+        _errorMessage = isServerError ? null : e.message;
       });
       if (isServerError) {
         await Future.delayed(const Duration(seconds: 5));
@@ -120,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       if (await _tryLoadCache()) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Something went wrong. Please try again.';
+        _isGenericError = true;
       });
     }
   }
@@ -217,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     return SafeArea(
       child: _isLoading
           ? _buildLoadingState()
-          : _errorMessage != null
+          : (_errorMessage != null || _isServerUnavailable || _isGenericError)
               ? _buildErrorState()
               : _buildContent(),
     );
@@ -244,6 +247,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildErrorState() {
     final c = context.colors;
+    final s = context.strings;
+    final errorText = _isServerUnavailable
+        ? s.serviceUnavailable
+        : (_isGenericError ? s.somethingWentWrong : _errorMessage ?? '');
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -257,7 +264,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              _errorMessage!,
+              errorText,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
