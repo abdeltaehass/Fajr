@@ -33,7 +33,7 @@
 	<key>NSMotionUsageDescription</key>
 	<string>FajrToIsha uses the compass sensor to show you the Qibla direction toward Mecca.</string>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>FajrToIsha sends prayer time alerts and pre-prayer reminders to help you stay on time.</string>
+	<string>FajrToIsha sends prayer time alerts, pre-prayer reminders, and daily athkar reminders to help you stay connected to your worship.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

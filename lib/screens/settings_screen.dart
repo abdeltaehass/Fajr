@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/reciter_list.dart';
 import '../models/quran_reciter.dart';
 import '../services/notification_service.dart';
@@ -173,6 +174,22 @@ class SettingsScreen extends StatelessWidget {
                   isSelected: settings.reciterId == reciter.id,
                   onTap: () => settings.setReciter(reciter.id),
                 )),
+            const SizedBox(height: 32),
+
+            // Legal Section
+            _SectionHeader(title: 'Legal'),
+            const SizedBox(height: 12),
+            _LegalTile(
+              icon: Icons.privacy_tip_outlined,
+              title: 'Privacy Policy',
+              onTap: () async {
+                final uri = Uri.parse(
+                    'https://abdeltaehass.github.io/Fajr/privacy-policy.html');
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+              },
+            ),
             const SizedBox(height: 32),
           ],
         ),
@@ -545,6 +562,52 @@ class _ReciterTile extends StatelessWidget {
               ),
             ),
             if (isSelected) Icon(Icons.check_circle, color: c.accent, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LegalTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const _LegalTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: c.accent.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: c.accentLight, size: 22),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  color: c.bodyText,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            Icon(Icons.open_in_new, color: c.accentLight, size: 16),
           ],
         ),
       ),

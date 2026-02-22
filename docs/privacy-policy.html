@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — FajrToIsha</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 720px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.7; }
+    h1 { font-size: 28px; margin-bottom: 4px; }
+    h2 { font-size: 18px; margin-top: 32px; color: #2e7d32; }
+    p, li { font-size: 15px; color: #333; }
+    ul { padding-left: 20px; }
+    .updated { color: #888; font-size: 13px; margin-bottom: 32px; }
+    a { color: #2e7d32; }
+  </style>
+</head>
+<body>
+
+<h1>Privacy Policy</h1>
+<p class="updated">Last updated: February 2026</p>
+
+<p>FajrToIsha ("the App") is built to help Muslims track prayer times, read the Quran, perform athkar, and find nearby masjids. This policy explains what data the App accesses, why, and how it is handled.</p>
+
+<h2>1. Data We Collect</h2>
+<p>The App does <strong>not</strong> collect, store, or transmit any personal data to our servers. All preferences (theme, language, selected masjid, iqama times, notification settings) are stored <strong>only on your device</strong> using local storage (SharedPreferences).</p>
+
+<h2>2. Location</h2>
+<p>The App requests access to your <strong>precise location</strong> while in use for two purposes:</p>
+<ul>
+  <li>Calculating accurate prayer times for your geographic coordinates</li>
+  <li>Finding nearby masjids in your area</li>
+</ul>
+<p>Your location is sent directly to the <a href="https://aladhan.com" target="_blank">Aladhan API</a> (prayer times) and the <a href="https://developers.google.com/maps/documentation/places" target="_blank">Google Places API</a> (masjid search) over HTTPS. It is not stored by us or shared with any other party.</p>
+
+<h2>3. Notifications</h2>
+<p>The App sends <strong>local notifications</strong> only — these are generated entirely on your device and are never routed through external servers. You can enable or disable each notification type (adhan alerts, pre-prayer reminders, athkar reminders) in the App's Settings screen.</p>
+
+<h2>4. Third-Party Services</h2>
+<p>The App communicates with the following external APIs to provide its core features:</p>
+<ul>
+  <li><strong>Aladhan API</strong> (aladhan.com) — Prayer time calculation; receives your latitude/longitude</li>
+  <li><strong>AlQuran Cloud API</strong> (alquran.cloud) — Quran text and translations; no personal data sent</li>
+  <li><strong>Islamic Network CDN</strong> (islamic.network) — Quran audio recitation; no personal data sent</li>
+  <li><strong>Google Places API</strong> (googleapis.com) — Nearby masjid search; receives your latitude/longitude</li>
+</ul>
+<p>These services have their own privacy policies. We encourage you to review them.</p>
+
+<h2>5. Compass / Motion Sensor</h2>
+<p>The App accesses your device's compass sensor to display the Qibla direction. This data is used in real time on your device and is never transmitted or stored.</p>
+
+<h2>6. Audio Playback</h2>
+<p>Quran recitations are streamed from the Islamic Network CDN. No personal data is included in these requests beyond standard HTTP headers (IP address, device type) which are handled by the CDN provider.</p>
+
+<h2>7. Children's Privacy</h2>
+<p>The App does not knowingly collect data from children under 13. It contains no advertising, no in-app purchases, and no account registration.</p>
+
+<h2>8. Changes to This Policy</h2>
+<p>If this policy changes, the updated version will be posted at this URL with a revised "Last updated" date.</p>
+
+<h2>9. Contact</h2>
+<p>If you have questions about this privacy policy, please open an issue on the <a href="https://github.com/abdeltaehass/Fajr" target="_blank">project's GitHub page</a>.</p>
+
+</body>
+</html>
