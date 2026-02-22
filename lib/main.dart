@@ -34,7 +34,11 @@ class _FajrAppState extends State<FajrApp> {
   @override
   void initState() {
     super.initState();
-    _settings.loadSettings().then((_) {
+    _settings.loadSettings().then((_) async {
+      if (_settings.athkarNotifEnabled.isNotEmpty) {
+        await NotificationService.scheduleAthkarNotifications(
+            _settings.athkarNotifEnabled);
+      }
       if (mounted) setState(() => _loaded = true);
     });
   }

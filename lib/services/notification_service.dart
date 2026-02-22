@@ -112,17 +112,21 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
-    final now = tz.TZDateTime.now(tz.UTC);
-    var scheduled =
-        tz.TZDateTime(tz.UTC, now.year, now.month, now.day, hour, minute);
-    if (scheduled.isBefore(now)) {
-      scheduled = scheduled.add(const Duration(days: 1));
+    // Build target time in local wall-clock time, then convert to UTC so
+    // the notification fires at the correct local hour regardless of timezone.
+    final now = DateTime.now();
+    var local = DateTime(now.year, now.month, now.day, hour, minute);
+    if (local.isBefore(now)) {
+      local = local.add(const Duration(days: 1));
     }
+    final utc = local.toUtc();
+    final tzScheduled =
+        tz.TZDateTime(tz.UTC, utc.year, utc.month, utc.day, utc.hour, utc.minute);
     await _plugin.zonedSchedule(
       id,
       title,
       body,
-      scheduled,
+      tzScheduled,
       const NotificationDetails(
         iOS: DarwinNotificationDetails(
           presentAlert: true,
