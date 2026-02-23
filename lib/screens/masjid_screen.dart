@@ -27,6 +27,7 @@ class _MasjidScreenState extends State<MasjidScreen> {
   String? _errorMessage;
   List<Masjid> _masjids = [];
   PrayerTimings? _myMasjidPrayerTimings;
+  Masjid? _enrichedMyMasjid;
   bool _initialized = false;
   String _searchQuery = '';
 
@@ -36,7 +37,7 @@ class _MasjidScreenState extends State<MasjidScreen> {
     if (!_initialized) {
       _initialized = true;
       _loadMasjids();
-      _loadMyMasjidPrayerTimes();
+      _loadMyMasjidData();
     }
   }
 
@@ -88,21 +89,26 @@ class _MasjidScreenState extends State<MasjidScreen> {
     }
   }
 
-  Future<void> _loadMyMasjidPrayerTimes() async {
+  Future<void> _loadMyMasjidData() async {
     final myMasjid = context.settings.selectedMasjid;
     if (myMasjid == null) return;
+
+    // Fetch prayer times
     try {
       final response = await _prayerTimeService.fetchPrayerTimes(
         latitude: myMasjid.latitude,
         longitude: myMasjid.longitude,
       );
       if (!mounted) return;
-      setState(() {
-        _myMasjidPrayerTimings = response.timings;
-      });
-    } catch (_) {
-      // Supplementary data; fail silently
-    }
+      setState(() => _myMasjidPrayerTimings = response.timings);
+    } catch (_) {}
+
+    // Fetch details to get fresh photo references
+    try {
+      final details = await _masjidService.getMasjidDetails(myMasjid);
+      if (!mounted) return;
+      setState(() => _enrichedMyMasjid = details);
+    } catch (_) {}
   }
 
   @override
@@ -186,8 +192,8 @@ class _MasjidScreenState extends State<MasjidScreen> {
       ),
     );
     if (mounted) {
-      setState(() {});
-      _loadMyMasjidPrayerTimes();
+      setState(() => _enrichedMyMasjid = null);
+      _loadMyMasjidData();
     }
   }
 
@@ -280,7 +286,7 @@ class _MasjidScreenState extends State<MasjidScreen> {
               ),
             ),
             _MyMasjidCard(
-              masjid: selectedMasjid,
+              masjid: _enrichedMyMasjid ?? selectedMasjid,
               masjidService: _masjidService,
               prayerTimings: _myMasjidPrayerTimings,
               onTap: () => _navigateToDetail(selectedMasjid),
@@ -374,6 +380,7 @@ class _MyMasjidCard extends StatelessWidget {
                       masjid.photoReferences.first,
                       maxWidth: 600,
                     ),
+                    headers: const {'X-Ios-Bundle-Identifier': 'com.fajr.fajr'},
                     fit: BoxFit.cover,
                     cacheWidth: 600,
                     frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {

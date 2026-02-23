@@ -570,6 +570,7 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                             _masjid.photoReferences.first,
                             maxWidth: 800,
                           ),
+                          headers: const {'X-Ios-Bundle-Identifier': 'com.fajr.fajr'},
                           fit: BoxFit.cover,
                           cacheWidth: 800,
                           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {

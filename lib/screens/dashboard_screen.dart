@@ -31,7 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   bool _isServerUnavailable = false;
   bool _isGenericError = false;
   PrayerTimesResponse? _prayerTimes;
-  bool _isUsingCachedData = false;
+
   int _nextPrayerIndex = 0;
   Duration _timeUntilNext = Duration.zero;
   Timer? _countdownTimer;
@@ -92,7 +92,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       setState(() {
         _prayerTimes = prayerTimes;
-        _isUsingCachedData = false;
         _isLoading = false;
       });
 
@@ -145,7 +144,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       _longitude = prefs.getDouble('cachedLng');
       setState(() {
         _prayerTimes = cached;
-        _isUsingCachedData = true;
         _isLoading = false;
         _errorMessage = null;
       });

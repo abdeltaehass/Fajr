@@ -6,7 +6,7 @@ import '../models/iqama_times.dart';
 import '../models/masjid_event.dart';
 import 'app_colors.dart';
 
-enum AppLanguage { english, arabic, french, turkish, urdu, malay }
+enum AppLanguage { english, arabic, french, turkish, urdu, malay, indonesian, bengali, persian }
 
 class AppSettings extends ChangeNotifier {
   ColorTheme _colorTheme = ColorTheme.green;
@@ -39,7 +39,7 @@ class AppSettings extends ChangeNotifier {
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   String get reciterId => _reciterId;
 
-  bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu;
+  bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu || _language == AppLanguage.persian;
 
   String get quranEdition {
     switch (_language) {
@@ -53,6 +53,12 @@ class AppSettings extends ChangeNotifier {
         return 'ur.jalandhry';
       case AppLanguage.malay:
         return 'ms.basmeih';
+      case AppLanguage.indonesian:
+        return 'id.indonesian';
+      case AppLanguage.bengali:
+        return 'bn.bengali';
+      case AppLanguage.persian:
+        return 'fa.ayati';
       case AppLanguage.english:
         return 'en.sahih';
     }
@@ -70,6 +76,12 @@ class AppSettings extends ChangeNotifier {
         return const Locale('ur');
       case AppLanguage.malay:
         return const Locale('ms');
+      case AppLanguage.indonesian:
+        return const Locale('id');
+      case AppLanguage.bengali:
+        return const Locale('bn');
+      case AppLanguage.persian:
+        return const Locale('fa');
       case AppLanguage.english:
         return const Locale('en');
     }

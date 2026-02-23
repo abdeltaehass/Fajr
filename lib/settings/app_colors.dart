@@ -91,31 +91,31 @@ class AppColorPalettes {
   );
 
   static const pink = AppColors(
-    scaffold: Color(0xFF3D1028),
-    card: Color(0xFF331020),
-    surface: Color(0xFF5C1B42),
-    accent: Color(0xFFE8A0C0),
-    accentLight: Color(0xFFF0D0E0),
+    scaffold: Color(0xFFB03060),
+    card: Color(0xFF963050),
+    surface: Color(0xFFCC4878),
+    accent: Color(0xFFFACCE0),
+    accentLight: Color(0xFFFDE8F2),
     bodyText: Color(0xFFF5F0E1),
     activeGlow: Color(0xFFFFD700),
   );
 
   static const yellow = AppColors(
-    scaffold: Color(0xFF3D3010),
-    card: Color(0xFF332810),
-    surface: Color(0xFF5C4A1B),
-    accent: Color(0xFFE8C84C),
-    accentLight: Color(0xFFF0E0A3),
+    scaffold: Color(0xFFC89020),
+    card: Color(0xFFA87818),
+    surface: Color(0xFFE0A828),
+    accent: Color(0xFFFFF080),
+    accentLight: Color(0xFFFFFAC8),
     bodyText: Color(0xFFF5F0E1),
     activeGlow: Color(0xFFFFD700),
   );
 
   static const purple = AppColors(
-    scaffold: Color(0xFF1E0D3D),
-    card: Color(0xFF180A33),
-    surface: Color(0xFF2E1B5C),
-    accent: Color(0xFFC9A84C),
-    accentLight: Color(0xFFE8D5A3),
+    scaffold: Color(0xFF4A1E7A),
+    card: Color(0xFF3D1866),
+    surface: Color(0xFF6930A8),
+    accent: Color(0xFFCAAFF5),
+    accentLight: Color(0xFFE2D4FA),
     bodyText: Color(0xFFF5F0E1),
     activeGlow: Color(0xFFFFD700),
   );

@@ -30,21 +30,18 @@ class Masjid {
   });
 
   factory Masjid.fromNearbySearch(Map<String, dynamic> json) {
-    final location = json['geometry']['location'];
+    final location = json['location'] as Map<String, dynamic>;
     final photos = json['photos'] as List<dynamic>? ?? [];
 
     return Masjid(
-      placeId: json['place_id'] as String,
-      name: json['name'] as String,
-      address: json['vicinity'] as String?,
-      latitude: (location['lat'] as num).toDouble(),
-      longitude: (location['lng'] as num).toDouble(),
+      placeId: json['id'] as String,
+      name: (json['displayName']?['text'] as String?) ?? '',
+      latitude: (location['latitude'] as num).toDouble(),
+      longitude: (location['longitude'] as num).toDouble(),
       rating: (json['rating'] as num?)?.toDouble(),
-      userRatingsTotal: json['user_ratings_total'] as int?,
-      openNow: json['opening_hours']?['open_now'] as bool?,
-      photoReferences: photos
-          .map((p) => p['photo_reference'] as String)
-          .toList(),
+      userRatingsTotal: json['userRatingCount'] as int?,
+      openNow: json['regularOpeningHours']?['openNow'] as bool?,
+      photoReferences: photos.map((p) => p['name'] as String).toList(),
     );
   }
 

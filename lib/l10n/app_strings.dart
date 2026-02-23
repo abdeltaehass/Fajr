@@ -5,6 +5,9 @@ import 'strings/fr.dart';
 import 'strings/tr.dart';
 import 'strings/ur.dart';
 import 'strings/ms.dart';
+import 'strings/id.dart';
+import 'strings/bn.dart';
+import 'strings/fa.dart';
 
 abstract class AppStrings {
   // Navigation
@@ -144,6 +147,12 @@ abstract class AppStrings {
         return UrduStrings();
       case AppLanguage.malay:
         return MalayStrings();
+      case AppLanguage.indonesian:
+        return IndonesianStrings();
+      case AppLanguage.bengali:
+        return BengaliStrings();
+      case AppLanguage.persian:
+        return PersianStrings();
       case AppLanguage.english:
         return EnglishStrings();
     }

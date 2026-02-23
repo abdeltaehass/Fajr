@@ -7,24 +7,46 @@ import '../config/api_keys.dart';
 import '../models/masjid.dart';
 
 class MasjidService {
-  static const String _baseUrl = 'https://maps.googleapis.com/maps/api/place';
+  static const String _baseUrl = 'https://places.googleapis.com/v1';
+  static const Map<String, String> _baseHeaders = {
+    'X-Goog-Api-Key': ApiKeys.googlePlaces,
+    'X-Ios-Bundle-Identifier': 'com.fajr.fajr',
+  };
 
   Future<List<Masjid>> searchNearbyMasjids({
     required double latitude,
     required double longitude,
     int radiusMeters = 20000,
   }) async {
-    final uri = Uri.parse(
-      '$_baseUrl/nearbysearch/json'
-      '?location=$latitude,$longitude'
-      '&radius=$radiusMeters'
-      '&type=mosque'
-      '&key=${ApiKeys.googlePlaces}',
-    );
+    final uri = Uri.parse('$_baseUrl/places:searchNearby');
+
+    final body = jsonEncode({
+      'includedTypes': ['mosque'],
+      'maxResultCount': 20,
+      'locationRestriction': {
+        'circle': {
+          'center': {'latitude': latitude, 'longitude': longitude},
+          'radius': radiusMeters.toDouble(),
+        },
+      },
+    });
 
     final http.Response response;
     try {
-      response = await http.get(uri).timeout(const Duration(seconds: 15));
+      response = await http
+          .post(
+            uri,
+            headers: {
+              ..._baseHeaders,
+              'Content-Type': 'application/json',
+              'X-Goog-FieldMask':
+                  'places.id,places.displayName,places.location,'
+                  'places.rating,places.userRatingCount,'
+                  'places.regularOpeningHours,places.photos',
+            },
+            body: body,
+          )
+          .timeout(const Duration(seconds: 15));
     } on TimeoutException {
       throw MasjidServiceException('Request timed out. Check your connection.');
     } on SocketException {
@@ -33,24 +55,17 @@ class MasjidService {
 
     if (response.statusCode != 200) {
       throw MasjidServiceException(
-        'API returned status ${response.statusCode}',
+        'API ${response.statusCode}: ${response.body}',
       );
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
-    final status = json['status'] as String;
+    final places = json['places'] as List<dynamic>? ?? [];
 
-    if (status == 'ZERO_RESULTS') {
-      return [];
-    }
+    if (places.isEmpty) return [];
 
-    if (status != 'OK') {
-      throw MasjidServiceException('Places API error: $status');
-    }
-
-    final results = json['results'] as List<dynamic>;
-    final masjids = results
-        .map((r) => Masjid.fromNearbySearch(r as Map<String, dynamic>))
+    final masjids = places
+        .map((p) => Masjid.fromNearbySearch(p as Map<String, dynamic>))
         .map((m) => m.copyWithDistance(
               _calculateDistance(latitude, longitude, m.latitude, m.longitude),
             ))
@@ -63,16 +78,18 @@ class MasjidService {
   }
 
   Future<Masjid> getMasjidDetails(Masjid masjid) async {
-    final uri = Uri.parse(
-      '$_baseUrl/details/json'
-      '?place_id=${masjid.placeId}'
-      '&fields=formatted_phone_number,website,opening_hours,photos'
-      '&key=${ApiKeys.googlePlaces}',
-    );
+    final uri = Uri.parse('$_baseUrl/places/${masjid.placeId}');
 
     final http.Response detailResponse;
     try {
-      detailResponse = await http.get(uri).timeout(const Duration(seconds: 15));
+      detailResponse = await http.get(
+        uri,
+        headers: {
+          ..._baseHeaders,
+          'X-Goog-FieldMask':
+              'nationalPhoneNumber,websiteUri,regularOpeningHours,photos',
+        },
+      ).timeout(const Duration(seconds: 15));
     } on TimeoutException {
       throw MasjidServiceException('Request timed out. Check your connection.');
     } on SocketException {
@@ -85,31 +102,25 @@ class MasjidService {
       );
     }
 
-    final json = jsonDecode(detailResponse.body) as Map<String, dynamic>;
-    final status = json['status'] as String;
-
-    if (status != 'OK') {
-      throw MasjidServiceException('Places API error: $status');
-    }
-
-    final result = (json['result'] ?? {}) as Map<String, dynamic>;
+    final result = jsonDecode(detailResponse.body) as Map<String, dynamic>;
     final photos = result['photos'] as List<dynamic>? ?? [];
-    final hours = result['opening_hours']?['weekday_text'] as List<dynamic>? ?? [];
+    final hours =
+        result['regularOpeningHours']?['weekdayDescriptions'] as List<dynamic>?
+            ?? [];
 
     return masjid.copyWithDetails(
-      phoneNumber: result['formatted_phone_number'] as String?,
-      website: result['website'] as String?,
+      phoneNumber: result['nationalPhoneNumber'] as String?,
+      website: result['websiteUri'] as String?,
       openingHours: hours.map((h) => h as String).toList(),
       photoReferences: photos.isNotEmpty
-          ? photos.map((p) => p['photo_reference'] as String).toList()
+          ? photos.map((p) => p['name'] as String).toList()
           : const [],
     );
   }
 
-  String getPhotoUrl(String photoReference, {int maxWidth = 400}) {
-    return '$_baseUrl/photo'
-        '?maxwidth=$maxWidth'
-        '&photo_reference=$photoReference'
+  String getPhotoUrl(String photoName, {int maxWidth = 400}) {
+    return '$_baseUrl/$photoName/media'
+        '?maxWidthPx=$maxWidth'
         '&key=${ApiKeys.googlePlaces}';
   }
 

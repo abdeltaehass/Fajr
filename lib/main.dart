@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -13,6 +14,14 @@ void main() async {
   tz.initializeTimeZones();
   await initializeDateFormatting();
   await NotificationService.initialize();
+
+  // Configure audio session for background playback (matches UIBackgroundModes: audio)
+  await AudioPlayer.global.setAudioContext(AudioContext(
+    iOS: AudioContextIOS(
+      category: AVAudioSessionCategory.playback,
+      options: const {},
+    ),
+  ));
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
@@ -46,9 +55,12 @@ class _FajrAppState extends State<FajrApp> {
   @override
   Widget build(BuildContext context) {
     if (!_loaded) {
-      return const MaterialApp(
-        home: Scaffold(body: SizedBox.shrink()),
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: const Color(0xFF0D4A2E),
+          body: const SizedBox.shrink(),
+        ),
       );
     }
 

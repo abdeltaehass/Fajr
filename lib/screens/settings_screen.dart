@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/reciter_list.dart';
-import '../models/quran_reciter.dart';
 import '../services/notification_service.dart';
 import '../settings/app_colors.dart';
 import '../settings/app_settings.dart';
@@ -159,21 +158,19 @@ class SettingsScreen extends StatelessWidget {
             // Language Section
             _SectionHeader(title: s.language),
             const SizedBox(height: 12),
-            ...AppLanguage.values.map((lang) => _LanguageTile(
-                  language: lang,
-                  isSelected: settings.language == lang,
-                  onTap: () => settings.setLanguage(lang),
-                )),
+            _LangDropdown(
+              value: settings.language,
+              onChanged: (lang) => settings.setLanguage(lang!),
+            ),
             const SizedBox(height: 32),
 
             // Quran Reciter Section
             _SectionHeader(title: s.quranReciter),
             const SizedBox(height: 12),
-            ...reciters.map((reciter) => _ReciterTile(
-                  reciter: reciter,
-                  isSelected: settings.reciterId == reciter.id,
-                  onTap: () => settings.setReciter(reciter.id),
-                )),
+            _ReciterDropdown(
+              value: settings.reciterId,
+              onChanged: (id) => settings.setReciter(id!),
+            ),
             const SizedBox(height: 32),
 
             // Legal Section
@@ -418,151 +415,105 @@ class _SeasonalThemeTile extends StatelessWidget {
   }
 }
 
-class _LanguageTile extends StatelessWidget {
-  final AppLanguage language;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _LanguageTile({
-    required this.language,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  String get _label {
-    switch (language) {
-      case AppLanguage.english:
-        return 'English';
-      case AppLanguage.arabic:
-        return 'العربية — Arabic';
-      case AppLanguage.french:
-        return 'Français — French';
-      case AppLanguage.turkish:
-        return 'Türkçe — Turkish';
-      case AppLanguage.urdu:
-        return 'اردو — Urdu';
-      case AppLanguage.malay:
-        return 'Bahasa Melayu — Malay';
-    }
+String _languageLabel(AppLanguage lang) {
+  switch (lang) {
+    case AppLanguage.english:    return '🇬🇧  English';
+    case AppLanguage.arabic:     return '🇸🇦  العربية — Arabic';
+    case AppLanguage.french:     return '🇫🇷  Français — French';
+    case AppLanguage.turkish:    return '🇹🇷  Türkçe — Turkish';
+    case AppLanguage.urdu:       return '🇵🇰  اردو — Urdu';
+    case AppLanguage.malay:      return '🇲🇾  Bahasa Melayu — Malay';
+    case AppLanguage.indonesian: return '🇮🇩  Bahasa Indonesia';
+    case AppLanguage.bengali:    return '🇧🇩  বাংলা — Bengali';
+    case AppLanguage.persian:    return '🇮🇷  فارسی — Persian';
   }
+}
 
-  String get _flag {
-    switch (language) {
-      case AppLanguage.english:
-        return '🇬🇧';
-      case AppLanguage.arabic:
-        return '🇸🇦';
-      case AppLanguage.french:
-        return '🇫🇷';
-      case AppLanguage.turkish:
-        return '🇹🇷';
-      case AppLanguage.urdu:
-        return '🇵🇰';
-      case AppLanguage.malay:
-        return '🇲🇾';
-    }
-  }
+class _LangDropdown extends StatelessWidget {
+  final AppLanguage value;
+  final ValueChanged<AppLanguage?> onChanged;
+
+  const _LangDropdown({required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? c.surface.withValues(alpha: 0.4) : c.card,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? c.accent : c.accent.withValues(alpha: 0.15),
-            width: isSelected ? 1.5 : 1,
-          ),
+    return _StyledDropdown<AppLanguage>(
+      value: value,
+      onChanged: onChanged,
+      items: AppLanguage.values.map((lang) => DropdownMenuItem(
+        value: lang,
+        child: Text(
+          _languageLabel(lang),
+          style: GoogleFonts.poppins(color: c.bodyText, fontSize: 14),
         ),
-        child: Row(
-          children: [
-            Text(_flag, style: const TextStyle(fontSize: 22)),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                _label,
-                style: GoogleFonts.poppins(
-                  color: isSelected ? c.accent : c.bodyText,
-                  fontSize: 15,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
-            ),
-            if (isSelected) Icon(Icons.check_circle, color: c.accent, size: 20),
-          ],
-        ),
-      ),
+      )).toList(),
     );
   }
 }
 
-class _ReciterTile extends StatelessWidget {
-  final QuranReciter reciter;
-  final bool isSelected;
-  final VoidCallback onTap;
+class _ReciterDropdown extends StatelessWidget {
+  final String value;
+  final ValueChanged<String?> onChanged;
 
-  const _ReciterTile({
-    required this.reciter,
-    required this.isSelected,
-    required this.onTap,
+  const _ReciterDropdown({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return _StyledDropdown<String>(
+      value: value,
+      onChanged: onChanged,
+      items: reciters.map((r) => DropdownMenuItem(
+        value: r.id,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(r.name,
+                style: GoogleFonts.poppins(color: c.bodyText, fontSize: 14)),
+            Text(r.arabicName,
+                style: GoogleFonts.amiri(
+                    color: c.accentLight, fontSize: 13),
+                textDirection: TextDirection.rtl),
+          ],
+        ),
+      )).toList(),
+    );
+  }
+}
+
+class _StyledDropdown<T> extends StatelessWidget {
+  final T value;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?> onChanged;
+
+  const _StyledDropdown({
+    required this.value,
+    required this.items,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? c.surface.withValues(alpha: 0.4) : c.card,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.accent.withValues(alpha: 0.3)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isExpanded: true,
+          dropdownColor: c.card,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? c.accent : c.accent.withValues(alpha: 0.15),
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.mic_outlined,
-                color: isSelected ? c.accent : c.accentLight, size: 22),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    reciter.name,
-                    style: GoogleFonts.poppins(
-                      color: isSelected ? c.accent : c.bodyText,
-                      fontSize: 14,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                  ),
-                  Text(
-                    reciter.arabicName,
-                    style: GoogleFonts.amiri(
-                      color: (isSelected ? c.accent : c.accentLight)
-                          .withValues(alpha: 0.8),
-                      fontSize: 14,
-                    ),
-                    textDirection: TextDirection.rtl,
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected) Icon(Icons.check_circle, color: c.accent, size: 20),
-          ],
+          icon: Icon(Icons.keyboard_arrow_down, color: c.accent),
+          items: items,
+          onChanged: onChanged,
         ),
       ),
     );

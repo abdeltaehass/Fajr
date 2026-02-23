@@ -36,6 +36,31 @@ const List<QuranReciter> reciters = [
     name: 'Muhammad Jibreel',
     arabicName: 'محمد جبريل',
   ),
+  QuranReciter(
+    id: 'ar.abdullahbasfar',
+    name: 'Abdullah Basfar',
+    arabicName: 'عبدالله بصفر',
+  ),
+  QuranReciter(
+    id: 'ar.saoodshuraym',
+    name: 'Saud Al-Shuraim',
+    arabicName: 'سعود الشريم',
+  ),
+  QuranReciter(
+    id: 'ar.aymanswoaid',
+    name: 'Ayman Sowaid',
+    arabicName: 'أيمن سويد',
+  ),
+  QuranReciter(
+    id: 'ar.hanirifai',
+    name: 'Hani Ar-Rifai',
+    arabicName: 'هاني الرفاعي',
+  ),
+  QuranReciter(
+    id: 'ar.ibrahimakhbar',
+    name: 'Ibrahim Al-Akhdar',
+    arabicName: 'إبراهيم الأخضر',
+  ),
 ];
 
 QuranReciter reciterById(String id) =>
