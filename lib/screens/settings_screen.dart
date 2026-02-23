@@ -88,6 +88,27 @@ class SettingsScreen extends StatelessWidget {
                 settings.setReminderEnabled(val);
               },
             ),
+            if (settings.reminderEnabled) ...[
+              const SizedBox(height: 8),
+              _StyledDropdown<int>(
+                value: settings.reminderMinutes,
+                items: [10, 20, 30]
+                    .map((m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(
+                            '$m minutes before',
+                            style: GoogleFonts.poppins(
+                              color: context.colors.accentLight,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) settings.setReminderMinutes(val);
+                },
+              ),
+            ],
             const SizedBox(height: 32),
 
             // Athkar Reminders Section

@@ -49,6 +49,7 @@ class NotificationService {
     required List<PrayerNotificationEntry> entries,
     required bool adhanEnabled,
     required bool reminderEnabled,
+    int reminderMinutes = 10,
   }) async {
     await _cancelPrayerNotifications();
     if (!adhanEnabled && !reminderEnabled) return;
@@ -70,11 +71,11 @@ class NotificationService {
 
       if (reminderEnabled) {
         final reminder =
-            entry.localTime.subtract(const Duration(minutes: 30));
+            entry.localTime.subtract(Duration(minutes: reminderMinutes));
         if (reminder.isAfter(now)) {
           await _schedule(
             id: id++,
-            title: '${entry.prayerName} in 30 minutes',
+            title: '${entry.prayerName} in $reminderMinutes minutes',
             body: '${entry.prayerName} at ${_formatTime(entry.localTime)}',
             localTime: reminder,
           );

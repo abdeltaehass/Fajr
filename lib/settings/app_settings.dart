@@ -18,6 +18,7 @@ class AppSettings extends ChangeNotifier {
   Map<String, List<MasjidEvent>> _masjidEventsMap = {};
   bool _adhanEnabled = false;
   bool _reminderEnabled = false;
+  int _reminderMinutes = 10;
   Set<String> _athkarNotifEnabled = {};
   String _reciterId = 'ar.alafasy';
 
@@ -36,6 +37,7 @@ class AppSettings extends ChangeNotifier {
   }
   bool get adhanEnabled => _adhanEnabled;
   bool get reminderEnabled => _reminderEnabled;
+  int get reminderMinutes => _reminderMinutes;
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   String get reciterId => _reciterId;
 
@@ -106,6 +108,7 @@ class AppSettings extends ChangeNotifier {
 
     _adhanEnabled = prefs.getBool('adhanEnabled') ?? false;
     _reminderEnabled = prefs.getBool('reminderEnabled') ?? false;
+    _reminderMinutes = prefs.getInt('reminderMinutes') ?? 10;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
 
     final athkarJson = prefs.getString('athkarNotifEnabled');
@@ -266,6 +269,13 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('reminderEnabled', value);
+  }
+
+  Future<void> setReminderMinutes(int minutes) async {
+    _reminderMinutes = minutes;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('reminderMinutes', minutes);
   }
 
   Future<void> setAthkarNotifEnabled(String key, bool enabled) async {

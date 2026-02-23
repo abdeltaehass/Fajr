@@ -207,6 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       entries: entries,
       adhanEnabled: context.settings.adhanEnabled,
       reminderEnabled: context.settings.reminderEnabled,
+      reminderMinutes: context.settings.reminderMinutes,
     );
   }
 
