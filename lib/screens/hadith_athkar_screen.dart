@@ -4,6 +4,9 @@ import '../settings/settings_provider.dart';
 import '../data/hadiths.dart';
 import '../data/athkar.dart';
 import 'athkar_screen.dart';
+import 'tasbeeh_screen.dart';
+import 'names_of_allah_screen.dart';
+import 'duas_screen.dart';
 
 class HadithAthkarScreen extends StatelessWidget {
   const HadithAthkarScreen({super.key});
@@ -109,6 +112,54 @@ class HadithAthkarScreen extends StatelessWidget {
                     athkar: sleepAthkar,
                   ),
                 ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Islamic Tools Section
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'ISLAMIC TOOLS',
+                style: GoogleFonts.poppins(
+                  color: context.colors.accentLight,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            _AthkarLaunchCard(
+              title: 'Tasbeeh Counter',
+              subtitle: 'SubhanAllah · Alhamdulillah · Allahu Akbar',
+              icon: Icons.radio_button_checked_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TasbeehScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            _AthkarLaunchCard(
+              title: 'Asma ul Husna',
+              subtitle: '99 Beautiful Names of Allah',
+              icon: Icons.auto_awesome_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NamesOfAllahScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            _AthkarLaunchCard(
+              title: 'Dua Collection',
+              subtitle: 'Morning, travel, eating & more',
+              icon: Icons.favorite_outline,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DuasScreen()),
               ),
             ),
             const SizedBox(height: 16),
