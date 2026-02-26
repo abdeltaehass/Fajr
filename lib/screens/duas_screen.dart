@@ -3,21 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../data/duas.dart';
 import '../settings/settings_provider.dart';
 
-class DuasScreen extends StatefulWidget {
+class DuasScreen extends StatelessWidget {
   const DuasScreen({super.key});
-
-  @override
-  State<DuasScreen> createState() => _DuasScreenState();
-}
-
-class _DuasScreenState extends State<DuasScreen> {
-  int _selectedCategory = 0;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final highEmphasis = c.isLight ? c.scaffold : Colors.white;
-    final category = duaCategories[_selectedCategory];
 
     return Scaffold(
       backgroundColor: c.scaffold,
@@ -31,83 +22,124 @@ class _DuasScreenState extends State<DuasScreen> {
         title: Text(
           'Dua Collection',
           style: GoogleFonts.poppins(
-            color: highEmphasis,
+            color: c.accentLight,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          // Category selector
-          SizedBox(
-            height: 56,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: duaCategories.length,
-              itemBuilder: (context, index) {
-                final selected = index == _selectedCategory;
-                final cat = duaCategories[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = index),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? c.accent.withValues(alpha: 0.2)
-                            : c.card,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: selected
-                              ? c.accent
-                              : c.accent.withValues(alpha: 0.2),
-                          width: selected ? 1.5 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(cat.icon,
-                              style: const TextStyle(fontSize: 14)),
-                          const SizedBox(width: 6),
-                          Text(
-                            cat.name,
-                            style: GoogleFonts.poppins(
-                              color: selected ? c.accent : c.bodyText,
-                              fontSize: 12,
-                              fontWeight: selected
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                            ),
-                          ),
-                        ],
+      body: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        itemCount: duaCategories.length,
+        itemBuilder: (context, index) {
+          final cat = duaCategories[index];
+          return _CategoryTile(category: cat);
+        },
+      ),
+    );
+  }
+}
+
+class _CategoryTile extends StatelessWidget {
+  final DuaCategory category;
+  const _CategoryTile({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => _DuaCategoryScreen(category: category),
+          ),
+        ),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: c.accent.withValues(alpha: 0.15)),
+          ),
+          child: Row(
+            children: [
+              Text(category.icon, style: const TextStyle(fontSize: 26)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category.name,
+                      style: GoogleFonts.poppins(
+                        color: c.accentLight,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${category.duas.length} duas',
+                      style: GoogleFonts.poppins(
+                        color: c.bodyText,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, color: c.accentLight, size: 16),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
 
-          // Duas list
-          Expanded(
-            child: ListView.builder(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: category.duas.length,
-              itemBuilder: (context, index) {
-                final dua = category.duas[index];
-                return _DuaCard(dua: dua);
-              },
+class _DuaCategoryScreen extends StatelessWidget {
+  final DuaCategory category;
+  const _DuaCategoryScreen({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    return Scaffold(
+      backgroundColor: c.scaffold,
+      appBar: AppBar(
+        backgroundColor: c.scaffold,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: c.accent),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(category.icon, style: const TextStyle(fontSize: 18)),
+            const SizedBox(width: 8),
+            Text(
+              category.name,
+              style: GoogleFonts.poppins(
+                color: c.accentLight,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        centerTitle: true,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        itemCount: category.duas.length,
+        itemBuilder: (context, index) => _DuaCard(dua: category.duas[index]),
       ),
     );
   }
@@ -140,23 +172,27 @@ class _DuaCardState extends State<_DuaCard> {
             color: c.card,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: c.accent.withValues(alpha: 0.2),
+              color: _expanded
+                  ? c.accent.withValues(alpha: 0.4)
+                  : c.accent.withValues(alpha: 0.15),
+              width: _expanded ? 1.5 : 1,
             ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.dua.title,
-                    style: GoogleFonts.poppins(
-                      color: c.accent,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
+                  Expanded(
+                    child: Text(
+                      widget.dua.title,
+                      style: GoogleFonts.poppins(
+                        color: c.accent,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                   Icon(
@@ -169,8 +205,6 @@ class _DuaCardState extends State<_DuaCard> {
                 ],
               ),
               const SizedBox(height: 14),
-
-              // Arabic text
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -185,16 +219,10 @@ class _DuaCardState extends State<_DuaCard> {
                   ),
                 ),
               ),
-
               if (_expanded) ...[
                 const SizedBox(height: 14),
-                Container(
-                  height: 1,
-                  color: c.accent.withValues(alpha: 0.15),
-                ),
+                Container(height: 1, color: c.accent.withValues(alpha: 0.15)),
                 const SizedBox(height: 14),
-
-                // Transliteration
                 Text(
                   widget.dua.transliteration,
                   style: GoogleFonts.poppins(
@@ -205,8 +233,6 @@ class _DuaCardState extends State<_DuaCard> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Translation
                 Text(
                   widget.dua.translation,
                   style: GoogleFonts.poppins(
@@ -216,8 +242,6 @@ class _DuaCardState extends State<_DuaCard> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Source
                 Text(
                   widget.dua.source,
                   style: GoogleFonts.poppins(
