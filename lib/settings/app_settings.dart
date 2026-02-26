@@ -17,6 +17,7 @@ class AppSettings extends ChangeNotifier {
   Map<String, IqamaTimes> _iqamaTimesMap = {};
   Map<String, List<MasjidEvent>> _masjidEventsMap = {};
   bool _adhanEnabled = false;
+  bool _adhanSoundEnabled = false;
   bool _reminderEnabled = false;
   int _reminderMinutes = 10;
   Set<String> _athkarNotifEnabled = {};
@@ -36,6 +37,7 @@ class AppSettings extends ChangeNotifier {
     return List.unmodifiable(_masjidEventsMap[_selectedMasjid!.placeId] ?? []);
   }
   bool get adhanEnabled => _adhanEnabled;
+  bool get adhanSoundEnabled => _adhanSoundEnabled;
   bool get reminderEnabled => _reminderEnabled;
   int get reminderMinutes => _reminderMinutes;
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
@@ -107,6 +109,7 @@ class AppSettings extends ChangeNotifier {
     }
 
     _adhanEnabled = prefs.getBool('adhanEnabled') ?? false;
+    _adhanSoundEnabled = prefs.getBool('adhanSoundEnabled') ?? false;
     _reminderEnabled = prefs.getBool('reminderEnabled') ?? false;
     _reminderMinutes = prefs.getInt('reminderMinutes') ?? 10;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
@@ -262,6 +265,13 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('adhanEnabled', value);
+  }
+
+  Future<void> setAdhanSoundEnabled(bool value) async {
+    _adhanSoundEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('adhanSoundEnabled', value);
   }
 
   Future<void> setReminderEnabled(bool value) async {

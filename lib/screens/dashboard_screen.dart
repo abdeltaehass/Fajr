@@ -206,6 +206,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     NotificationService.schedulePrayerNotifications(
       entries: entries,
       adhanEnabled: context.settings.adhanEnabled,
+      adhanSoundEnabled: context.settings.adhanSoundEnabled,
       reminderEnabled: context.settings.reminderEnabled,
       reminderMinutes: context.settings.reminderMinutes,
     );

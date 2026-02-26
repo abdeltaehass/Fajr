@@ -7,6 +7,7 @@ import 'athkar_screen.dart';
 import 'tasbeeh_screen.dart';
 import 'names_of_allah_screen.dart';
 import 'duas_screen.dart';
+import 'hajj_umrah_screen.dart';
 
 class HadithAthkarScreen extends StatelessWidget {
   const HadithAthkarScreen({super.key});
@@ -160,6 +161,17 @@ class HadithAthkarScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const DuasScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            _AthkarLaunchCard(
+              title: 'Hajj & Umrah Guide',
+              subtitle: 'Step-by-step guide with duas',
+              icon: Icons.mosque_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HajjUmrahScreen()),
               ),
             ),
             const SizedBox(height: 16),

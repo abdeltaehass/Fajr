@@ -243,4 +243,316 @@ const List<DuaCategory> duaCategories = [
       ),
     ],
   ),
+  DuaCategory(
+    name: 'After Prayer',
+    icon: '🕌',
+    duas: [
+      Dua(
+        title: 'Seeking Forgiveness 3x',
+        arabic: 'أَسْتَغْفِرُ اللَّهَ',
+        transliteration: 'Astaghfirullah',
+        translation: 'I seek the forgiveness of Allah.',
+        source: 'Sahih Muslim 591',
+      ),
+      Dua(
+        title: 'Glorification After Prayer',
+        arabic: 'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ',
+        transliteration: 'Subhanallah, walhamdulillah, wallahu akbar',
+        translation:
+            'Glory be to Allah. All praise is for Allah. Allah is the Greatest. (Each 33 times)',
+        source: 'Sahih Muslim 597',
+      ),
+      Dua(
+        title: 'Completion of 100',
+        arabic:
+            'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+        transliteration:
+            "La ilaha illallahu wahdahu la sharika lah, lahul mulku wa lahul hamdu wa huwa 'ala kulli shay'in qadir",
+        translation:
+            'There is no god but Allah alone, with no partner. To Him belongs dominion and all praise, and He has power over all things.',
+        source: 'Sahih Muslim 597',
+      ),
+      Dua(
+        title: 'Dua After Every Prayer',
+        arabic:
+            'اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ',
+        transliteration:
+            "Allahumma a'inni 'ala dhikrika wa shukrika wa husni 'ibadatik",
+        translation:
+            'O Allah, help me to remember You, to give thanks to You, and to worship You in the best manner.',
+        source: 'Sunan Abu Dawud 1522',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'After Wudu',
+    icon: '💧',
+    duas: [
+      Dua(
+        title: 'Shahada After Wudu',
+        arabic:
+            'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
+        transliteration:
+            "Ash-hadu an la ilaha illallahu wahdahu la sharika lah, wa ash-hadu anna Muhammadan 'abduhu wa rasuluh",
+        translation:
+            'I bear witness that there is no god but Allah alone, with no partner, and I bear witness that Muhammad is His servant and messenger.',
+        source: 'Sahih Muslim 234',
+      ),
+      Dua(
+        title: 'Full Dua After Wudu',
+        arabic:
+            'اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ',
+        transliteration:
+            'Allahumma-j\'alni minat-tawwabina wa-j\'alni minal-mutatahhirin',
+        translation:
+            'O Allah, make me among those who repent and make me among those who purify themselves.',
+        source: 'Sunan At-Tirmidhi 55',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'Bathroom',
+    icon: '🚿',
+    duas: [
+      Dua(
+        title: 'Before Entering',
+        arabic: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',
+        transliteration:
+            'Allahumma inni a\'udhu bika minal-khubuthi wal-khaba\'ith',
+        translation:
+            'O Allah, I seek Your protection from evil and from the evil ones.',
+        source: 'Sahih Al-Bukhari 142',
+      ),
+      Dua(
+        title: 'After Leaving',
+        arabic: 'غُفْرَانَكَ',
+        transliteration: 'Ghufranaka',
+        translation: 'I ask You for forgiveness.',
+        source: 'Sunan Abu Dawud 30',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'For Parents',
+    icon: '👨‍👩‍👦',
+    duas: [
+      Dua(
+        title: 'Dua for Parents',
+        arabic:
+            'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',
+        transliteration:
+            "Rabbighfir li wa liwali dayya warhamhuma kama rabbayani saghira",
+        translation:
+            'My Lord, forgive me and my parents and have mercy on them as they raised me when I was young.',
+        source: 'Quran 17:24',
+      ),
+      Dua(
+        title: 'Expanded Dua for Parents',
+        arabic:
+            'رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',
+        transliteration: "Rabbir-hamhuma kama rabbayani saghira",
+        translation:
+            'My Lord, have mercy on them both as they raised me when I was small.',
+        source: 'Quran 17:24',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'Friday',
+    icon: '🌟',
+    duas: [
+      Dua(
+        title: 'Abundant Salawat on Friday',
+        arabic:
+            'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ',
+        transliteration:
+            "Allahumma salli 'ala Muhammad wa 'ala ali Muhammad kama sallayta 'ala Ibrahim wa 'ala ali Ibrahim innaka Hamidun Majid",
+        translation:
+            'O Allah, send blessings upon Muhammad and the family of Muhammad, as You sent blessings upon Ibrahim and the family of Ibrahim. You are indeed Praiseworthy, Most Glorious.',
+        source: 'Sahih Al-Bukhari 3370',
+      ),
+      Dua(
+        title: 'Dua of the Hour on Friday',
+        arabic:
+            'اللَّهُمَّ إِنَّكَ عَفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
+        transliteration:
+            "Allahumma innaka 'afuwwun karimun tuhibbul 'afwa fa'fu 'anni",
+        translation:
+            'O Allah, You are Most Forgiving, Most Generous, You love to forgive, so forgive me.',
+        source: 'Sunan At-Tirmidhi 3513',
+      ),
+      Dua(
+        title: 'Surah al-Kahf Reminder',
+        arabic:
+            'مَنْ قَرَأَ سُورَةَ الْكَهْفِ يَوْمَ الْجُمُعَةِ أَضَاءَ لَهُ مِنَ النُّورِ مَا بَيْنَ الْجُمُعَتَيْنِ',
+        transliteration:
+            "Man qara'a surata l-kahfi yawmal jumu'ati ada'a lahu minan-nuri ma bayna l-jumu'atayn",
+        translation:
+            '"Whoever recites Surah al-Kahf on Friday, it will illuminate him with light between the two Fridays." — Prophet Muhammad ﷺ',
+        source: 'Al-Mustadrak, Al-Hakim 2/368 — Hasan',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'Rain & Weather',
+    icon: '🌧️',
+    duas: [
+      Dua(
+        title: 'When It Rains',
+        arabic: 'اللَّهُمَّ صَيِّبًا نَافِعًا',
+        transliteration: 'Allahumma sayyiban nafi\'a',
+        translation: 'O Allah, make it a beneficial rain.',
+        source: 'Sahih Al-Bukhari 1032',
+      ),
+      Dua(
+        title: 'After Rain',
+        arabic: 'مُطِرْنَا بِفَضْلِ اللَّهِ وَرَحْمَتِهِ',
+        transliteration: "Mutirna bifadlillahi wa rahmatih",
+        translation: 'We have been given rain by the grace and mercy of Allah.',
+        source: 'Sahih Al-Bukhari 846',
+      ),
+      Dua(
+        title: 'When Hearing Thunder',
+        arabic:
+            'سُبْحَانَ الَّذِي يُسَبِّحُ الرَّعْدُ بِحَمْدِهِ وَالْمَلَائِكَةُ مِنْ خِيفَتِهِ',
+        transliteration:
+            "Subhanal-ladhi yusabbihur-ra'du bihamdihi wal-mala'ikatu min khifatih",
+        translation:
+            'Glory be to the One Whom the thunder glorifies with His praise, and the angels too out of awe of Him.',
+        source: 'Muwatta Imam Malik 2/992',
+      ),
+      Dua(
+        title: 'During Strong Winds',
+        arabic:
+            'اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا وَخَيْرَ مَا فِيهَا وَخَيْرَ مَا أُرْسِلَتْ بِهِ وَأَعُوذُ بِكَ مِنْ شَرِّهَا',
+        transliteration:
+            "Allahumma inni as'aluka khayrana wa khayra ma fiha wa khayra ma ursilat bihi wa a'udhu bika min sharriha",
+        translation:
+            'O Allah, I ask You for its good and the good within it and the good it brings, and I seek Your protection from its evil.',
+        source: 'Sahih Muslim 899',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'Visiting the Sick',
+    icon: '🏥',
+    duas: [
+      Dua(
+        title: 'Dua When Visiting the Sick',
+        arabic:
+            'لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ',
+        transliteration: "La ba'sa tahurun in sha'Allah",
+        translation:
+            'Do not worry, it will be a purification, if Allah wills.',
+        source: 'Sahih Al-Bukhari 5656',
+      ),
+      Dua(
+        title: 'Ruqyah for the Sick',
+        arabic:
+            'اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ، اشْفِهِ وَأَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا',
+        transliteration:
+            "Allahumma rabban-nasi adhhibil-ba's, washfihi wa antas-shafi, la shifa'a illa shifa'uk, shifa'an la yughadiru saqama",
+        translation:
+            'O Allah, Lord of mankind, remove the affliction and grant healing, for You are the Healer. There is no healing except Your healing — a healing that leaves no illness behind.',
+        source: 'Sahih Al-Bukhari 5675',
+      ),
+      Dua(
+        title: 'Wiping Seven Times',
+        arabic:
+            'أَسْأَلُ اللَّهَ الْعَظِيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ',
+        transliteration:
+            "As'alullaha l-'azima rabbal-'arshil-'azimi an yashfiyak",
+        translation:
+            'I ask Allah the Mighty, the Lord of the Mighty Throne, to cure you. (Recite 7 times over the ill person)',
+        source: 'Sunan Abu Dawud 3106',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'Protection',
+    icon: '🛡️',
+    duas: [
+      Dua(
+        title: 'Morning & Evening Protection',
+        arabic:
+            'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
+        transliteration:
+            "Bismillahil-ladhi la yadurru ma'asmihi shay'un fil-ardi wa la fis-sama'i wa huwas-sami'ul-'alim",
+        translation:
+            'In the name of Allah, with Whose name nothing on earth or in the heavens can cause harm, and He is the All-Hearing, the All-Knowing. (3x morning & evening)',
+        source: 'Sunan Abu Dawud 5088',
+      ),
+      Dua(
+        title: 'Protection from All Evil',
+        arabic:
+            'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ',
+        transliteration:
+            "A'udhu bikalimatillahit-tammati min sharri ma khalaq",
+        translation:
+            'I seek refuge in the perfect words of Allah from the evil of what He has created.',
+        source: 'Sahih Muslim 2708',
+      ),
+      Dua(
+        title: 'Seeking Refuge in Allah',
+        arabic:
+            'أَعُوذُ بِاللَّهِ السَّمِيعِ الْعَلِيمِ مِنَ الشَّيْطَانِ الرَّجِيمِ',
+        transliteration:
+            "A'udhu billahis-sami'il-'alimi minash-shaytanir-rajim",
+        translation:
+            'I seek refuge in Allah, the All-Hearing, the All-Knowing, from the accursed Shaytan.',
+        source: 'Quran 16:98 | Sunan Abu Dawud 775',
+      ),
+      Dua(
+        title: 'Three Quls (3x Each)',
+        arabic:
+            'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ',
+        transliteration:
+            'Qul huwallahu ahad (Surah 112) | Qul a\'udhu bi-rabbil-falaq (Surah 113) | Qul a\'udhu bi-rabbin-nas (Surah 114)',
+        translation:
+            'Recite Surah Al-Ikhlas, Surah Al-Falaq, and Surah An-Nas three times each in the morning and evening for protection throughout the day.',
+        source: 'Sunan Abu Dawud 5082',
+      ),
+    ],
+  ),
+  DuaCategory(
+    name: 'Gratitude & Praise',
+    icon: '🌸',
+    duas: [
+      Dua(
+        title: 'Best Dhikr',
+        arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
+        transliteration: 'Subhanallahi wa bihamdih',
+        translation:
+            'Glory be to Allah and His is the praise. (The Prophet ﷺ said: "Two phrases light on the tongue, heavy on the Scale, and beloved to the Most Merciful.")',
+        source: 'Sahih Al-Bukhari 6406',
+      ),
+      Dua(
+        title: 'Treasure of Paradise',
+        arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+        transliteration: "La hawla wa la quwwata illa billah",
+        translation:
+            'There is no might nor power except with Allah. (The Prophet ﷺ called it a treasure from the treasures of Paradise.)',
+        source: 'Sahih Al-Bukhari 6610',
+      ),
+      Dua(
+        title: 'Remembrance of Allah',
+        arabic:
+            'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ',
+        transliteration:
+            "Subhanallahi wa bihamdih, subhanallahil-'azim",
+        translation:
+            'Glory be to Allah and His is the praise; glory be to Allah the Magnificent.',
+        source: 'Sahih Al-Bukhari 6682',
+      ),
+      Dua(
+        title: 'When Receiving Good News',
+        arabic: 'الْحَمْدُ لِلَّهِ الَّذِي بِنِعْمَتِهِ تَتِمُّ الصَّالِحَاتُ',
+        transliteration:
+            "Alhamdu lillahil-ladhi bini'matihi tatimmus-salihat",
+        translation:
+            'All praise is for Allah, by Whose blessing all good things are completed.',
+        source: 'Sunan Ibn Majah 3803',
+      ),
+    ],
+  ),
 ];

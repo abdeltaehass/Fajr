@@ -60,6 +60,15 @@ class SettingsScreen extends StatelessWidget {
                 settings.setAdhanEnabled(val);
               },
             ),
+            if (settings.adhanEnabled) ...[
+              const SizedBox(height: 8),
+              _NotifToggleTile(
+                icon: Icons.volume_up_outlined,
+                title: 'Adhan Sound',
+                value: settings.adhanSoundEnabled,
+                onChanged: (val) => settings.setAdhanSoundEnabled(val),
+              ),
+            ],
             const SizedBox(height: 8),
             _NotifToggleTile(
               icon: Icons.alarm_outlined,

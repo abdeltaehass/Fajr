@@ -49,6 +49,7 @@ class NotificationService {
     required List<PrayerNotificationEntry> entries,
     required bool adhanEnabled,
     required bool reminderEnabled,
+    bool adhanSoundEnabled = false,
     int reminderMinutes = 10,
   }) async {
     await _cancelPrayerNotifications();
@@ -66,6 +67,7 @@ class NotificationService {
           title: "It's time for ${entry.prayerName}",
           body: '${entry.prayerName} | ${_formatTime(entry.localTime)}',
           localTime: entry.localTime,
+          useAdhanSound: adhanSoundEnabled,
         );
       }
 
@@ -146,22 +148,29 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime localTime,
+    bool useAdhanSound = false,
   }) async {
     final utc = localTime.toUtc();
     final tzAt = tz.TZDateTime(
         tz.UTC, utc.year, utc.month, utc.day, utc.hour, utc.minute);
+    final iosDetails = useAdhanSound
+        ? const DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+            sound: 'adhan.mp3',
+          )
+        : const DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          );
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       tzAt,
-      const NotificationDetails(
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
+      NotificationDetails(iOS: iosDetails),
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
