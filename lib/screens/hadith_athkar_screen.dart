@@ -9,6 +9,7 @@ import 'names_of_allah_screen.dart';
 import 'duas_screen.dart';
 import 'hajj_umrah_screen.dart';
 import 'salah_guide_screen.dart';
+import 'menstruation_ghusl_screen.dart';
 
 class HadithAthkarScreen extends StatelessWidget {
   const HadithAthkarScreen({super.key});
@@ -184,6 +185,18 @@ class HadithAthkarScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SalahGuideScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            _AthkarLaunchCard(
+              title: 'Purity Guide',
+              subtitle: 'Hayd, Nifas & Ghusl — Islamic rulings',
+              icon: Icons.water_drop_outlined,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const MenstruationGhuslScreen()),
               ),
             ),
             const SizedBox(height: 16),

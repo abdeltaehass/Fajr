@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../data/adhan_sounds.dart';
 import '../services/notification_service.dart';
 import '../settings/app_colors.dart';
 import '../settings/app_settings.dart';
@@ -67,6 +68,27 @@ class SettingsScreen extends StatelessWidget {
                 value: settings.adhanSoundEnabled,
                 onChanged: (val) => settings.setAdhanSoundEnabled(val),
               ),
+              if (settings.adhanSoundEnabled) ...[
+                const SizedBox(height: 8),
+                _StyledDropdown<String>(
+                  value: settings.adhanSoundId,
+                  items: adhanSounds
+                      .map((s) => DropdownMenuItem(
+                            value: s.id,
+                            child: Text(
+                              s.name,
+                              style: GoogleFonts.poppins(
+                                color: context.colors.accentLight,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) settings.setAdhanSound(val);
+                  },
+                ),
+              ],
             ],
             const SizedBox(height: 8),
             _NotifToggleTile(

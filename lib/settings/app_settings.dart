@@ -24,6 +24,7 @@ class AppSettings extends ChangeNotifier {
   bool _tahajjudNotifEnabled = false;
   Set<String> _athkarNotifEnabled = {};
   String _reciterId = 'ar.alafasy';
+  String _adhanSoundId = 'adhan_rabeh_ibn_darah.mp3';
 
   AppColors get colors =>
       AppColorPalettes.withSeason(AppColorPalettes.forTheme(_colorTheme), _seasonalTheme);
@@ -46,6 +47,7 @@ class AppSettings extends ChangeNotifier {
   bool get tahajjudNotifEnabled => _tahajjudNotifEnabled;
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   String get reciterId => _reciterId;
+  String get adhanSoundId => _adhanSoundId;
 
   bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu || _language == AppLanguage.persian;
 
@@ -119,6 +121,7 @@ class AppSettings extends ChangeNotifier {
     _sunriseNotifEnabled = prefs.getBool('sunriseNotifEnabled') ?? false;
     _tahajjudNotifEnabled = prefs.getBool('tahajjudNotifEnabled') ?? false;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
+    _adhanSoundId = prefs.getString('adhanSoundId') ?? 'adhan_rabeh_ibn_darah.mp3';
 
     final athkarJson = prefs.getString('athkarNotifEnabled');
     if (athkarJson != null) {
@@ -325,5 +328,12 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('reciterId', id);
+  }
+
+  Future<void> setAdhanSound(String id) async {
+    _adhanSoundId = id;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('adhanSoundId', id);
   }
 }

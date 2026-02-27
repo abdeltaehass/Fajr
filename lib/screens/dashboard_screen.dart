@@ -206,6 +206,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         entries: entries,
         adhanEnabled: settings.adhanEnabled,
         adhanSoundEnabled: settings.adhanSoundEnabled,
+        adhanSoundId: settings.adhanSoundId,
         reminderEnabled: settings.reminderEnabled,
         reminderMinutes: settings.reminderMinutes,
       );

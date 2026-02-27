@@ -50,6 +50,7 @@ class NotificationService {
     required bool adhanEnabled,
     required bool reminderEnabled,
     bool adhanSoundEnabled = false,
+    String adhanSoundId = 'adhan_rabeh_ibn_darah.mp3',
     int reminderMinutes = 10,
   }) async {
     await _cancelPrayerNotifications();
@@ -73,6 +74,7 @@ class NotificationService {
           body: '${entry.prayerName} | ${_formatTime(entry.localTime)}',
           localTime: scheduledTime,
           useAdhanSound: adhanSoundEnabled,
+          adhanSoundId: adhanSoundId,
         );
       }
 
@@ -192,16 +194,17 @@ class NotificationService {
     required String body,
     required DateTime localTime,
     bool useAdhanSound = false,
+    String adhanSoundId = 'adhan_rabeh_ibn_darah.mp3',
   }) async {
     final utc = localTime.toUtc();
     final tzAt = tz.TZDateTime(
         tz.UTC, utc.year, utc.month, utc.day, utc.hour, utc.minute);
     final iosDetails = useAdhanSound
-        ? const DarwinNotificationDetails(
+        ? DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
-            sound: 'adhan.mp3',
+            sound: adhanSoundId,
           )
         : const DarwinNotificationDetails(
             presentAlert: true,
