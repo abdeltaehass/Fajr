@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../data/reciter_list.dart';
 import '../services/notification_service.dart';
 import '../settings/app_colors.dart';
 import '../settings/app_settings.dart';
@@ -191,15 +190,6 @@ class SettingsScreen extends StatelessWidget {
             _LangDropdown(
               value: settings.language,
               onChanged: (lang) => settings.setLanguage(lang!),
-            ),
-            const SizedBox(height: 32),
-
-            // Quran Reciter Section
-            _SectionHeader(title: s.quranReciter),
-            const SizedBox(height: 12),
-            _ReciterDropdown(
-              value: settings.reciterId,
-              onChanged: (id) => settings.setReciter(id!),
             ),
             const SizedBox(height: 32),
 
@@ -476,37 +466,6 @@ class _LangDropdown extends StatelessWidget {
         child: Text(
           _languageLabel(lang),
           style: GoogleFonts.poppins(color: c.bodyText, fontSize: 14),
-        ),
-      )).toList(),
-    );
-  }
-}
-
-class _ReciterDropdown extends StatelessWidget {
-  final String value;
-  final ValueChanged<String?> onChanged;
-
-  const _ReciterDropdown({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return _StyledDropdown<String>(
-      value: value,
-      onChanged: onChanged,
-      items: reciters.map((r) => DropdownMenuItem(
-        value: r.id,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(r.name,
-                style: GoogleFonts.poppins(color: c.bodyText, fontSize: 14)),
-            Text(r.arabicName,
-                style: GoogleFonts.amiri(
-                    color: c.accentLight, fontSize: 13),
-                textDirection: TextDirection.rtl),
-          ],
         ),
       )).toList(),
     );

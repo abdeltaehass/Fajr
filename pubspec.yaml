@@ -1,7 +1,7 @@
 name: fajr
 description: FajrToIsha - Islamic prayer times, Quran, Qibla, and masjid finder app
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.11.0
@@ -17,7 +17,8 @@ dependencies:
   flutter_compass: ^0.8.1
   shared_preferences: ^2.3.0
   url_launcher: ^6.2.5
-  audioplayers: ^6.1.0
+  audio_service: ^0.18.15
+  just_audio: ^0.9.43
   flutter_local_notifications: ^17.2.4
   timezone: ^0.9.4
 

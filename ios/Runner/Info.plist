@@ -28,8 +28,12 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>FajrToIsha uses your location to calculate accurate prayer times and find nearby mosques.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>FajrToIsha uses your location to calculate accurate prayer times and find nearby mosques.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>FajrToIsha does not use the microphone. This permission is required by audio playback libraries.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>FajrToIsha uses the compass sensor to show you the Qibla direction toward Mecca.</string>
 	<key>NSUserNotificationsUsageDescription</key>

@@ -1,4 +1,4 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -8,6 +8,9 @@ import 'screens/home_screen.dart';
 import 'settings/app_settings.dart';
 import 'settings/settings_provider.dart';
 import 'services/notification_service.dart';
+import 'services/quran_audio_handler.dart';
+
+late QuranAudioHandler audioHandler;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,13 +18,16 @@ void main() async {
   await initializeDateFormatting();
   await NotificationService.initialize();
 
-  // Configure audio session for background playback (matches UIBackgroundModes: audio)
-  await AudioPlayer.global.setAudioContext(AudioContext(
-    iOS: AudioContextIOS(
-      category: AVAudioSessionCategory.playback,
-      options: const {},
+  audioHandler = await AudioService.init(
+    builder: () => QuranAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.fajr.fajr.quran',
+      androidNotificationChannelName: 'Quran Audio',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
     ),
-  ));
+  );
+
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,

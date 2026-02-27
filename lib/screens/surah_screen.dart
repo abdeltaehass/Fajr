@@ -1,8 +1,10 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'dart:async';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../data/reciter_list.dart';
+import '../main.dart';
 import '../models/quran_models.dart';
 import '../services/quran_service.dart';
 import '../settings/settings_provider.dart';
@@ -28,18 +30,10 @@ class _SurahScreenState extends State<SurahScreen> {
   bool _showTranslation = true;
   String? _loadedEdition;
 
-  // Two players: _playerA plays while _playerB pre-buffers the next verse,
-  // then they swap on each verse transition for seamless playback.
-  final AudioPlayer _playerA = AudioPlayer();
-  final AudioPlayer _playerB = AudioPlayer();
-  bool _usingPlayerA = true;
-  AudioPlayer get _activePlayer => _usingPlayerA ? _playerA : _playerB;
-  AudioPlayer get _standbyPlayer => _usingPlayerA ? _playerB : _playerA;
-
-  PlayerState _playerState = PlayerState.stopped;
-  int? _playingVerseNumber;
-  bool _isPlayingSurah = false;
-  int? _surahIndex;
+  PlaybackState? _playbackState;
+  MediaItem? _currentMediaItem;
+  late StreamSubscription<PlaybackState> _psSub;
+  late StreamSubscription<MediaItem?> _miSub;
 
   static const String _cdnVerseBase =
       'https://cdn.islamic.network/quran/audio/128';
@@ -47,51 +41,12 @@ class _SurahScreenState extends State<SurahScreen> {
   @override
   void initState() {
     super.initState();
-    _playerA.setReleaseMode(ReleaseMode.stop);
-    _playerB.setReleaseMode(ReleaseMode.stop);
-
-    _playerA.onPlayerStateChanged.listen((s) {
-      if (mounted && _usingPlayerA) setState(() => _playerState = s);
+    _psSub = audioHandler.playbackState.listen((ps) {
+      if (mounted) setState(() => _playbackState = ps);
     });
-    _playerB.onPlayerStateChanged.listen((s) {
-      if (mounted && !_usingPlayerA) setState(() => _playerState = s);
+    _miSub = audioHandler.mediaItem.listen((mi) {
+      if (mounted) setState(() => _currentMediaItem = mi);
     });
-    _playerA.onPlayerComplete.listen((_) {
-      if (mounted && _usingPlayerA) _onVerseComplete();
-    });
-    _playerB.onPlayerComplete.listen((_) {
-      if (mounted && !_usingPlayerA) _onVerseComplete();
-    });
-  }
-
-  void _onVerseComplete() {
-    if (!_isPlayingSurah || _surahIndex == null || _content == null) return;
-    final next = _surahIndex! + 1;
-    if (next >= _content!.ayahs.length) {
-      setState(() { _isPlayingSurah = false; _surahIndex = null; _playingVerseNumber = null; });
-      return;
-    }
-    // Swap to the pre-buffered standby player and start it immediately
-    _usingPlayerA = !_usingPlayerA;
-    setState(() {
-      _surahIndex = next;
-      _playingVerseNumber = _content!.ayahs[next].number;
-      _playerState = PlayerState.playing;
-    });
-    _activePlayer.resume();
-    // Pre-buffer the verse after next on the now-free standby player
-    _prefetchVerse(next + 1);
-  }
-
-  Future<void> _prefetchVerse(int index) async {
-    if (_content == null || index >= _content!.ayahs.length || !mounted) return;
-    final id = context.settings.reciterId;
-    final ayah = _content!.ayahs[index];
-    try {
-      await _standbyPlayer.setSource(
-        UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'),
-      );
-    } catch (_) {}
   }
 
   @override
@@ -106,10 +61,27 @@ class _SurahScreenState extends State<SurahScreen> {
 
   @override
   void dispose() {
-    _playerA.dispose();
-    _playerB.dispose();
+    _psSub.cancel();
+    _miSub.cancel();
     super.dispose();
   }
+
+  bool get _isFromThisSurah =>
+      _currentMediaItem?.id.startsWith('surah_${widget.surahInfo.number}_') ??
+      false;
+
+  bool get _isActive =>
+      _isFromThisSurah &&
+      (_playbackState?.processingState == AudioProcessingState.ready ||
+          _playbackState?.processingState == AudioProcessingState.buffering ||
+          _playbackState?.processingState == AudioProcessingState.loading);
+
+  bool get _isPlaying => _isActive && (_playbackState?.playing ?? false);
+  bool get _isPaused => _isActive && !(_playbackState?.playing ?? false);
+
+  int? get _playingVerseNumber => _isFromThisSurah
+      ? (_currentMediaItem?.extras?['verseNumber'] as int?)
+      : null;
 
   Future<void> _loadSurah() async {
     setState(() {
@@ -135,81 +107,137 @@ class _SurahScreenState extends State<SurahScreen> {
     }
   }
 
-  Future<void> _playSurah() async {
-    if (_content == null || _content!.ayahs.isEmpty) return;
-    _usingPlayerA = true;
-    setState(() { _isPlayingSurah = true; _surahIndex = 0; _playingVerseNumber = _content!.ayahs[0].number; });
+  Future<void> _playSurahFrom(int index) async {
+    if (_content == null) return;
     final id = context.settings.reciterId;
-    try {
-      await _activePlayer.play(
-        UrlSource('$_cdnVerseBase/$id/${_content!.ayahs[0].globalNumber}.mp3'),
+    final reciterName = reciterById(id).name;
+    final urls = _content!.ayahs
+        .map((a) => '$_cdnVerseBase/$id/${a.globalNumber}.mp3')
+        .toList();
+    final items = _content!.ayahs.asMap().entries.map((e) {
+      return MediaItem(
+        id: 'surah_${widget.surahInfo.number}_verse_${e.value.number}',
+        title: widget.surahInfo.name,
+        artist: reciterName,
+        album: 'Verse ${e.value.number}',
+        extras: {
+          'verseNumber': e.value.number,
+          'surahIndex': e.key,
+        },
       );
-      _prefetchVerse(1);
-    } catch (_) {
-      if (mounted) setState(() { _isPlayingSurah = false; _surahIndex = null; _playingVerseNumber = null; });
-    }
-  }
-
-  Future<void> _playVerse(Ayah ayah) async {
-    if (!mounted) return;
-    // Stop both players, reset to playerA
-    final id = context.settings.reciterId;
-    await _playerA.stop();
-    await _playerB.stop();
-    _usingPlayerA = true;
-    setState(() => _playingVerseNumber = ayah.number);
-    try {
-      await _activePlayer.play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
-    } catch (_) {
-      if (mounted) setState(() { _playingVerseNumber = null; _isPlayingSurah = false; _surahIndex = null; });
-    }
+    }).toList();
+    await audioHandler.playSurah(urls, items, startIndex: index);
   }
 
   Future<void> _togglePlayPause() async {
-    if (_playerState == PlayerState.playing) {
-      await _activePlayer.pause();
-    } else if (_playerState == PlayerState.paused) {
-      await _activePlayer.resume();
+    if (_isPlaying) {
+      await audioHandler.pause();
+    } else if (_isPaused) {
+      await audioHandler.play();
     }
   }
 
-  Future<void> _stop() async {
-    await _playerA.stop();
-    await _playerB.stop();
-    _usingPlayerA = true;
-    setState(() { _playingVerseNumber = null; _isPlayingSurah = false; _surahIndex = null; });
-  }
+  Future<void> _stop() => audioHandler.stop();
+  Future<void> _skipNext() => audioHandler.skipToNext();
+  Future<void> _skipPrev() => audioHandler.skipToPrevious();
 
-  Future<void> _skip(int delta) async {
-    if (_content == null) return;
-    if (_isPlayingSurah && _surahIndex != null) {
-      final next = _surahIndex! + delta;
-      if (next < 0 || next >= _content!.ayahs.length) return;
-      final id = context.settings.reciterId;
-      await _playerA.stop();
-      await _playerB.stop();
-      _usingPlayerA = true;
-      final ayah = _content!.ayahs[next];
-      setState(() { _surahIndex = next; _playingVerseNumber = ayah.number; });
-      try {
-        await _activePlayer.play(UrlSource('$_cdnVerseBase/$id/${ayah.globalNumber}.mp3'));
-        _prefetchVerse(next + 1);
-      } catch (_) {}
-    } else {
-      if (_playingVerseNumber == null) return;
-      final ayahs = _content!.ayahs;
-      final idx = ayahs.indexWhere((a) => a.number == _playingVerseNumber);
-      final next = idx + delta;
-      if (next >= 0 && next < ayahs.length) await _playVerse(ayahs[next]);
-    }
+  void _showReciterPicker() {
+    final c = context.colors;
+    final currentId = context.settings.reciterId;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: c.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+          children: [
+            Center(
+              child: Text(
+                'Select Reciter',
+                style: GoogleFonts.poppins(
+                  color: c.accentLight,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...reciters.map((r) {
+              final selected = r.id == currentId;
+              return GestureDetector(
+                onTap: () async {
+                  final settings = context.settings;
+                  final shouldRestart = _isActive;
+                  final currentIdx =
+                      _currentMediaItem?.extras?['surahIndex'] as int? ?? 0;
+                  Navigator.pop(ctx);
+                  await settings.setReciter(r.id);
+                  if (shouldRestart && mounted) {
+                    await _playSurahFrom(currentIdx);
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? c.accent.withValues(alpha: 0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: selected
+                          ? c.accent
+                          : c.accent.withValues(alpha: 0.12),
+                      width: selected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              r.name,
+                              style: GoogleFonts.poppins(
+                                color: selected ? c.accent : c.accentLight,
+                                fontSize: 14,
+                                fontWeight: selected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                            ),
+                            Text(
+                              r.arabicName,
+                              style: GoogleFonts.amiri(
+                                color: c.bodyText,
+                                fontSize: 13,
+                              ),
+                              textDirection: TextDirection.rtl,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (selected)
+                        Icon(Icons.check_circle, color: c.accent, size: 20),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      },
+    );
   }
 
   bool get _showBismillah =>
       widget.surahInfo.number != 1 && widget.surahInfo.number != 9;
-
-  bool get _isPlaying => _playerState == PlayerState.playing;
-  bool get _isPaused => _playerState == PlayerState.paused;
-  bool get _isActive => _isPlaying || _isPaused;
 
   @override
   Widget build(BuildContext context) {
@@ -245,6 +273,20 @@ class _SurahScreenState extends State<SurahScreen> {
         ),
         actions: [
           GestureDetector(
+            onTap: _showReciterPicker,
+            child: Container(
+              margin: const EdgeInsets.only(right: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: c.accent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: c.accent.withValues(alpha: 0.2)),
+              ),
+              child: Icon(Icons.mic_none, color: c.accent, size: 20),
+            ),
+          ),
+          GestureDetector(
             onTap: () => setState(() => _showTranslation = !_showTranslation),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
@@ -272,7 +314,7 @@ class _SurahScreenState extends State<SurahScreen> {
           ),
           if (!_isLoading && _error == null)
             GestureDetector(
-              onTap: _isActive ? _togglePlayPause : _playSurah,
+              onTap: _isActive ? _togglePlayPause : () => _playSurahFrom(0),
               child: Container(
                 margin: const EdgeInsets.only(right: 12),
                 padding: const EdgeInsets.all(8),
@@ -306,9 +348,10 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Widget _buildAudioBar(dynamic c, Color textColor) {
     final s = context.strings;
-    final label = _isPlayingSurah
-        ? widget.surahInfo.name
-        : '${s.verse} $_playingVerseNumber';
+    final verseNum = _playingVerseNumber;
+    final label = verseNum != null ? '${s.verse} $verseNum' : widget.surahInfo.name;
+    final subtitle = _currentMediaItem?.artist ??
+        reciterById(context.settings.reciterId).name;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
@@ -337,7 +380,7 @@ class _SurahScreenState extends State<SurahScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  reciterById(context.settings.reciterId).name,
+                  subtitle,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: textColor.withValues(alpha: 0.5),
@@ -347,7 +390,7 @@ class _SurahScreenState extends State<SurahScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => _skip(-1),
+            onTap: _skipPrev,
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -375,7 +418,7 @@ class _SurahScreenState extends State<SurahScreen> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: () => _skip(1),
+            onTap: _skipNext,
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -457,10 +500,6 @@ class _SurahScreenState extends State<SurahScreen> {
 
   Widget _buildContent(dynamic c, dynamic s, Color textColor) {
     final ayahs = _content!.ayahs;
-    // Strip bismillah from verse 1's display text — it's already shown in the
-    // header above, and the audio recording for verse 1 does not recite it.
-    // The API uses Uthmani Unicode (ٱ, ۡ) which differs from standard Arabic,
-    // so we normalize diacritics before checking, then match through first حيم.
     String? firstAyahStripped;
     if (_showBismillah && ayahs.isNotEmpty) {
       final arabic = ayahs[0].arabic;
@@ -489,22 +528,19 @@ class _SurahScreenState extends State<SurahScreen> {
         if (_showBismillah && index == 0) {
           return _BismillahHeader(c: c);
         }
-        final ayah = _showBismillah ? ayahs[index - 1] : ayahs[index];
-        final isThisPlaying =
-            _isPlaying && _playingVerseNumber == ayah.number;
+        final ayahIndex = _showBismillah ? index - 1 : index;
+        final ayah = ayahs[ayahIndex];
+        final isThisPlaying = _isPlaying && _playingVerseNumber == ayah.number;
         final isFirst = _showBismillah ? index == 1 : index == 0;
         return _AyahTile(
           ayah: ayah,
-          displayArabic: (isFirst && firstAyahStripped != null) ? firstAyahStripped : null,
+          displayArabic:
+              (isFirst && firstAyahStripped != null) ? firstAyahStripped : null,
           showTranslation: _showTranslation,
           isPlaying: isThisPlaying,
           c: c,
           textColor: textColor,
-          onPlay: () {
-            _isPlayingSurah = false;
-            _surahIndex = null;
-            _playVerse(ayah);
-          },
+          onPlay: () => _playSurahFrom(ayahIndex),
         );
       },
     );
