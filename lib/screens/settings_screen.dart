@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/adhan_sounds.dart';
 import '../services/notification_service.dart';
@@ -70,23 +71,9 @@ class SettingsScreen extends StatelessWidget {
               ),
               if (settings.adhanSoundEnabled) ...[
                 const SizedBox(height: 8),
-                _StyledDropdown<String>(
-                  value: settings.adhanSoundId,
-                  items: adhanSounds
-                      .map((s) => DropdownMenuItem(
-                            value: s.id,
-                            child: Text(
-                              s.name,
-                              style: GoogleFonts.poppins(
-                                color: context.colors.accentLight,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) settings.setAdhanSound(val);
-                  },
+                _AdhanSoundPicker(
+                  selectedId: settings.adhanSoundId,
+                  onChanged: (id) => settings.setAdhanSound(id),
                 ),
               ],
             ],
@@ -289,6 +276,105 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AdhanSoundPicker extends StatefulWidget {
+  final String selectedId;
+  final ValueChanged<String> onChanged;
+
+  const _AdhanSoundPicker({
+    required this.selectedId,
+    required this.onChanged,
+  });
+
+  @override
+  State<_AdhanSoundPicker> createState() => _AdhanSoundPickerState();
+}
+
+class _AdhanSoundPickerState extends State<_AdhanSoundPicker> {
+  final AudioPlayer _player = AudioPlayer();
+  bool _isPlaying = false;
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _togglePlay() async {
+    if (_isPlaying) {
+      await _player.stop();
+      setState(() => _isPlaying = false);
+      return;
+    }
+    final sound = adhanSoundById(widget.selectedId);
+    setState(() => _isPlaying = true);
+    try {
+      await _player.setAsset(sound.assetPath);
+      await _player.play();
+    } catch (_) {}
+    _player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        if (mounted) setState(() => _isPlaying = false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Row(
+      children: [
+        Expanded(
+          child: _StyledDropdown<String>(
+            value: widget.selectedId,
+            items: adhanSounds
+                .map((s) => DropdownMenuItem(
+                      value: s.id,
+                      child: Text(
+                        s.name,
+                        style: GoogleFonts.poppins(
+                          color: c.accentLight,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ))
+                .toList(),
+            onChanged: (val) {
+              if (val != null) {
+                _player.stop();
+                setState(() => _isPlaying = false);
+                widget.onChanged(val);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 10),
+        GestureDetector(
+          onTap: _togglePlay,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: _isPlaying
+                  ? c.accent.withValues(alpha: 0.2)
+                  : c.card,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _isPlaying ? c.accent : c.accent.withValues(alpha: 0.3),
+                width: _isPlaying ? 1.5 : 1,
+              ),
+            ),
+            child: Icon(
+              _isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
+              color: c.accent,
+              size: 24,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

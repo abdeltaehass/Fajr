@@ -29,3 +29,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/audio/adhan_rabeh_ibn_darah.mp3
+    - assets/audio/adhan_adham_al_sharqawe.mp3
+    - assets/audio/adhan_ismail_al_sheikh.mp3
+    - assets/audio/adhan_ahmed_el_kourdi.mp3
+    - assets/audio/adhan_akhdam_bnu_al_madane.mp3
