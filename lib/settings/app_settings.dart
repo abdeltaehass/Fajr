@@ -20,6 +20,8 @@ class AppSettings extends ChangeNotifier {
   bool _adhanSoundEnabled = false;
   bool _reminderEnabled = false;
   int _reminderMinutes = 10;
+  bool _sunriseNotifEnabled = false;
+  bool _tahajjudNotifEnabled = false;
   Set<String> _athkarNotifEnabled = {};
   String _reciterId = 'ar.alafasy';
 
@@ -40,6 +42,8 @@ class AppSettings extends ChangeNotifier {
   bool get adhanSoundEnabled => _adhanSoundEnabled;
   bool get reminderEnabled => _reminderEnabled;
   int get reminderMinutes => _reminderMinutes;
+  bool get sunriseNotifEnabled => _sunriseNotifEnabled;
+  bool get tahajjudNotifEnabled => _tahajjudNotifEnabled;
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   String get reciterId => _reciterId;
 
@@ -64,7 +68,7 @@ class AppSettings extends ChangeNotifier {
       case AppLanguage.persian:
         return 'fa.ayati';
       case AppLanguage.english:
-        return 'en.sahih';
+        return 'en.hilali';
     }
   }
 
@@ -112,6 +116,8 @@ class AppSettings extends ChangeNotifier {
     _adhanSoundEnabled = prefs.getBool('adhanSoundEnabled') ?? false;
     _reminderEnabled = prefs.getBool('reminderEnabled') ?? false;
     _reminderMinutes = prefs.getInt('reminderMinutes') ?? 10;
+    _sunriseNotifEnabled = prefs.getBool('sunriseNotifEnabled') ?? false;
+    _tahajjudNotifEnabled = prefs.getBool('tahajjudNotifEnabled') ?? false;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
 
     final athkarJson = prefs.getString('athkarNotifEnabled');
@@ -286,6 +292,20 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('reminderMinutes', minutes);
+  }
+
+  Future<void> setSunriseNotifEnabled(bool value) async {
+    _sunriseNotifEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('sunriseNotifEnabled', value);
+  }
+
+  Future<void> setTahajjudNotifEnabled(bool value) async {
+    _tahajjudNotifEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('tahajjudNotifEnabled', value);
   }
 
   Future<void> setAthkarNotifEnabled(String key, bool enabled) async {

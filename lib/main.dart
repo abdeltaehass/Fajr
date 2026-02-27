@@ -85,7 +85,7 @@ class _FajrAppState extends State<FajrApp> {
         return SettingsProvider(
           settings: _settings,
           child: MaterialApp(
-            title: 'Fajr',
+            title: 'manār',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.fromColors(colors),
             locale: _settings.locale,

@@ -5,7 +5,7 @@ class UrduStrings extends AppStrings {
   @override String get hadithAthkar => 'حدیث و اذکار';
   @override String get settings => 'ترتیبات';
 
-  @override String get appTitle => 'فجر';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'اگلی نماز';
   @override String get hours => 'گھنٹے';
   @override String get minutes => 'منٹ';

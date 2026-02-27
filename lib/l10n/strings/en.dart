@@ -5,7 +5,7 @@ class EnglishStrings extends AppStrings {
   @override String get hadithAthkar => 'Hadith & Athkar';
   @override String get settings => 'Settings';
 
-  @override String get appTitle => 'Fajr';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'Next Prayer';
   @override String get hours => 'HRS';
   @override String get minutes => 'MIN';

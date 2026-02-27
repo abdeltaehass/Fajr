@@ -5,7 +5,7 @@ class FrenchStrings extends AppStrings {
   @override String get hadithAthkar => 'Hadith & Athkar';
   @override String get settings => 'Paramètres';
 
-  @override String get appTitle => 'Fajr';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'Prochaine prière';
   @override String get hours => 'HRS';
   @override String get minutes => 'MIN';

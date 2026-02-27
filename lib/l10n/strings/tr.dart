@@ -5,7 +5,7 @@ class TurkishStrings extends AppStrings {
   @override String get hadithAthkar => 'Hadis ve Zikirler';
   @override String get settings => 'Ayarlar';
 
-  @override String get appTitle => 'Fajr';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'Sonraki Namaz';
   @override String get hours => 'SAAT';
   @override String get minutes => 'DAK';

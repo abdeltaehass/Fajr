@@ -5,7 +5,7 @@ class BengaliStrings extends AppStrings {
   @override String get hadithAthkar => 'হাদিস ও যিকর';
   @override String get settings => 'সেটিংস';
 
-  @override String get appTitle => 'Fajr';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'পরবর্তী নামাজ';
   @override String get hours => 'ঘণ্টা';
   @override String get minutes => 'মিনিট';

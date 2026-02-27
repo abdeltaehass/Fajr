@@ -64,6 +64,14 @@ class _TasbeehScreenState extends State<TasbeehScreen>
     setState(() => _count = 0);
   }
 
+  void _next() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedIndex = (_selectedIndex + 1) % _presets.length;
+      _count = 0;
+    });
+  }
+
   void _selectDhikr(int index) {
     setState(() {
       _selectedIndex = index;
@@ -330,27 +338,49 @@ class _TasbeehScreenState extends State<TasbeehScreen>
 
             const SizedBox(height: 24),
 
-            // Reset button
+            // Reset + Next buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: _reset,
-                  icon: Icon(Icons.refresh, color: c.accent, size: 18),
-                  label: Text(
-                    'Reset',
-                    style: GoogleFonts.poppins(
-                        color: c.accent, fontWeight: FontWeight.w600),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _reset,
+                      icon: Icon(Icons.refresh, color: c.accent, size: 18),
+                      label: Text(
+                        'Reset',
+                        style: GoogleFonts.poppins(
+                            color: c.accent, fontWeight: FontWeight.w600),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: c.accent.withValues(alpha: 0.4)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                        color: c.accent.withValues(alpha: 0.4)),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _next,
+                      icon: Icon(Icons.skip_next, color: c.accent, size: 18),
+                      label: Text(
+                        'Next',
+                        style: GoogleFonts.poppins(
+                            color: c.accent, fontWeight: FontWeight.w600),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: c.accent.withValues(alpha: 0.4)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
 

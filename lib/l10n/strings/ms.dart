@@ -5,7 +5,7 @@ class MalayStrings extends AppStrings {
   @override String get hadithAthkar => 'Hadis & Zikir';
   @override String get settings => 'Tetapan';
 
-  @override String get appTitle => 'Fajr';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'Solat Seterusnya';
   @override String get hours => 'JAM';
   @override String get minutes => 'MIN';

@@ -8,6 +8,7 @@ import 'tasbeeh_screen.dart';
 import 'names_of_allah_screen.dart';
 import 'duas_screen.dart';
 import 'hajj_umrah_screen.dart';
+import 'salah_guide_screen.dart';
 
 class HadithAthkarScreen extends StatelessWidget {
   const HadithAthkarScreen({super.key});
@@ -172,6 +173,17 @@ class HadithAthkarScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const HajjUmrahScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            _AthkarLaunchCard(
+              title: 'Salah Guide',
+              subtitle: 'How to pray — wudu, steps & adhkar',
+              icon: Icons.self_improvement,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SalahGuideScreen()),
               ),
             ),
             const SizedBox(height: 16),

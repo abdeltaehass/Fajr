@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>FajrToIsha</string>
+	<string>manār</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>FajrToIsha</string>
+	<string>manār</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -29,15 +29,15 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>FajrToIsha uses your location to calculate accurate prayer times and find nearby mosques.</string>
+	<string>manār uses your location to calculate accurate prayer times and find nearby mosques.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>FajrToIsha uses your location to calculate accurate prayer times and find nearby mosques.</string>
+	<string>manār uses your location to calculate accurate prayer times and find nearby mosques.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>FajrToIsha does not use the microphone. This permission is required by audio playback libraries.</string>
+	<string>manār does not use the microphone. This permission is required by audio playback libraries.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>FajrToIsha uses the compass sensor to show you the Qibla direction toward Mecca.</string>
+	<string>manār uses the compass sensor to show you the Qibla direction toward Mecca.</string>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>FajrToIsha sends prayer time alerts, pre-prayer reminders, and daily athkar reminders to help you stay connected to your worship.</string>
+	<string>manār sends prayer time alerts, pre-prayer reminders, and daily athkar reminders to help you stay connected to your worship.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -5,7 +5,7 @@ class PersianStrings extends AppStrings {
   @override String get hadithAthkar => 'حدیث و اذکار';
   @override String get settings => 'تنظیمات';
 
-  @override String get appTitle => 'Fajr';
+  @override String get appTitle => 'manār';
   @override String get nextPrayer => 'نماز بعدی';
   @override String get hours => 'ساعت';
   @override String get minutes => 'دقیقه';

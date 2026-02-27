@@ -117,6 +117,62 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
             ],
+            const SizedBox(height: 8),
+            _NotifToggleTile(
+              icon: Icons.wb_sunny_outlined,
+              title: 'Sunrise Notification  ·  الشروق',
+              value: settings.sunriseNotifEnabled,
+              onChanged: (val) async {
+                if (val) {
+                  final granted =
+                      await NotificationService.requestPermissions();
+                  if (!granted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          s.notifPermDenied,
+                          style: GoogleFonts.poppins(fontSize: 13),
+                        ),
+                        backgroundColor: context.colors.card,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                    return;
+                  }
+                }
+                settings.setSunriseNotifEnabled(val);
+              },
+            ),
+            const SizedBox(height: 8),
+            _NotifToggleTile(
+              icon: Icons.nights_stay_outlined,
+              title: 'Tahajjud Reminder  ·  1 hr before Fajr',
+              value: settings.tahajjudNotifEnabled,
+              onChanged: (val) async {
+                if (val) {
+                  final granted =
+                      await NotificationService.requestPermissions();
+                  if (!granted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          s.notifPermDenied,
+                          style: GoogleFonts.poppins(fontSize: 13),
+                        ),
+                        backgroundColor: context.colors.card,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                    return;
+                  }
+                }
+                settings.setTahajjudNotifEnabled(val);
+              },
+            ),
             const SizedBox(height: 32),
 
             // Athkar Reminders Section

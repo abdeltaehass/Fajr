@@ -190,25 +190,36 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _scheduleNotifications(PrayerTimesResponse prayerTimes) {
-    if (!context.settings.adhanEnabled && !context.settings.reminderEnabled) {
+    final settings = context.settings;
+
+    if (!settings.adhanEnabled && !settings.reminderEnabled) {
       NotificationService.cancelAll();
-      return;
+    } else {
+      final entries = prayerTimes.timings.dailyPrayers
+          .where((p) => p.isPrayer)
+          .map((p) => PrayerNotificationEntry(
+                prayerName: p.name,
+                localTime: p.todayDateTime,
+              ))
+          .toList();
+      NotificationService.schedulePrayerNotifications(
+        entries: entries,
+        adhanEnabled: settings.adhanEnabled,
+        adhanSoundEnabled: settings.adhanSoundEnabled,
+        reminderEnabled: settings.reminderEnabled,
+        reminderMinutes: settings.reminderMinutes,
+      );
     }
-    final now = DateTime.now();
-    final entries = prayerTimes.timings.dailyPrayers
-        .where((p) => p.isPrayer)
-        .map((p) => PrayerNotificationEntry(
-              prayerName: p.name,
-              localTime: p.todayDateTime,
-            ))
-        .where((e) => e.localTime.isAfter(now))
-        .toList();
-    NotificationService.schedulePrayerNotifications(
-      entries: entries,
-      adhanEnabled: context.settings.adhanEnabled,
-      adhanSoundEnabled: context.settings.adhanSoundEnabled,
-      reminderEnabled: context.settings.reminderEnabled,
-      reminderMinutes: context.settings.reminderMinutes,
+
+    // Sunrise & Tahajjud notifications
+    final prayers = prayerTimes.timings.dailyPrayers;
+    final fajrEntry = prayers.firstWhere((p) => p.name == 'Fajr');
+    final sunriseEntry = prayers.firstWhere((p) => p.name == 'Sunrise');
+    NotificationService.scheduleSunriseTahajjudNotifications(
+      sunriseTime: sunriseEntry.todayDateTime,
+      fajrTime: fajrEntry.todayDateTime,
+      sunriseEnabled: settings.sunriseNotifEnabled,
+      tahajjudEnabled: settings.tahajjudNotifEnabled,
     );
   }
 
@@ -318,7 +329,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 CrescentMoon(size: 32, color: c.accent),
                 const SizedBox(width: 12),
                 Text(
-                  'Fajr',
+                  'manār',
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
               ],

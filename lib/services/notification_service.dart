@@ -61,19 +61,24 @@ class NotificationService {
     for (final entry in entries) {
       if (id >= 60) break;
 
-      if (adhanEnabled && entry.localTime.isAfter(now)) {
+      // If this prayer already passed today, schedule it for tomorrow instead
+      final scheduledTime = entry.localTime.isAfter(now)
+          ? entry.localTime
+          : entry.localTime.add(const Duration(days: 1));
+
+      if (adhanEnabled) {
         await _schedule(
           id: id++,
           title: "It's time for ${entry.prayerName}",
           body: '${entry.prayerName} | ${_formatTime(entry.localTime)}',
-          localTime: entry.localTime,
+          localTime: scheduledTime,
           useAdhanSound: adhanSoundEnabled,
         );
       }
 
       if (reminderEnabled) {
         final reminder =
-            entry.localTime.subtract(Duration(minutes: reminderMinutes));
+            scheduledTime.subtract(Duration(minutes: reminderMinutes));
         if (reminder.isAfter(now)) {
           await _schedule(
             id: id++,
@@ -85,6 +90,44 @@ class NotificationService {
       }
 
       if (id >= 60) break;
+    }
+  }
+
+  // Sunrise uses ID 100, Tahajjud uses ID 101
+  static Future<void> scheduleSunriseTahajjudNotifications({
+    required DateTime sunriseTime,
+    required DateTime fajrTime,
+    required bool sunriseEnabled,
+    required bool tahajjudEnabled,
+  }) async {
+    await _plugin.cancel(100);
+    await _plugin.cancel(101);
+
+    final now = DateTime.now();
+
+    if (sunriseEnabled) {
+      final scheduled = sunriseTime.isAfter(now)
+          ? sunriseTime
+          : sunriseTime.add(const Duration(days: 1));
+      await _schedule(
+        id: 100,
+        title: 'Sunrise — الشروق',
+        body: 'The sun has risen — ${_formatTime(sunriseTime)}',
+        localTime: scheduled,
+      );
+    }
+
+    if (tahajjudEnabled) {
+      final tahajjud = fajrTime.subtract(const Duration(hours: 1));
+      final scheduled = tahajjud.isAfter(now)
+          ? tahajjud
+          : tahajjud.add(const Duration(days: 1));
+      await _schedule(
+        id: 101,
+        title: 'Qiyam al-Layl — تهجد',
+        body: 'Rise for Tahajjud — Fajr in 1 hour at ${_formatTime(fajrTime)}',
+        localTime: scheduled,
+      );
     }
   }
 
