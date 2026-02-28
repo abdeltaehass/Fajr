@@ -16,7 +16,7 @@ class MasjidService {
   Future<List<Masjid>> searchNearbyMasjids({
     required double latitude,
     required double longitude,
-    int radiusMeters = 10000,
+    int radiusMeters = 15000,
   }) async {
     final uri = Uri.parse('$_baseUrl/places:searchNearby');
 

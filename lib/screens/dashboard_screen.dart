@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_provider.dart';
 import '../models/prayer_times.dart';
@@ -14,9 +15,13 @@ import '../widgets/hijri_date_header.dart';
 import '../widgets/next_prayer_banner.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/qibla_compass.dart';
+import 'duas_screen.dart';
+import 'salah_guide_screen.dart';
+import 'tasbeeh_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final ValueChanged<int>? onTabSwitch;
+  const DashboardScreen({super.key, this.onTabSwitch});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -41,6 +46,30 @@ class _DashboardScreenState extends State<DashboardScreen>
   AppSettings? _settingsListener;
 
   static const _cacheKey = 'cachedPrayerTimes';
+  static const _widgetChannel = MethodChannel('fajr.widget');
+
+  Future<void> _updateWidget(PrayerTimesResponse pt) async {
+    try {
+      final prayers = pt.timings.dailyPrayers;
+      final now = DateTime.now();
+      PrayerEntry? next;
+      for (final p in prayers) {
+        if (p.todayDateTime.isAfter(now)) { next = p; break; }
+      }
+      next ??= prayers[0];
+      final allPrayers = prayers.map((p) => {
+        'name': p.name,
+        'time': p.time,
+        'epoch': p.todayDateTime.millisecondsSinceEpoch,
+      }).toList();
+      await _widgetChannel.invokeMethod('updateWidget', {
+        'nextPrayer': next.name,
+        'nextTime': next.time,
+        'nextEpoch': next.todayDateTime.millisecondsSinceEpoch,
+        'allPrayers': jsonEncode(allPrayers),
+      });
+    } catch (_) {}
+  }
 
   @override
   void initState() {
@@ -117,6 +146,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       _determineNextPrayer();
       _startCountdown();
       _scheduleNotifications(prayerTimes);
+      _updateWidget(prayerTimes);
     } on LocationServiceException catch (e) {
       if (!mounted) return;
       if (await _tryLoadCache()) return;
@@ -328,6 +358,50 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
+  Widget _buildQuickActions(BuildContext context) {
+    final c = context.colors;
+    final actions = [
+      (Icons.menu_book_outlined, 'Guide', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalahGuideScreen()))),
+      (Icons.volunteer_activism, 'Dua', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DuasScreen()))),
+      (Icons.grain, 'Tasbeeh', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TasbeehScreen()))),
+      (Icons.mosque_outlined, 'Masjid', () => widget.onTabSwitch?.call(3)),
+    ];
+    return Row(
+      children: actions.map((a) {
+        final (icon, label, onTap) = a;
+        return Expanded(
+          child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: c.card,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: c.accent.withValues(alpha: 0.15)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: c.accent, size: 22),
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      color: c.bodyText,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildContent() {
     final c = context.colors;
     final prayers = _prayerTimes!.timings.dailyPrayers;
@@ -360,15 +434,17 @@ class _DashboardScreenState extends State<DashboardScreen>
             HijriDateHeader(date: _prayerTimes!.date),
             const SizedBox(height: 12),
 
-            const SizedBox(height: 12),
-
             // Next prayer banner
             NextPrayerBanner(
               prayerName: nextPrayer.localizedName(context.strings),
               prayerTime: nextPrayer.time,
               timeRemaining: _timeUntilNext,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // Quick Actions
+            _buildQuickActions(context),
+            const SizedBox(height: 20),
 
             // Prayer cards
             ...List.generate(prayers.length, (index) {

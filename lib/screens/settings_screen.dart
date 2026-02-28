@@ -11,6 +11,24 @@ import '../settings/settings_provider.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  Future<bool> _requestNotifPermission(BuildContext context) async {
+    final granted = await NotificationService.requestPermissions();
+    if (!granted && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.strings.notifPermDenied,
+            style: GoogleFonts.poppins(fontSize: 13),
+          ),
+          backgroundColor: context.colors.card,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
+    return granted;
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = context.strings;
@@ -29,248 +47,173 @@ class SettingsScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.displayLarge,
               ),
             ),
-            const SizedBox(height: 32),
-
-            // Notifications Section
-            _SectionHeader(title: s.notifications),
-            const SizedBox(height: 12),
-            _NotifToggleTile(
-              icon: Icons.notifications_active_outlined,
-              title: s.adhanNotification,
-              value: settings.adhanEnabled,
-              onChanged: (val) async {
-                if (val) {
-                  final granted =
-                      await NotificationService.requestPermissions();
-                  if (!granted && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          s.notifPermDenied,
-                          style: GoogleFonts.poppins(fontSize: 13),
-                        ),
-                        backgroundColor: context.colors.card,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                    return;
-                  }
-                }
-                settings.setAdhanEnabled(val);
-              },
-            ),
-            if (settings.adhanEnabled) ...[
-              const SizedBox(height: 8),
-              _NotifToggleTile(
-                icon: Icons.volume_up_outlined,
-                title: 'Adhan Sound',
-                value: settings.adhanSoundEnabled,
-                onChanged: (val) => settings.setAdhanSoundEnabled(val),
-              ),
-              if (settings.adhanSoundEnabled) ...[
-                const SizedBox(height: 8),
-                _AdhanSoundPicker(
-                  selectedId: settings.adhanSoundId,
-                  onChanged: (id) => settings.setAdhanSound(id),
-                ),
-              ],
-            ],
-            const SizedBox(height: 8),
-            _NotifToggleTile(
-              icon: Icons.alarm_outlined,
-              title: 'Pre-Prayer Reminder  ·  ${settings.reminderMinutes} min',
-              value: settings.reminderEnabled,
-              onChanged: (val) async {
-                if (val) {
-                  final granted =
-                      await NotificationService.requestPermissions();
-                  if (!granted && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          s.notifPermDenied,
-                          style: GoogleFonts.poppins(fontSize: 13),
-                        ),
-                        backgroundColor: context.colors.card,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                    return;
-                  }
-                }
-                settings.setReminderEnabled(val);
-              },
-            ),
-            if (settings.reminderEnabled) ...[
-              const SizedBox(height: 8),
-              _StyledDropdown<int>(
-                value: settings.reminderMinutes,
-                items: [10, 20, 30]
-                    .map((m) => DropdownMenuItem(
-                          value: m,
-                          child: Text(
-                            '$m minutes before',
-                            style: GoogleFonts.poppins(
-                              color: context.colors.accentLight,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) settings.setReminderMinutes(val);
-                },
-              ),
-            ],
-            const SizedBox(height: 8),
-            _NotifToggleTile(
-              icon: Icons.wb_sunny_outlined,
-              title: 'Sunrise Notification  ·  الشروق',
-              value: settings.sunriseNotifEnabled,
-              onChanged: (val) async {
-                if (val) {
-                  final granted =
-                      await NotificationService.requestPermissions();
-                  if (!granted && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          s.notifPermDenied,
-                          style: GoogleFonts.poppins(fontSize: 13),
-                        ),
-                        backgroundColor: context.colors.card,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                    return;
-                  }
-                }
-                settings.setSunriseNotifEnabled(val);
-              },
-            ),
-            const SizedBox(height: 8),
-            _NotifToggleTile(
-              icon: Icons.nights_stay_outlined,
-              title: 'Tahajjud Reminder  ·  1 hr before Fajr',
-              value: settings.tahajjudNotifEnabled,
-              onChanged: (val) async {
-                if (val) {
-                  final granted =
-                      await NotificationService.requestPermissions();
-                  if (!granted && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          s.notifPermDenied,
-                          style: GoogleFonts.poppins(fontSize: 13),
-                        ),
-                        backgroundColor: context.colors.card,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                    return;
-                  }
-                }
-                settings.setTahajjudNotifEnabled(val);
-              },
-            ),
-            const SizedBox(height: 32),
-
-            // Athkar Reminders Section
-            _SectionHeader(title: s.athkarReminders),
-            const SizedBox(height: 12),
-            ...[
-              ('morning',     Icons.wb_sunny_outlined,     s.morningAthkar,     '6:00 AM'),
-              ('evening',     Icons.wb_twilight,           s.eveningAthkar,     '5:00 PM'),
-              ('afterPrayer', Icons.self_improvement,      s.afterPrayerAthkar, '1:30 PM'),
-              ('sleep',       Icons.bedtime_outlined,      s.sleepAthkar,       '10:00 PM'),
-            ].map((entry) {
-              final (key, icon, title, time) = entry;
-              final isOn = settings.athkarNotifEnabled.contains(key);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: _NotifToggleTile(
-                  icon: icon,
-                  title: '$title  ·  $time',
-                  value: isOn,
-                  onChanged: (val) async {
-                    if (val) {
-                      final granted =
-                          await NotificationService.requestPermissions();
-                      if (!granted && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              s.notifPermDenied,
-                              style: GoogleFonts.poppins(fontSize: 13),
-                            ),
-                            backgroundColor: context.colors.card,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                        );
-                        return;
-                      }
-                    }
-                    await settings.setAthkarNotifEnabled(key, val);
-                    await NotificationService.scheduleAthkarNotifications(
-                        settings.athkarNotifEnabled);
-                  },
-                ),
-              );
-            }),
-            const SizedBox(height: 32),
-
-            // Color Theme Section
-            _SectionHeader(title: s.colorTheme),
-            const SizedBox(height: 16),
-            _ColorThemePicker(
-              selected: settings.colorTheme,
-              onChanged: settings.setColorTheme,
-            ),
-            const SizedBox(height: 32),
-
-            // Seasonal Theme Section
-            _SectionHeader(title: s.seasonalTheme),
-            const SizedBox(height: 12),
-            ...SeasonalTheme.values.map((season) => _SeasonalThemeTile(
-                  season: season,
-                  isSelected: settings.seasonalTheme == season,
-                  onTap: () => settings.setSeasonalTheme(season),
-                )),
             const SizedBox(height: 24),
 
-            // Language Section
-            _SectionHeader(title: s.language),
-            const SizedBox(height: 12),
-            _LangDropdown(
-              value: settings.language,
-              onChanged: (lang) => settings.setLanguage(lang!),
+            // ── Notifications group ──────────────────────────────────
+            _ExpandableGroup(
+              title: s.notifications,
+              icon: Icons.notifications_outlined,
+              initiallyExpanded: true,
+              children: [
+                _SubLabel('Prayer Alerts'),
+                const SizedBox(height: 8),
+                _NotifToggleTile(
+                  icon: Icons.notifications_active_outlined,
+                  title: s.adhanNotification,
+                  value: settings.adhanEnabled,
+                  onChanged: (val) async {
+                    if (val && !await _requestNotifPermission(context)) return;
+                    settings.setAdhanEnabled(val);
+                  },
+                ),
+                if (settings.adhanEnabled) ...[
+                  const SizedBox(height: 8),
+                  _NotifToggleTile(
+                    icon: Icons.volume_up_outlined,
+                    title: 'Adhan Sound',
+                    value: settings.adhanSoundEnabled,
+                    onChanged: (val) => settings.setAdhanSoundEnabled(val),
+                  ),
+                  if (settings.adhanSoundEnabled) ...[
+                    const SizedBox(height: 8),
+                    _AdhanSoundPicker(
+                      selectedId: settings.adhanSoundId,
+                      onChanged: (id) => settings.setAdhanSound(id),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 8),
+                _NotifToggleTile(
+                  icon: Icons.alarm_outlined,
+                  title: 'Pre-Prayer Reminder  ·  ${settings.reminderMinutes} min',
+                  value: settings.reminderEnabled,
+                  onChanged: (val) async {
+                    if (val && !await _requestNotifPermission(context)) return;
+                    settings.setReminderEnabled(val);
+                  },
+                ),
+                if (settings.reminderEnabled) ...[
+                  const SizedBox(height: 8),
+                  _StyledDropdown<int>(
+                    value: settings.reminderMinutes,
+                    items: [10, 20, 30]
+                        .map((m) => DropdownMenuItem(
+                              value: m,
+                              child: Text(
+                                '$m minutes before',
+                                style: GoogleFonts.poppins(
+                                  color: context.colors.accentLight,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) settings.setReminderMinutes(val);
+                    },
+                  ),
+                ],
+                const SizedBox(height: 8),
+                _NotifToggleTile(
+                  icon: Icons.wb_sunny_outlined,
+                  title: 'Sunrise Notification  ·  الشروق',
+                  value: settings.sunriseNotifEnabled,
+                  onChanged: (val) async {
+                    if (val && !await _requestNotifPermission(context)) return;
+                    settings.setSunriseNotifEnabled(val);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _NotifToggleTile(
+                  icon: Icons.nights_stay_outlined,
+                  title: 'Tahajjud Reminder  ·  1 hr before Fajr',
+                  value: settings.tahajjudNotifEnabled,
+                  onChanged: (val) async {
+                    if (val && !await _requestNotifPermission(context)) return;
+                    settings.setTahajjudNotifEnabled(val);
+                  },
+                ),
+                const SizedBox(height: 16),
+                _SubLabel(s.athkarReminders),
+                const SizedBox(height: 8),
+                ...[
+                  ('morning',     Icons.wb_sunny_outlined, s.morningAthkar,     '6:00 AM'),
+                  ('evening',     Icons.wb_twilight,        s.eveningAthkar,     '5:00 PM'),
+                  ('afterPrayer', Icons.self_improvement,   s.afterPrayerAthkar, '1:30 PM'),
+                  ('sleep',       Icons.bedtime_outlined,   s.sleepAthkar,       '10:00 PM'),
+                ].map((entry) {
+                  final (key, icon, title, time) = entry;
+                  final isOn = settings.athkarNotifEnabled.contains(key);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _NotifToggleTile(
+                      icon: icon,
+                      title: '$title  ·  $time',
+                      value: isOn,
+                      onChanged: (val) async {
+                        if (val && !await _requestNotifPermission(context)) return;
+                        await settings.setAthkarNotifEnabled(key, val);
+                        await NotificationService.scheduleAthkarNotifications(
+                            settings.athkarNotifEnabled);
+                      },
+                    ),
+                  );
+                }),
+              ],
             ),
-            const SizedBox(height: 32),
-
-            // Legal Section
-            _SectionHeader(title: 'Legal'),
             const SizedBox(height: 12),
-            _LegalTile(
-              icon: Icons.privacy_tip_outlined,
-              title: 'Privacy Policy',
-              onTap: () async {
-                final uri = Uri.parse(
-                    'https://abdeltaehass.github.io/Fajr/privacy-policy.html');
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
+
+            // ── Appearance group ─────────────────────────────────────
+            _ExpandableGroup(
+              title: s.colorTheme,
+              icon: Icons.palette_outlined,
+              initiallyExpanded: false,
+              children: [
+                _SubLabel(s.colorTheme),
+                const SizedBox(height: 12),
+                _ColorThemePicker(
+                  selected: settings.colorTheme,
+                  onChanged: settings.setColorTheme,
+                ),
+                const SizedBox(height: 16),
+                _SubLabel(s.seasonalTheme),
+                const SizedBox(height: 8),
+                ...SeasonalTheme.values.map((season) => _SeasonalThemeTile(
+                      season: season,
+                      isSelected: settings.seasonalTheme == season,
+                      onTap: () => settings.setSeasonalTheme(season),
+                    )),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // ── General group ────────────────────────────────────────
+            _ExpandableGroup(
+              title: 'General',
+              icon: Icons.tune_outlined,
+              initiallyExpanded: false,
+              children: [
+                _SubLabel(s.language),
+                const SizedBox(height: 8),
+                _LangDropdown(
+                  value: settings.language,
+                  onChanged: (lang) => settings.setLanguage(lang!),
+                ),
+                const SizedBox(height: 16),
+                _SubLabel('Legal'),
+                const SizedBox(height: 8),
+                _LegalTile(
+                  icon: Icons.privacy_tip_outlined,
+                  title: 'Privacy Policy',
+                  onTap: () async {
+                    final uri = Uri.parse(
+                        'https://abdeltaehass.github.io/Fajr/privacy-policy.html');
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 32),
           ],
@@ -379,24 +322,117 @@ class _AdhanSoundPickerState extends State<_AdhanSoundPicker> {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
+class _ExpandableGroup extends StatefulWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final IconData icon;
+  final bool initiallyExpanded;
+  final List<Widget> children;
+
+  const _ExpandableGroup({
+    required this.title,
+    required this.icon,
+    required this.children,
+    this.initiallyExpanded = false,
+  });
+
+  @override
+  State<_ExpandableGroup> createState() => _ExpandableGroupState();
+}
+
+class _ExpandableGroupState extends State<_ExpandableGroup> {
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _expanded ? c.accent.withValues(alpha: 0.35) : c.accent.withValues(alpha: 0.12),
+          width: _expanded ? 1.5 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Icon(widget.icon, color: c.accent, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      style: GoogleFonts.poppins(
+                        color: c.accentLight,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    color: c.accentLight,
+                    size: 22,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeInOut,
+            child: _expanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(color: c.accent.withValues(alpha: 0.12), height: 1),
+                        const SizedBox(height: 12),
+                        ...widget.children,
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SubLabel extends StatelessWidget {
+  final String text;
+  const _SubLabel(this.text);
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return Text(
-      title.toUpperCase(),
+      text.toUpperCase(),
       style: GoogleFonts.poppins(
-        color: c.accentLight,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 2,
+        color: c.accentLight.withValues(alpha: 0.6),
+        fontSize: 10,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.5,
       ),
     );
   }
 }
+
 
 class _NotifToggleTile extends StatelessWidget {
   final IconData icon;

@@ -16,14 +16,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  late final List<Widget> _screens;
 
-  final List<Widget> _screens = const [
-    DashboardScreen(),
-    QuranScreen(),
-    HadithAthkarScreen(),
-    MasjidScreen(),
-    SettingsScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      DashboardScreen(onTabSwitch: (i) => setState(() => _currentIndex = i)),
+      const QuranScreen(),
+      const HadithAthkarScreen(),
+      const MasjidScreen(),
+      const SettingsScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
