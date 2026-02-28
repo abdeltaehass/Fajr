@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../settings/app_settings.dart';
 import '../settings/settings_provider.dart';
 import '../models/prayer_times.dart';
 import '../services/location_service.dart';
@@ -37,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Timer? _countdownTimer;
   double? _latitude;
   double? _longitude;
+  AppSettings? _settingsListener;
 
   static const _cacheKey = 'cachedPrayerTimes';
 
@@ -48,7 +50,24 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.settings;
+    if (_settingsListener != settings) {
+      _settingsListener?.removeListener(_onSettingsChanged);
+      _settingsListener = settings;
+      settings.addListener(_onSettingsChanged);
+    }
+  }
+
+  void _onSettingsChanged() {
+    final pt = _prayerTimes;
+    if (pt != null) _scheduleNotifications(pt);
+  }
+
+  @override
   void dispose() {
+    _settingsListener?.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     _countdownTimer?.cancel();
     super.dispose();

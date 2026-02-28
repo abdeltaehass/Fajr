@@ -80,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 8),
             _NotifToggleTile(
               icon: Icons.alarm_outlined,
-              title: s.preReminderNotif,
+              title: 'Pre-Prayer Reminder  ·  ${settings.reminderMinutes} min',
               value: settings.reminderEnabled,
               onChanged: (val) async {
                 if (val) {
