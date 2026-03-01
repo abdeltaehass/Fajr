@@ -16,7 +16,7 @@ import '../widgets/next_prayer_banner.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/qibla_compass.dart';
 import 'duas_screen.dart';
-import 'salah_guide_screen.dart';
+import 'guides_screen.dart';
 import 'tasbeeh_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -361,7 +361,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildQuickActions(BuildContext context) {
     final c = context.colors;
     final actions = [
-      (Icons.menu_book_outlined, 'Guide', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalahGuideScreen()))),
+      (Icons.menu_book_outlined, 'Guide', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuidesScreen()))),
       (Icons.volunteer_activism, 'Dua', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DuasScreen()))),
       (Icons.grain, 'Tasbeeh', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TasbeehScreen()))),
       (Icons.mosque_outlined, 'Masjid', () => widget.onTabSwitch?.call(3)),

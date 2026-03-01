@@ -390,6 +390,18 @@ class _SurahScreenState extends State<SurahScreen> {
             ),
           ),
           GestureDetector(
+            onTap: () => _playSurahFrom(0),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: c.accent.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.replay, color: c.accent, size: 22),
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
             onTap: _skipPrev,
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -400,7 +412,7 @@ class _SurahScreenState extends State<SurahScreen> {
               child: Icon(Icons.skip_previous, color: c.accent, size: 26),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           GestureDetector(
             onTap: _togglePlayPause,
             child: Container(

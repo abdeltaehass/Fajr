@@ -7,9 +7,8 @@ import 'athkar_screen.dart';
 import 'tasbeeh_screen.dart';
 import 'names_of_allah_screen.dart';
 import 'duas_screen.dart';
-import 'hajj_umrah_screen.dart';
-import 'salah_guide_screen.dart';
-import 'menstruation_ghusl_screen.dart';
+import 'guides_screen.dart';
+import 'islamic_calendar_screen.dart';
 
 class HadithAthkarScreen extends StatelessWidget {
   const HadithAthkarScreen({super.key});
@@ -168,35 +167,23 @@ class HadithAthkarScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             _AthkarLaunchCard(
-              title: 'Hajj & Umrah Guide',
-              subtitle: 'Step-by-step guide with duas',
-              icon: Icons.mosque_outlined,
+              title: 'Islamic Guides',
+              subtitle: 'Salah, Hajj & Umrah, Purity, Zakat',
+              icon: Icons.menu_book_outlined,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const HajjUmrahScreen()),
+                MaterialPageRoute(builder: (_) => const GuidesScreen()),
               ),
             ),
             const SizedBox(height: 12),
 
             _AthkarLaunchCard(
-              title: 'Salah Guide',
-              subtitle: 'How to pray — wudu, steps & adhkar',
-              icon: Icons.self_improvement,
+              title: 'Islamic Calendar',
+              subtitle: 'Hijri dates, Islamic events & month names',
+              icon: Icons.calendar_month_outlined,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const SalahGuideScreen()),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            _AthkarLaunchCard(
-              title: 'Purity Guide',
-              subtitle: 'Hayd, Nifas & Ghusl — Islamic rulings',
-              icon: Icons.water_drop_outlined,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const MenstruationGhuslScreen()),
+                MaterialPageRoute(builder: (_) => const IslamicCalendarScreen()),
               ),
             ),
             const SizedBox(height: 16),

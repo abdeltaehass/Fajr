@@ -637,7 +637,7 @@ class _SeasonalThemeTile extends StatelessWidget {
 
 String _languageLabel(AppLanguage lang) {
   switch (lang) {
-    case AppLanguage.english:    return '🇬🇧  English';
+    case AppLanguage.english:    return '🇺🇸  English';
     case AppLanguage.arabic:     return '🇸🇦  العربية — Arabic';
     case AppLanguage.french:     return '🇫🇷  Français — French';
     case AppLanguage.turkish:    return '🇹🇷  Türkçe — Turkish';
