@@ -1,16 +1,78 @@
 import Flutter
 import UIKit
 import WidgetKit
+import AVFoundation
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+
+  private var adhanPlayer: AVAudioPlayer?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    // Take back delegate ownership after plugins register so our willPresent fires
+    UNUserNotificationCenter.current().delegate = self
+    return result
   }
 
+  // ── Foreground notification interception ──────────────────────────────────
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    let category = notification.request.content.categoryIdentifier
+
+    if category == "ADHAN" {
+      // Play via AVAudioPlayer for reliable foreground playback;
+      // suppress the notification sound so it doesn't double-fire.
+      playAdhan()
+      if #available(iOS 14.0, *) {
+        completionHandler([.banner, .badge])
+      } else {
+        completionHandler([.alert, .badge])
+      }
+    } else {
+      // All other notifications (reminders, athkar, etc.) use default behaviour.
+      if #available(iOS 14.0, *) {
+        completionHandler([.banner, .badge, .sound])
+      } else {
+        completionHandler([.alert, .badge, .sound])
+      }
+    }
+  }
+
+  private func playAdhan() {
+    let defaults = UserDefaults.standard
+    // flutter shared_preferences stores keys with "flutter." prefix
+    let soundId = defaults.string(forKey: "flutter.adhanSoundId")
+                  ?? "adhan_rabeh_ibn_darah.caf"
+    let soundName = soundId.replacingOccurrences(of: ".caf", with: "")
+
+    guard let url = Bundle.main.url(forResource: soundName, withExtension: "caf") else {
+      return
+    }
+
+    do {
+      try AVAudioSession.sharedInstance().setCategory(
+        .playback,
+        mode: .default,
+        options: [.duckOthers]
+      )
+      try AVAudioSession.sharedInstance().setActive(true)
+      adhanPlayer?.stop()
+      adhanPlayer = try AVAudioPlayer(contentsOf: url)
+      adhanPlayer?.play()
+    } catch {
+      // silently ignore — notification sound will still play as fallback
+    }
+  }
+
+  // ── Widget channel ─────────────────────────────────────────────────────────
   func didInitializeImplicitFlutterEngine(_ engineBridge: any FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 

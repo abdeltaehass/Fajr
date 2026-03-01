@@ -205,11 +205,13 @@ class NotificationService {
             presentBadge: true,
             presentSound: true,
             sound: adhanSoundId,
+            categoryIdentifier: 'ADHAN',
           )
         : const DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
+            categoryIdentifier: 'PRAYER',
           );
     await _plugin.zonedSchedule(
       id,
