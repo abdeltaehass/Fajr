@@ -24,7 +24,7 @@ class AppSettings extends ChangeNotifier {
   bool _tahajjudNotifEnabled = false;
   Set<String> _athkarNotifEnabled = {};
   String _reciterId = 'ar.alafasy';
-  String _adhanSoundId = 'adhan_rabeh_ibn_darah.mp3';
+  String _adhanSoundId = 'adhan_rabeh_ibn_darah.caf';
 
   AppColors get colors =>
       AppColorPalettes.withSeason(AppColorPalettes.forTheme(_colorTheme), _seasonalTheme);
@@ -121,7 +121,8 @@ class AppSettings extends ChangeNotifier {
     _sunriseNotifEnabled = prefs.getBool('sunriseNotifEnabled') ?? false;
     _tahajjudNotifEnabled = prefs.getBool('tahajjudNotifEnabled') ?? false;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
-    _adhanSoundId = prefs.getString('adhanSoundId') ?? 'adhan_rabeh_ibn_darah.mp3';
+    _adhanSoundId = (prefs.getString('adhanSoundId') ?? 'adhan_rabeh_ibn_darah.caf')
+        .replaceAll('.mp3', '.caf');
 
     final athkarJson = prefs.getString('athkarNotifEnabled');
     if (athkarJson != null) {

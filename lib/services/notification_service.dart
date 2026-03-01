@@ -50,7 +50,7 @@ class NotificationService {
     required bool adhanEnabled,
     required bool reminderEnabled,
     bool adhanSoundEnabled = false,
-    String adhanSoundId = 'adhan_rabeh_ibn_darah.mp3',
+    String adhanSoundId = 'adhan_rabeh_ibn_darah.caf',
     int reminderMinutes = 10,
   }) async {
     await _cancelPrayerNotifications();
@@ -194,7 +194,7 @@ class NotificationService {
     required String body,
     required DateTime localTime,
     bool useAdhanSound = false,
-    String adhanSoundId = 'adhan_rabeh_ibn_darah.mp3',
+    String adhanSoundId = 'adhan_rabeh_ibn_darah.caf',
   }) async {
     final utc = localTime.toUtc();
     final tzAt = tz.TZDateTime(

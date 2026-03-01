@@ -18,11 +18,11 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		AAB0AD1F73C8EA200186273C /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AD821B6D98039AB03EFBD40 /* Pods_RunnerTests.framework */; };
 		EB037FA2E035CDDFD8B377AA /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4847B9F45B3B3C202ED2F095 /* Pods_Runner.framework */; };
-		9DC448FE90D6482BBA77D7AA /* adhan_rabeh_ibn_darah.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.mp3 */; };
-		17D0B487AAED4FE9810BC7C6 /* adhan_adham_al_sharqawe.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 644DE0AE4B3241DCB320D3EB /* adhan_adham_al_sharqawe.mp3 */; };
-		68739011001543888A7906AC /* adhan_ismail_al_sheikh.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B81125041570420E95CA8F1B /* adhan_ismail_al_sheikh.mp3 */; };
-		771A4C0FD4124574A12F94CA /* adhan_ahmed_el_kourdi.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6EEF5F40339E402BA37CC519 /* adhan_ahmed_el_kourdi.mp3 */; };
-		0955F80BA6984164971BF5F5 /* adhan_akhdam_bnu_al_madane.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 60E47624B3204477A5FBBF68 /* adhan_akhdam_bnu_al_madane.mp3 */; };
+		9DC448FE90D6482BBA77D7AA /* adhan_rabeh_ibn_darah.caf in Resources */ = {isa = PBXBuildFile; fileRef = C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.caf */; };
+		17D0B487AAED4FE9810BC7C6 /* adhan_adham_al_sharqawe.caf in Resources */ = {isa = PBXBuildFile; fileRef = 644DE0AE4B3241DCB320D3EB /* adhan_adham_al_sharqawe.caf */; };
+		68739011001543888A7906AC /* adhan_ismail_al_sheikh.caf in Resources */ = {isa = PBXBuildFile; fileRef = B81125041570420E95CA8F1B /* adhan_ismail_al_sheikh.caf */; };
+		771A4C0FD4124574A12F94CA /* adhan_ahmed_el_kourdi.caf in Resources */ = {isa = PBXBuildFile; fileRef = 6EEF5F40339E402BA37CC519 /* adhan_ahmed_el_kourdi.caf */; };
+		0955F80BA6984164971BF5F5 /* adhan_akhdam_bnu_al_madane.caf in Resources */ = {isa = PBXBuildFile; fileRef = 60E47624B3204477A5FBBF68 /* adhan_akhdam_bnu_al_madane.caf */; };
 		D6C7546226BD6CD69B602FFB /* FajrWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BAC3F61B5F53E1A925F682 /* FajrWidget.swift */; };
 		63B142AD862050C00021DC89 /* FajrWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15027D61A9A38A01B5696527 /* FajrWidgetBundle.swift */; };
 		93A959A4A69ECA06B5AFB354 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2903BCE73835ED9071C18786 /* Assets.xcassets */; };
@@ -90,11 +90,11 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_rabeh_ibn_darah.mp3; sourceTree = "<group>"; };
-		644DE0AE4B3241DCB320D3EB /* adhan_adham_al_sharqawe.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_adham_al_sharqawe.mp3; sourceTree = "<group>"; };
-		B81125041570420E95CA8F1B /* adhan_ismail_al_sheikh.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_ismail_al_sheikh.mp3; sourceTree = "<group>"; };
-		6EEF5F40339E402BA37CC519 /* adhan_ahmed_el_kourdi.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_ahmed_el_kourdi.mp3; sourceTree = "<group>"; };
-		60E47624B3204477A5FBBF68 /* adhan_akhdam_bnu_al_madane.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_akhdam_bnu_al_madane.mp3; sourceTree = "<group>"; };
+		C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.caf */ = {isa = PBXFileReference; lastKnownFileType = audio.caf; path = adhan_rabeh_ibn_darah.caf; sourceTree = "<group>"; };
+		644DE0AE4B3241DCB320D3EB /* adhan_adham_al_sharqawe.caf */ = {isa = PBXFileReference; lastKnownFileType = audio.caf; path = adhan_adham_al_sharqawe.caf; sourceTree = "<group>"; };
+		B81125041570420E95CA8F1B /* adhan_ismail_al_sheikh.caf */ = {isa = PBXFileReference; lastKnownFileType = audio.caf; path = adhan_ismail_al_sheikh.caf; sourceTree = "<group>"; };
+		6EEF5F40339E402BA37CC519 /* adhan_ahmed_el_kourdi.caf */ = {isa = PBXFileReference; lastKnownFileType = audio.caf; path = adhan_ahmed_el_kourdi.caf; sourceTree = "<group>"; };
+		60E47624B3204477A5FBBF68 /* adhan_akhdam_bnu_al_madane.caf */ = {isa = PBXFileReference; lastKnownFileType = audio.caf; path = adhan_akhdam_bnu_al_madane.caf; sourceTree = "<group>"; };
 		A7F0A18E48D1169F3F2977DF /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		C1473D31D8F2033EA52044B2 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		D3C5EBC595D442260FB20047 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
@@ -202,11 +202,11 @@
 				601DDDB43D454806ADE0F460 /* PrivacyInfo.xcprivacy */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
-				C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.mp3 */,
-				644DE0AE4B3241DCB320D3EB /* adhan_adham_al_sharqawe.mp3 */,
-				B81125041570420E95CA8F1B /* adhan_ismail_al_sheikh.mp3 */,
-				6EEF5F40339E402BA37CC519 /* adhan_ahmed_el_kourdi.mp3 */,
-				60E47624B3204477A5FBBF68 /* adhan_akhdam_bnu_al_madane.mp3 */,
+				C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.caf */,
+				644DE0AE4B3241DCB320D3EB /* adhan_adham_al_sharqawe.caf */,
+				B81125041570420E95CA8F1B /* adhan_ismail_al_sheikh.caf */,
+				6EEF5F40339E402BA37CC519 /* adhan_ahmed_el_kourdi.caf */,
+				60E47624B3204477A5FBBF68 /* adhan_akhdam_bnu_al_madane.caf */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -359,11 +359,11 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
-				9DC448FE90D6482BBA77D7AA /* adhan_rabeh_ibn_darah.mp3 in Resources */,
-				17D0B487AAED4FE9810BC7C6 /* adhan_adham_al_sharqawe.mp3 in Resources */,
-				68739011001543888A7906AC /* adhan_ismail_al_sheikh.mp3 in Resources */,
-				771A4C0FD4124574A12F94CA /* adhan_ahmed_el_kourdi.mp3 in Resources */,
-				0955F80BA6984164971BF5F5 /* adhan_akhdam_bnu_al_madane.mp3 in Resources */,
+				9DC448FE90D6482BBA77D7AA /* adhan_rabeh_ibn_darah.caf in Resources */,
+				17D0B487AAED4FE9810BC7C6 /* adhan_adham_al_sharqawe.caf in Resources */,
+				68739011001543888A7906AC /* adhan_ismail_al_sheikh.caf in Resources */,
+				771A4C0FD4124574A12F94CA /* adhan_ahmed_el_kourdi.caf in Resources */,
+				0955F80BA6984164971BF5F5 /* adhan_akhdam_bnu_al_madane.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
