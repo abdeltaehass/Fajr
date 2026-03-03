@@ -50,7 +50,7 @@ class NotificationService {
     required bool adhanEnabled,
     required bool reminderEnabled,
     bool adhanSoundEnabled = false,
-    String adhanSoundId = 'adhan_rabeh_ibn_darah.caf',
+    String adhanSoundId = 'adhan_rabeh_ibn_darah.aiff',
     int reminderMinutes = 10,
   }) async {
     await _cancelPrayerNotifications();
@@ -194,7 +194,7 @@ class NotificationService {
     required String body,
     required DateTime localTime,
     bool useAdhanSound = false,
-    String adhanSoundId = 'adhan_rabeh_ibn_darah.caf',
+    String adhanSoundId = 'adhan_rabeh_ibn_darah.aiff',
   }) async {
     final utc = localTime.toUtc();
     final tzAt = tz.TZDateTime(
@@ -204,14 +204,13 @@ class NotificationService {
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
-            sound: adhanSoundId,
+            sound: adhanSoundId, // used for background; foreground plays via method channel
             categoryIdentifier: 'ADHAN',
           )
         : const DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
-            categoryIdentifier: 'PRAYER',
           );
     await _plugin.zonedSchedule(
       id,

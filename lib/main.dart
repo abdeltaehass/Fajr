@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
@@ -11,6 +12,7 @@ import 'services/notification_service.dart';
 import 'services/quran_audio_handler.dart';
 
 late QuranAudioHandler audioHandler;
+final _adhanPlayer = AudioPlayer();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +29,17 @@ void main() async {
       androidStopForegroundOnPause: true,
     ),
   );
+
+  // Handle adhan playback triggered by foreground notifications
+  const MethodChannel('fajr.adhan').setMethodCallHandler((call) async {
+    if (call.method == 'play') {
+      final assetPath = call.arguments as String? ?? 'assets/audio/adhan_rabeh_ibn_darah.mp3';
+      await _adhanPlayer.stop();
+      await _adhanPlayer.setAsset(assetPath);
+      await _adhanPlayer.play();
+    }
+    return null;
+  });
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

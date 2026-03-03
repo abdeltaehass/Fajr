@@ -8,27 +8,27 @@ class AdhanSound {
 
 const List<AdhanSound> adhanSounds = [
   AdhanSound(
-    id: 'adhan_rabeh_ibn_darah.caf',
+    id: 'adhan_rabeh_ibn_darah.aiff',
     name: 'Rabeh Ibn Darah Al Jazairi',
     assetPath: 'assets/audio/adhan_rabeh_ibn_darah.mp3',
   ),
   AdhanSound(
-    id: 'adhan_adham_al_sharqawe.caf',
+    id: 'adhan_adham_al_sharqawe.aiff',
     name: 'Adham Al Sharqawe',
     assetPath: 'assets/audio/adhan_adham_al_sharqawe.mp3',
   ),
   AdhanSound(
-    id: 'adhan_ismail_al_sheikh.caf',
+    id: 'adhan_ismail_al_sheikh.aiff',
     name: 'Ismail Al Sheikh',
     assetPath: 'assets/audio/adhan_ismail_al_sheikh.mp3',
   ),
   AdhanSound(
-    id: 'adhan_ahmed_el_kourdi.caf',
+    id: 'adhan_ahmed_el_kourdi.aiff',
     name: 'Ahmed El Kourdi',
     assetPath: 'assets/audio/adhan_ahmed_el_kourdi.mp3',
   ),
   AdhanSound(
-    id: 'adhan_akhdam_bnu_al_madane.caf',
+    id: 'adhan_akhdam_bnu_al_madane.aiff',
     name: 'Akhdam Bnu Al Madane',
     assetPath: 'assets/audio/adhan_akhdam_bnu_al_madane.mp3',
   ),

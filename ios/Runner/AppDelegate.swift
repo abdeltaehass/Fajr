@@ -1,21 +1,27 @@
 import Flutter
 import UIKit
 import WidgetKit
-import AVFoundation
 import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
 
-  private var adhanPlayer: AVAudioPlayer?
+  // Stored so willPresent can trigger Flutter-side adhan playback
+  private var adhanChannel: FlutterMethodChannel?
 
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self
+    }
     let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    // Take back delegate ownership after plugins register so our willPresent fires
-    UNUserNotificationCenter.current().delegate = self
+    // Wire adhan channel to main Flutter engine (window.rootViewController is set after super)
+    if let controller = window?.rootViewController as? FlutterViewController {
+      adhanChannel = FlutterMethodChannel(name: "fajr.adhan",
+                                          binaryMessenger: controller.binaryMessenger)
+    }
     return result
   }
 
@@ -25,63 +31,36 @@ import UserNotifications
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    let category = notification.request.content.categoryIdentifier
-
-    if category == "ADHAN" {
-      // Play via AVAudioPlayer for reliable foreground playback;
-      // suppress the notification sound so it doesn't double-fire.
-      playAdhan()
+    // For adhan: play through Flutter/just_audio (correct audio session, no glitching)
+    if notification.request.content.categoryIdentifier == "ADHAN",
+       let channel = adhanChannel {
+      let soundId = UserDefaults.standard.string(forKey: "flutter.adhanSoundId")
+                    ?? "adhan_rabeh_ibn_darah.aiff"
+      let baseName = soundId
+        .replacingOccurrences(of: ".aiff", with: "")
+        .replacingOccurrences(of: ".caf", with: "")
+      channel.invokeMethod("play", arguments: "assets/audio/\(baseName).mp3")
       if #available(iOS 14.0, *) {
         completionHandler([.banner, .badge])
       } else {
         completionHandler([.alert, .badge])
       }
-    } else {
-      // All other notifications (reminders, athkar, etc.) use default behaviour.
-      if #available(iOS 14.0, *) {
-        completionHandler([.banner, .badge, .sound])
-      } else {
-        completionHandler([.alert, .badge, .sound])
-      }
-    }
-  }
-
-  private func playAdhan() {
-    let defaults = UserDefaults.standard
-    // flutter shared_preferences stores keys with "flutter." prefix
-    let soundId = defaults.string(forKey: "flutter.adhanSoundId")
-                  ?? "adhan_rabeh_ibn_darah.caf"
-    let soundName = soundId.replacingOccurrences(of: ".caf", with: "")
-
-    guard let url = Bundle.main.url(forResource: soundName, withExtension: "caf") else {
       return
     }
-
-    do {
-      try AVAudioSession.sharedInstance().setCategory(
-        .playback,
-        mode: .default,
-        options: [.duckOthers]
-      )
-      try AVAudioSession.sharedInstance().setActive(true)
-      adhanPlayer?.stop()
-      adhanPlayer = try AVAudioPlayer(contentsOf: url)
-      adhanPlayer?.play()
-    } catch {
-      // silently ignore — notification sound will still play as fallback
-    }
+    // All other notifications: let flutter_local_notifications handle sound
+    super.userNotificationCenter(center, willPresent: notification, withCompletionHandler: completionHandler)
   }
 
-  // ── Widget channel ─────────────────────────────────────────────────────────
+  // ── Widget + Adhan channels ─────────────────────────────────────────────
   func didInitializeImplicitFlutterEngine(_ engineBridge: any FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
     guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "FajrWidgetPlugin") else { return }
-    let channel = FlutterMethodChannel(
-      name: "fajr.widget",
-      binaryMessenger: registrar.messenger()
-    )
-    channel.setMethodCallHandler { call, result in
+    let messenger = registrar.messenger()
+
+    // Widget channel
+    let widgetChannel = FlutterMethodChannel(name: "fajr.widget", binaryMessenger: messenger)
+    widgetChannel.setMethodCallHandler { call, result in
       if call.method == "updateWidget" {
         guard let args = call.arguments as? [String: Any] else {
           result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
@@ -101,5 +80,7 @@ import UserNotifications
         result(FlutterMethodNotImplemented)
       }
     }
+
+    // (adhan channel is set up in application:didFinishLaunchingWithOptions: on the main engine)
   }
 }
