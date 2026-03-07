@@ -425,7 +425,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "FRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nif [ -z \"${EXPANDED_CODE_SIGN_IDENTITY}\" ] || [ \"${CODE_SIGNING_REQUIRED}\" = \"NO\" ]; then exit 0; fi\nfind \"$FRAMEWORKS_DIR\" -name '*.framework' -type d | while read fw; do\n  name=$(basename \"$fw\" .framework)\n  bin=\"$fw/$name\"\n  [ -f \"$bin\" ] || continue\n  if /usr/bin/codesign -dvv \"$bin\" 2>&1 | grep -q 'Signature=adhoc'; then\n    /usr/bin/xattr -cr \"$bin\" 2>/dev/null || true\n    /usr/bin/codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" -- \"$bin\"\n  fi\ndone\n";
+			shellScript = "FRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nif [ -z \"${EXPANDED_CODE_SIGN_IDENTITY}\" ] || [ \"${EXPANDED_CODE_SIGN_IDENTITY}\" = \"-\" ] || [ \"${CODE_SIGNING_REQUIRED}\" = \"NO\" ]; then exit 0; fi\nfind \"$FRAMEWORKS_DIR\" -name '*.framework' -type d | while read fw; do\n  name=$(basename \"$fw\" .framework)\n  bin=\"$fw/$name\"\n  [ -f \"$bin\" ] || continue\n  if /usr/bin/codesign -dvv \"$bin\" 2>&1 | grep -q 'Signature=adhoc'; then\n    /usr/bin/xattr -cr \"$bin\" 2>/dev/null || true\n    /usr/bin/codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" -- \"$bin\"\n  fi\ndone\n";
 		};
 		71CBFCBCC3DABEFDAF17F180 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
