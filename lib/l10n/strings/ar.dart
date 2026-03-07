@@ -5,7 +5,7 @@ class ArabicStrings extends AppStrings {
   @override String get hadithAthkar => 'حديث وأذكار';
   @override String get settings => 'الإعدادات';
 
-  @override String get appTitle => 'manār';
+  @override String get appTitle => 'Al-Manar';
   @override String get nextPrayer => 'الصلاة القادمة';
   @override String get hours => 'ساعة';
   @override String get minutes => 'دقيقة';

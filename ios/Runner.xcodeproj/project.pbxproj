@@ -270,6 +270,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				B08EED403B05D20BE847B75A /* Embed Foundation Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
+				FA9B3C2D1E0F5A4B8C7D6E31 /* Sign Native Assets */,
 				29B9DA1B6C94077C34A8BD92 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
@@ -410,6 +411,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+		};
+		FA9B3C2D1E0F5A4B8C7D6E31 /* Sign Native Assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Sign Native Assets";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "FRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nif [ -z \"${EXPANDED_CODE_SIGN_IDENTITY}\" ] || [ \"${CODE_SIGNING_REQUIRED}\" = \"NO\" ]; then exit 0; fi\nfind \"$FRAMEWORKS_DIR\" -name '*.framework' -type d | while read fw; do\n  name=$(basename \"$fw\" .framework)\n  bin=\"$fw/$name\"\n  [ -f \"$bin\" ] || continue\n  if /usr/bin/codesign -dvv \"$bin\" 2>&1 | grep -q 'Signature=adhoc'; then\n    /usr/bin/xattr -cr \"$bin\" 2>/dev/null || true\n    /usr/bin/codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" -- \"$bin\"\n  fi\ndone\n";
 		};
 		71CBFCBCC3DABEFDAF17F180 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

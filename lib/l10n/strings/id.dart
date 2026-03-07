@@ -5,7 +5,7 @@ class IndonesianStrings extends AppStrings {
   @override String get hadithAthkar => 'Hadith & Dzikir';
   @override String get settings => 'Pengaturan';
 
-  @override String get appTitle => 'manār';
+  @override String get appTitle => 'Al-Manar';
   @override String get nextPrayer => 'Shalat Berikutnya';
   @override String get hours => 'JAM';
   @override String get minutes => 'MNT';

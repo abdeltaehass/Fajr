@@ -502,7 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   CrescentMoon(size: 28, color: c.accent),
                   const SizedBox(width: 10),
                   Text(
-                    'manār',
+                    'Al-Manar',
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
                 ],
