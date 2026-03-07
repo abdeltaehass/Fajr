@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_keys.dart';
 import '../models/masjid.dart';
 
@@ -13,13 +14,29 @@ class MasjidService {
     'X-Ios-Bundle-Identifier': 'com.fajr.fajr',
   };
 
+  static const Duration _cacheTtl = Duration(days: 7);
+
+  // Round to nearest 0.25° ≈ 28 km grid, matching the 30 km location threshold
+  static String _nearbyKey(double lat, double lng) {
+    final rLat = (lat * 4).round() / 4;
+    final rLng = (lng * 4).round() / 4;
+    return 'masjids_nearby_${rLat}_$rLng';
+  }
+
+  static String _detailKey(String placeId) => 'masjids_detail_$placeId';
+  static String _timestampKey(String key) => '${key}_ts';
+
   Future<List<Masjid>> searchNearbyMasjids({
     required double latitude,
     required double longitude,
     int radiusMeters = 15000,
   }) async {
-    final uri = Uri.parse('$_baseUrl/places:searchNearby');
+    final prefs = await SharedPreferences.getInstance();
+    final cacheKey = _nearbyKey(latitude, longitude);
+    final cached = _loadListFromCache(prefs, cacheKey);
+    if (cached != null) return cached;
 
+    final uri = Uri.parse('$_baseUrl/places:searchNearby');
     final body = jsonEncode({
       'includedTypes': ['mosque'],
       'maxResultCount': 20,
@@ -74,12 +91,17 @@ class MasjidService {
     masjids.sort((a, b) =>
         (a.distanceKm ?? 999).compareTo(b.distanceKm ?? 999));
 
+    _saveListToCache(prefs, cacheKey, masjids);
     return masjids;
   }
 
   Future<Masjid> getMasjidDetails(Masjid masjid) async {
-    final uri = Uri.parse('$_baseUrl/places/${masjid.placeId}');
+    final prefs = await SharedPreferences.getInstance();
+    final cacheKey = _detailKey(masjid.placeId);
+    final cached = _loadMasjidFromCache(prefs, cacheKey);
+    if (cached != null) return cached;
 
+    final uri = Uri.parse('$_baseUrl/places/${masjid.placeId}');
     final http.Response detailResponse;
     try {
       detailResponse = await http.get(
@@ -108,7 +130,7 @@ class MasjidService {
         result['regularOpeningHours']?['weekdayDescriptions'] as List<dynamic>?
             ?? [];
 
-    return masjid.copyWithDetails(
+    final detailed = masjid.copyWithDetails(
       phoneNumber: result['nationalPhoneNumber'] as String?,
       website: result['websiteUri'] as String?,
       openingHours: hours.map((h) => h as String).toList(),
@@ -116,6 +138,9 @@ class MasjidService {
           ? photos.map((p) => p['name'] as String).toList()
           : const [],
     );
+
+    _saveMasjidToCache(prefs, cacheKey, detailed);
+    return detailed;
   }
 
   String getPhotoUrl(String photoName, {int maxWidth = 400}) {
@@ -123,6 +148,44 @@ class MasjidService {
         '?maxWidthPx=$maxWidth'
         '&key=${ApiKeys.googlePlaces}';
   }
+
+  // ── Cache helpers ──────────────────────────────────────────────────────────
+
+  bool _isFresh(SharedPreferences prefs, String key) {
+    final ts = prefs.getInt(_timestampKey(key));
+    if (ts == null) return false;
+    final age = DateTime.now().millisecondsSinceEpoch - ts;
+    return age < _cacheTtl.inMilliseconds;
+  }
+
+  List<Masjid>? _loadListFromCache(SharedPreferences prefs, String key) {
+    if (!_isFresh(prefs, key)) return null;
+    final raw = prefs.getString(key);
+    if (raw == null) return null;
+    final list = jsonDecode(raw) as List<dynamic>;
+    return list.map((e) => Masjid.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  void _saveListToCache(
+      SharedPreferences prefs, String key, List<Masjid> masjids) {
+    prefs.setString(key, jsonEncode(masjids.map((m) => m.toJson()).toList()));
+    prefs.setInt(_timestampKey(key), DateTime.now().millisecondsSinceEpoch);
+  }
+
+  Masjid? _loadMasjidFromCache(SharedPreferences prefs, String key) {
+    if (!_isFresh(prefs, key)) return null;
+    final raw = prefs.getString(key);
+    if (raw == null) return null;
+    return Masjid.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  }
+
+  void _saveMasjidToCache(
+      SharedPreferences prefs, String key, Masjid masjid) {
+    prefs.setString(key, jsonEncode(masjid.toJson()));
+    prefs.setInt(_timestampKey(key), DateTime.now().millisecondsSinceEpoch);
+  }
+
+  // ── Distance ───────────────────────────────────────────────────────────────
 
   double _calculateDistance(
       double lat1, double lon1, double lat2, double lon2) {

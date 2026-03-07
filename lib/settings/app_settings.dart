@@ -25,6 +25,8 @@ class AppSettings extends ChangeNotifier {
   Set<String> _athkarNotifEnabled = {};
   String _reciterId = 'ar.alafasy';
   String _adhanSoundId = 'adhan_rabeh_ibn_darah.aiff';
+  Set<int> _favoriteSurahs = {};
+  Set<String> _favoriteAyahs = {};
 
   AppColors get colors =>
       AppColorPalettes.withSeason(AppColorPalettes.forTheme(_colorTheme), _seasonalTheme);
@@ -48,6 +50,8 @@ class AppSettings extends ChangeNotifier {
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   String get reciterId => _reciterId;
   String get adhanSoundId => _adhanSoundId;
+  Set<int> get favoriteSurahs => Set.unmodifiable(_favoriteSurahs);
+  Set<String> get favoriteAyahs => Set.unmodifiable(_favoriteAyahs);
 
   bool get isRtl => _language == AppLanguage.arabic || _language == AppLanguage.urdu || _language == AppLanguage.persian;
 
@@ -124,6 +128,19 @@ class AppSettings extends ChangeNotifier {
     _adhanSoundId = (prefs.getString('adhanSoundId') ?? 'adhan_rabeh_ibn_darah.aiff')
         .replaceAll('.mp3', '.aiff')
         .replaceAll('.caf', '.aiff');
+
+    final favSurahsJson = prefs.getString('favoriteSurahs');
+    if (favSurahsJson != null) {
+      try {
+        _favoriteSurahs = Set<int>.from((jsonDecode(favSurahsJson) as List).cast<int>());
+      } catch (_) {}
+    }
+    final favAyahsJson = prefs.getString('favoriteAyahs');
+    if (favAyahsJson != null) {
+      try {
+        _favoriteAyahs = Set<String>.from((jsonDecode(favAyahsJson) as List).cast<String>());
+      } catch (_) {}
+    }
 
     final athkarJson = prefs.getString('athkarNotifEnabled');
     if (athkarJson != null) {
@@ -337,5 +354,33 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('adhanSoundId', id);
+  }
+
+  bool isSurahFavourited(int number) => _favoriteSurahs.contains(number);
+
+  bool isAyahFavourited(int surahNum, int ayahNum) =>
+      _favoriteAyahs.contains('$surahNum:$ayahNum');
+
+  Future<void> toggleFavouriteSurah(int number) async {
+    if (_favoriteSurahs.contains(number)) {
+      _favoriteSurahs.remove(number);
+    } else {
+      _favoriteSurahs.add(number);
+    }
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('favoriteSurahs', jsonEncode(_favoriteSurahs.toList()));
+  }
+
+  Future<void> toggleFavouriteAyah(int surahNum, int ayahNum) async {
+    final key = '$surahNum:$ayahNum';
+    if (_favoriteAyahs.contains(key)) {
+      _favoriteAyahs.remove(key);
+    } else {
+      _favoriteAyahs.add(key);
+    }
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('favoriteAyahs', jsonEncode(_favoriteAyahs.toList()));
   }
 }

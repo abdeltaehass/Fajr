@@ -31,66 +31,97 @@ class NextPrayerBanner extends StatelessWidget {
     final minutes = timeRemaining.inMinutes.remainder(60);
     final seconds = timeRemaining.inSeconds.remainder(60);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [c.surface, c.card],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: c.accent.withValues(alpha: 0.6),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: c.accent.withValues(alpha: 0.15),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          Text(
-            context.strings.nextPrayer.toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            prayerName,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _formattedTime(locale),
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: c.accent,
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [c.surface, c.card],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _CountdownBox(value: hours.toString().padLeft(2, '0'), label: context.strings.hours.toLowerCase()),
-              _CountdownSeparator(),
-              _CountdownBox(value: minutes.toString().padLeft(2, '0'), label: context.strings.minutes.toLowerCase()),
-              _CountdownSeparator(),
-              _CountdownBox(value: seconds.toString().padLeft(2, '0'), label: context.strings.seconds.toLowerCase()),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: c.accent.withValues(alpha: 0.45),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: c.accent.withValues(alpha: 0.1),
+                blurRadius: 24,
+                spreadRadius: 0,
+                offset: const Offset(0, 4),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            context.strings.remaining,
-            style: Theme.of(context).textTheme.bodySmall,
+          padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
+          child: Column(
+            children: [
+              Text(
+                context.strings.nextPrayer.toUpperCase(),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                prayerName,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                _formattedTime(locale),
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: c.accent,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _CountdownBox(
+                    value: hours.toString().padLeft(2, '0'),
+                    label: context.strings.hours.toLowerCase(),
+                  ),
+                  const _CountdownSeparator(),
+                  _CountdownBox(
+                    value: minutes.toString().padLeft(2, '0'),
+                    label: context.strings.minutes.toLowerCase(),
+                  ),
+                  const _CountdownSeparator(),
+                  _CountdownBox(
+                    value: seconds.toString().padLeft(2, '0'),
+                    label: context.strings.seconds.toLowerCase(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.strings.remaining,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        // Subtle top-light shimmer — zero runtime cost
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 48,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0x0FFFFFFF), Color(0x00FFFFFF)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -110,8 +141,12 @@ class _CountdownBox extends StatelessWidget {
       width: 64,
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: c.scaffold.withValues(alpha: 0.6),
+        color: c.scaffold.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: c.accent.withValues(alpha: 0.12),
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
@@ -137,6 +172,8 @@ class _CountdownBox extends StatelessWidget {
 }
 
 class _CountdownSeparator extends StatelessWidget {
+  const _CountdownSeparator();
+
   @override
   Widget build(BuildContext context) {
     return Padding(

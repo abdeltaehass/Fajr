@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/prayer_times.dart';
 import '../settings/settings_provider.dart';
@@ -26,25 +27,50 @@ class PrayerCard extends StatelessWidget {
     final c = context.colors;
     final highEmphasis = c.isLight ? c.scaffold : Colors.white;
     final locale = context.settings.locale.toLanguageTag();
+    final isPast = prayer.todayDateTime.isBefore(DateTime.now());
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isNext ? c.card.withValues(alpha: 0.9) : c.card,
-        borderRadius: BorderRadius.circular(16),
-        border: isNext
-            ? Border(left: BorderSide(color: c.accent, width: 4))
+        gradient: isNext
+            ? LinearGradient(
+                colors: [c.accent.withValues(alpha: 0.16), c.card],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
             : null,
+        color: isNext ? null : c.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isNext
+              ? c.accent.withValues(alpha: 0.35)
+              : c.accent.withValues(alpha: 0.07),
+          width: 1,
+        ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       child: Row(
         children: [
-          Icon(
-            prayer.icon,
-            color: isNext ? c.accent : c.accentLight,
-            size: 28,
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: isNext
+                  ? c.accent.withValues(alpha: 0.18)
+                  : c.scaffold.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              prayer.icon,
+              color: isNext
+                  ? c.accent
+                  : isPast
+                      ? c.accentLight.withValues(alpha: 0.25)
+                      : c.accentLight.withValues(alpha: 0.6),
+              size: 19,
+            ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,25 +78,38 @@ class PrayerCard extends StatelessWidget {
                 Text(
                   prayer.localizedName(context.strings),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: isNext ? highEmphasis : c.bodyText,
+                        color: isNext
+                            ? highEmphasis
+                            : isPast
+                                ? c.bodyText.withValues(alpha: 0.35)
+                                : c.bodyText.withValues(alpha: 0.82),
+                        fontWeight:
+                            isNext ? FontWeight.w600 : FontWeight.w500,
                       ),
                 ),
                 if (isNext)
                   Text(
                     context.strings.upNext,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: c.accent,
-                        ),
+                    style: GoogleFonts.poppins(
+                      color: c.accent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
               ],
             ),
           ),
           Text(
             _formattedTime(locale),
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontSize: 18,
-                  color: isNext ? c.accent : highEmphasis,
-                ),
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
+              color: isNext
+                  ? c.accent
+                  : isPast
+                      ? highEmphasis.withValues(alpha: 0.28)
+                      : highEmphasis.withValues(alpha: 0.72),
+            ),
           ),
         ],
       ),

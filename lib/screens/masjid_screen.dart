@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,10 +58,24 @@ class _MasjidScreenState extends State<MasjidScreen> {
     });
 
     try {
-      final position = await _locationService.getCurrentPosition();
+      // Use GPS coords already cached by the dashboard to avoid competing
+      // GPS requests. Fall back to a live fix only if nothing is stored yet.
+      double? lat, lng;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        lat = prefs.getDouble('cachedLat');
+        lng = prefs.getDouble('cachedLng');
+      } catch (_) {}
+
+      if (lat == null || lng == null) {
+        final position = await _locationService.getCurrentPosition();
+        lat = position.latitude;
+        lng = position.longitude;
+      }
+
       final masjids = await _masjidService.searchNearbyMasjids(
-        latitude: position.latitude,
-        longitude: position.longitude,
+        latitude: lat,
+        longitude: lng,
       );
 
       if (!mounted) return;
@@ -621,16 +637,41 @@ class _MyMasjidCard extends StatelessWidget {
                       _QuickAction(
                         icon: Icons.directions,
                         color: c.accent,
-                        onTap: () async {
-                          final uri = Uri.parse(
-                            'https://www.google.com/maps/dir/?api=1'
-                            '&destination=${masjid.latitude},${masjid.longitude}'
-                            '&destination_place_id=${masjid.placeId}',
+                        onTap: () {
+                          final lat = masjid.latitude;
+                          final lng = masjid.longitude;
+                          showCupertinoModalPopup<void>(
+                            context: context,
+                            builder: (_) => CupertinoActionSheet(
+                              title: const Text('Get Directions'),
+                              actions: [
+                                CupertinoActionSheetAction(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    final uri = Uri.parse('maps://maps.apple.com/?daddr=$lat,$lng&dirflg=d');
+                                    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  },
+                                  child: const Text('Apple Maps'),
+                                ),
+                                CupertinoActionSheetAction(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    final uri = Uri.parse(
+                                      'https://www.google.com/maps/dir/?api=1'
+                                      '&destination=$lat,$lng'
+                                      '&destination_place_id=${masjid.placeId}',
+                                    );
+                                    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  },
+                                  child: const Text('Google Maps'),
+                                ),
+                              ],
+                              cancelButton: CupertinoActionSheetAction(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                            ),
                           );
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri,
-                                mode: LaunchMode.externalApplication);
-                          }
                         },
                       ),
                       if (masjid.phoneNumber != null) ...[

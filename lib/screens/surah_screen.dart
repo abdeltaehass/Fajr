@@ -272,6 +272,26 @@ class _SurahScreenState extends State<SurahScreen> {
           ],
         ),
         actions: [
+          // Surah bookmark
+          GestureDetector(
+            onTap: () => context.settings.toggleFavouriteSurah(widget.surahInfo.number),
+            child: Container(
+              margin: const EdgeInsets.only(right: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: c.accent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: c.accent.withValues(alpha: 0.2)),
+              ),
+              child: Icon(
+                context.settings.isSurahFavourited(widget.surahInfo.number)
+                    ? Icons.bookmark_rounded
+                    : Icons.bookmark_border_rounded,
+                color: c.accent,
+                size: 20,
+              ),
+            ),
+          ),
           GestureDetector(
             onTap: _showReciterPicker,
             child: Container(
@@ -550,9 +570,11 @@ class _SurahScreenState extends State<SurahScreen> {
               (isFirst && firstAyahStripped != null) ? firstAyahStripped : null,
           showTranslation: _showTranslation,
           isPlaying: isThisPlaying,
+          isBookmarked: context.settings.isAyahFavourited(widget.surahInfo.number, ayah.number),
           c: c,
           textColor: textColor,
           onPlay: () => _playSurahFrom(ayahIndex),
+          onBookmark: () => context.settings.toggleFavouriteAyah(widget.surahInfo.number, ayah.number),
         );
       },
     );
@@ -589,18 +611,22 @@ class _AyahTile extends StatelessWidget {
   final String? displayArabic;
   final bool showTranslation;
   final bool isPlaying;
+  final bool isBookmarked;
   final dynamic c;
   final Color textColor;
   final VoidCallback onPlay;
+  final VoidCallback onBookmark;
 
   const _AyahTile({
     required this.ayah,
     this.displayArabic,
     required this.showTranslation,
     required this.isPlaying,
+    required this.isBookmarked,
     required this.c,
     required this.textColor,
     required this.onPlay,
+    required this.onBookmark,
   });
 
   void _copyAyah(BuildContext context) {
@@ -679,6 +705,15 @@ class _AyahTile extends StatelessWidget {
                       size: 14,
                       color: c.accent,
                     ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                GestureDetector(
+                  onTap: onBookmark,
+                  child: Icon(
+                    isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                    size: 18,
+                    color: isBookmarked ? c.accent : textColor.withValues(alpha: 0.25),
                   ),
                 ),
               ],

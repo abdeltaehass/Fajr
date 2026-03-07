@@ -4,6 +4,7 @@ import '../data/surah_list.dart';
 import '../models/quran_models.dart';
 import '../services/quran_service.dart';
 import '../settings/settings_provider.dart';
+import 'bookmarks_screen.dart';
 import 'surah_screen.dart';
 
 class QuranScreen extends StatefulWidget {
@@ -17,11 +18,15 @@ class _QuranScreenState extends State<QuranScreen> {
   final QuranService _quranService = QuranService();
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  bool _showFavourites = false;
 
   List<SurahInfo> get _filtered {
-    if (_query.isEmpty) return surahList;
+    final base = _showFavourites
+        ? surahList.where((s) => context.settings.isSurahFavourited(s.number)).toList()
+        : surahList;
+    if (_query.isEmpty) return base;
     final q = _query.toLowerCase();
-    return surahList.where((s) {
+    return base.where((s) {
       return s.name.toLowerCase().contains(q) ||
           s.arabicName.contains(_query) ||
           s.meaning.toLowerCase().contains(q);
@@ -39,6 +44,7 @@ class _QuranScreenState extends State<QuranScreen> {
     final c = context.colors;
     final s = context.strings;
     final textColor = c.isLight ? c.scaffold : Colors.white;
+    final settings = context.settings;
 
     return SafeArea(
       child: Column(
@@ -48,11 +54,58 @@ class _QuranScreenState extends State<QuranScreen> {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             child: Column(
               children: [
-                Text(
-                  s.quran,
-                  style: Theme.of(context).textTheme.displayLarge,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        s.quran,
+                        style: Theme.of(context).textTheme.displayLarge,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const BookmarksScreen()),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: c.card,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: c.accent.withValues(alpha: 0.15)),
+                        ),
+                        child: Icon(Icons.bookmark_rounded, color: c.accent, size: 20),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
+                // Tab toggle
+                Container(
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: c.card,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: c.accent.withValues(alpha: 0.12)),
+                  ),
+                  child: Row(
+                    children: [
+                      _Tab(
+                        label: 'All Surahs',
+                        selected: !_showFavourites,
+                        c: c,
+                        onTap: () => setState(() => _showFavourites = false),
+                      ),
+                      _Tab(
+                        label: 'Favourites',
+                        selected: _showFavourites,
+                        c: c,
+                        onTap: () => setState(() => _showFavourites = true),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
                 // Search bar
                 Container(
                   decoration: BoxDecoration(
@@ -91,25 +144,43 @@ class _QuranScreenState extends State<QuranScreen> {
 
           // Surah list
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              itemCount: _filtered.length,
-              itemBuilder: (context, index) {
-                final surah = _filtered[index];
-                return _SurahCard(
-                  surah: surah,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SurahScreen(
-                        surahInfo: surah,
-                        quranService: _quranService,
-                      ),
+            child: _filtered.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.bookmark_border,
+                            size: 48, color: c.accent.withValues(alpha: 0.35)),
+                        const SizedBox(height: 10),
+                        Text(
+                          _showFavourites ? 'No favourite surahs yet' : 'No results',
+                          style: GoogleFonts.poppins(
+                              color: textColor.withValues(alpha: 0.45), fontSize: 14),
+                        ),
+                      ],
                     ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    itemCount: _filtered.length,
+                    itemBuilder: (context, index) {
+                      final surah = _filtered[index];
+                      return _SurahCard(
+                        surah: surah,
+                        isFavourited: settings.isSurahFavourited(surah.number),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SurahScreen(
+                              surahInfo: surah,
+                              quranService: _quranService,
+                            ),
+                          ),
+                        ),
+                        onBookmark: () => context.settings.toggleFavouriteSurah(surah.number),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -117,11 +188,51 @@ class _QuranScreenState extends State<QuranScreen> {
   }
 }
 
-class _SurahCard extends StatelessWidget {
-  final SurahInfo surah;
+class _Tab extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final dynamic c;
   final VoidCallback onTap;
 
-  const _SurahCard({required this.surah, required this.onTap});
+  const _Tab({required this.label, required this.selected, required this.c, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: selected ? c.accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(9),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: selected ? Colors.white : c.accent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SurahCard extends StatelessWidget {
+  final SurahInfo surah;
+  final bool isFavourited;
+  final VoidCallback onTap;
+  final VoidCallback onBookmark;
+
+  const _SurahCard({
+    required this.surah,
+    required this.isFavourited,
+    required this.onTap,
+    required this.onBookmark,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +325,7 @@ class _SurahCard extends StatelessWidget {
               ),
             ),
 
-            // Arabic name
+            // Arabic name + bookmark
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -227,11 +338,18 @@ class _SurahCard extends StatelessWidget {
                   ),
                   textDirection: TextDirection.rtl,
                 ),
-                const SizedBox(height: 4),
-                Icon(
-                  Icons.chevron_right,
-                  color: textColor.withValues(alpha: 0.25),
-                  size: 18,
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: onBookmark,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Icon(
+                      isFavourited ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                      color: isFavourited ? c.accent : textColor.withValues(alpha: 0.25),
+                      size: 20,
+                    ),
+                  ),
                 ),
               ],
             ),

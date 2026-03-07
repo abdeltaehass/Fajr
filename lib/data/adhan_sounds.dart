@@ -18,11 +18,6 @@ const List<AdhanSound> adhanSounds = [
     assetPath: 'assets/audio/adhan_adham_al_sharqawe.mp3',
   ),
   AdhanSound(
-    id: 'adhan_ismail_al_sheikh.aiff',
-    name: 'Ismail Al Sheikh',
-    assetPath: 'assets/audio/adhan_ismail_al_sheikh.mp3',
-  ),
-  AdhanSound(
     id: 'adhan_ahmed_el_kourdi.aiff',
     name: 'Ahmed El Kourdi',
     assetPath: 'assets/audio/adhan_ahmed_el_kourdi.mp3',

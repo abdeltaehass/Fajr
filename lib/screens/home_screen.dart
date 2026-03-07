@@ -35,47 +35,109 @@ class _HomeScreenState extends State<HomeScreen> {
     final c = context.colors;
     final s = context.strings;
 
+    const icons = [
+      Icons.access_time_outlined,
+      Icons.auto_stories_outlined,
+      Icons.menu_book_outlined,
+      Icons.mosque_outlined,
+      Icons.settings_outlined,
+    ];
+    const activeIcons = [
+      Icons.access_time,
+      Icons.auto_stories,
+      Icons.menu_book,
+      Icons.mosque,
+      Icons.settings,
+    ];
+    final labels = [s.prayerTimes, s.quran, s.hadithAthkar, s.masjid, s.settings];
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        backgroundColor: c.card,
-        selectedItemColor: c.accent,
-        unselectedItemColor: c.accentLight.withValues(alpha: 0.45),
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: GoogleFonts.poppins(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: c.card,
+          border: Border(
+            top: BorderSide(color: c.accent.withValues(alpha: 0.18), width: 0.5),
+          ),
         ),
-        unselectedLabelStyle: GoogleFonts.poppins(
-          fontSize: 10,
-          fontWeight: FontWeight.w400,
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 58,
+            child: Row(
+              children: List.generate(5, (i) {
+                final selected = i == _currentIndex;
+                return Expanded(
+                  child: _NavItem(
+                    icon: icons[i],
+                    activeIcon: activeIcons[i],
+                    label: labels[i],
+                    selected: selected,
+                    onTap: () => setState(() => _currentIndex = i),
+                  ),
+                );
+              }),
+            ),
+          ),
         ),
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.access_time),
-            label: s.prayerTimes,
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            width: selected ? 28 : 0,
+            height: 2.5,
+            margin: const EdgeInsets.only(bottom: 5),
+            decoration: BoxDecoration(
+              color: c.accent,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.auto_stories_outlined),
-            activeIcon: const Icon(Icons.auto_stories),
-            label: s.quran,
+          Icon(
+            selected ? activeIcon : icon,
+            color: selected ? c.accent : c.accentLight.withValues(alpha: 0.38),
+            size: 21,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.menu_book),
-            label: s.hadithAthkar,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.mosque_outlined),
-            label: s.masjid,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings_outlined),
-            label: s.settings,
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              color: selected ? c.accent : c.accentLight.withValues(alpha: 0.38),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' show cos, sqrt;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -110,6 +111,54 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _loadPrayerTimes() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final cachedDate = prefs.getString('cachedDate') ?? '';
+    final raw = prefs.getString(_cacheKey);
+
+    // Same day + valid cache → serve instantly, no GPS, no API call
+    if (cachedDate == today && raw != null) {
+      try {
+        final cached = PrayerTimesResponse.fromCached(
+            jsonDecode(raw) as Map<String, dynamic>);
+        _latitude = prefs.getDouble('cachedLat');
+        _longitude = prefs.getDouble('cachedLng');
+        if (!mounted) return;
+        setState(() {
+          _prayerTimes = cached;
+          _isLoading = false;
+          _errorMessage = null;
+          _isServerUnavailable = false;
+          _isGenericError = false;
+        });
+        _determineNextPrayer();
+        _startCountdown();
+        // Silently update GPS coords in background (for compass/qibla accuracy).
+        // If the user has moved >50 km, fetch fresh prayer times for new location.
+        _locationService.getCurrentPosition().then((pos) {
+          if (!mounted) return;
+          final movedFar = _distanceKm(
+                _latitude ?? pos.latitude, _longitude ?? pos.longitude,
+                pos.latitude, pos.longitude) >
+            50.0;
+          setState(() {
+            _latitude = pos.latitude;
+            _longitude = pos.longitude;
+          });
+          if (movedFar) _fetchFresh(prefs, today);
+        }).catchError((_) {});
+        return;
+      } catch (_) {
+        // Corrupt cache — fall through to full fetch
+      }
+    }
+
+    // Different day or no cache — fetch fresh
+    await _fetchFresh(prefs, today);
+  }
+
+  Future<void> _fetchFresh(SharedPreferences prefs, String today) async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -128,9 +177,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       if (!mounted) return;
 
-      // Persist for offline use
-      final prefs = await SharedPreferences.getInstance();
-      final today = DateTime.now().toIso8601String().substring(0, 10);
       await Future.wait([
         prefs.setString(_cacheKey, jsonEncode(prayerTimes.toJson())),
         prefs.setString('cachedDate', today),
@@ -178,12 +224,20 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
+  // Equirectangular approximation — accurate enough for a >50 km threshold check
+  double _distanceKm(double lat1, double lng1, double lat2, double lng2) {
+    const r = 6371.0;
+    const toRad = 3.141592653589793 / 180;
+    final x = (lng2 - lng1) * toRad * cos((lat1 + lat2) / 2 * toRad);
+    final y = (lat2 - lat1) * toRad;
+    return r * sqrt(x * x + y * y);
+  }
+
   Future<bool> _tryLoadCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_cacheKey);
       if (raw == null || !mounted) return false;
-      // If cache is from a previous day, don't use it — prayer times have changed.
       final cachedDate = prefs.getString('cachedDate') ?? '';
       final today = DateTime.now().toIso8601String().substring(0, 10);
       if (cachedDate != today) return false;
@@ -198,16 +252,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       });
       _determineNextPrayer();
       _startCountdown();
-      // GPS works without internet — fetch location in background for compass
-      if (_latitude == null || _longitude == null) {
-        _locationService.getCurrentPosition().then((pos) {
-          if (!mounted) return;
-          setState(() {
-            _latitude = pos.latitude;
-            _longitude = pos.longitude;
-          });
-        }).catchError((_) {});
-      }
       return true;
     } catch (_) {
       return false;
@@ -358,6 +402,35 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
+  Widget _buildSectionHeader(String title) {
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 3,
+            height: 13,
+            decoration: BoxDecoration(
+              color: c.accent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title.toUpperCase(),
+            style: GoogleFonts.poppins(
+              color: c.accent.withValues(alpha: 0.7),
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildQuickActions(BuildContext context) {
     final c = context.colors;
     final actions = [
@@ -374,21 +447,25 @@ class _DashboardScreenState extends State<DashboardScreen>
             onTap: onTap,
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: c.card,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: c.accent.withValues(alpha: 0.15)),
+                gradient: LinearGradient(
+                  colors: [c.surface.withValues(alpha: 0.45), c.card],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: c.accent.withValues(alpha: 0.16)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, color: c.accent, size: 22),
-                  const SizedBox(height: 6),
+                  Icon(icon, color: c.accent, size: 23),
+                  const SizedBox(height: 7),
                   Text(
                     label,
                     style: GoogleFonts.poppins(
-                      color: c.bodyText,
+                      color: c.bodyText.withValues(alpha: 0.85),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                     ),
@@ -415,24 +492,27 @@ class _DashboardScreenState extends State<DashboardScreen>
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CrescentMoon(size: 32, color: c.accent),
-                const SizedBox(width: 12),
-                Text(
-                  'manār',
-                  style: Theme.of(context).textTheme.displayLarge,
-                ),
-              ],
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CrescentMoon(size: 28, color: c.accent),
+                  const SizedBox(width: 10),
+                  Text(
+                    'manār',
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Hijri date
-            HijriDateHeader(date: _prayerTimes!.date),
-            const SizedBox(height: 12),
+            Center(child: HijriDateHeader(date: _prayerTimes!.date)),
+            const SizedBox(height: 16),
 
             // Next prayer banner
             NextPrayerBanner(
@@ -440,27 +520,31 @@ class _DashboardScreenState extends State<DashboardScreen>
               prayerTime: nextPrayer.time,
               timeRemaining: _timeUntilNext,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
-            // Quick Actions
+            // Quick Access section
+            _buildSectionHeader('Quick Access'),
             _buildQuickActions(context),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
-            // Prayer cards
+            // Prayer Times section
+            _buildSectionHeader('Prayer Times'),
             ...List.generate(prayers.length, (index) {
               return PrayerCard(
                 prayer: prayers[index],
                 isNext: index == _nextPrayerIndex,
               );
             }),
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
 
             // Qibla compass
-            if (_latitude != null && _longitude != null)
+            if (_latitude != null && _longitude != null) ...[
+              _buildSectionHeader('Qibla'),
               QiblaCompass(
                 latitude: _latitude!,
                 longitude: _longitude!,
               ),
+            ],
             const SizedBox(height: 16),
           ],
         ),
