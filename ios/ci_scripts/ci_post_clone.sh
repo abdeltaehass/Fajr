@@ -22,6 +22,9 @@ export PATH="$HOME/flutter/bin:$PATH"
 echo ">>> Flutter version..."
 flutter --version --suppress-analytics
 
+echo ">>> Pre-caching iOS artifacts..."
+flutter precache --ios --suppress-analytics
+
 echo ">>> Running flutter pub get..."
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 flutter pub get --suppress-analytics
