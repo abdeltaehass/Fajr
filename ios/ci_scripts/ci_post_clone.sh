@@ -1,18 +1,18 @@
 #!/bin/sh
 set -e
 
+export PATH="/opt/homebrew/bin:$PATH"
+
 # Install Flutter
-FLUTTER_VERSION="3.41.1"
-FLUTTER_DIR="$HOME/flutter"
+brew install --cask flutter
 
-git clone https://github.com/flutter/flutter.git "$FLUTTER_DIR" --branch "$FLUTTER_VERSION" --depth 1
-export PATH="$FLUTTER_DIR/bin:$PATH"
+# Add Flutter to PATH
+export PATH="/opt/homebrew/Caskroom/flutter/$(ls /opt/homebrew/Caskroom/flutter)/flutter/bin:$PATH"
 
-# Get dependencies and generate Generated.xcconfig
+# Get pub dependencies (generates Generated.xcconfig)
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 flutter pub get
 
 # Install CocoaPods dependencies
-cd ios
+cd "$CI_PRIMARY_REPOSITORY_PATH/ios"
 pod install
-
