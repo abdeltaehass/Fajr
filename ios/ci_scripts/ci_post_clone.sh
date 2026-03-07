@@ -25,6 +25,14 @@ flutter --version --suppress-analytics
 echo ">>> Pre-caching iOS artifacts..."
 flutter precache --ios --suppress-analytics
 
+echo ">>> Generating api_keys.dart..."
+mkdir -p "$CI_PRIMARY_REPOSITORY_PATH/lib/config"
+cat > "$CI_PRIMARY_REPOSITORY_PATH/lib/config/api_keys.dart" << EOF
+class ApiKeys {
+  static const String googlePlaces = '${GOOGLE_PLACES_API_KEY}';
+}
+EOF
+
 echo ">>> Running flutter pub get..."
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 flutter pub get --suppress-analytics
