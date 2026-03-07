@@ -1,10 +1,18 @@
 #!/bin/sh
 set -ex
 
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+FLUTTER_VERSION="3.41.1"
 
-echo ">>> Downloading Flutter SDK..."
-curl -L "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.41.1-stable.zip" \
+# Detect architecture and download the correct Flutter SDK
+ARCH=$(uname -m)
+if [ "$ARCH" = "arm64" ]; then
+  FLUTTER_ZIP="flutter_macos_arm64_${FLUTTER_VERSION}-stable.zip"
+else
+  FLUTTER_ZIP="flutter_macos_${FLUTTER_VERSION}-stable.zip"
+fi
+
+echo ">>> Detected arch: $ARCH, downloading $FLUTTER_ZIP..."
+curl -L "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/${FLUTTER_ZIP}" \
   -o "$HOME/flutter.zip"
 
 echo ">>> Extracting Flutter SDK..."
