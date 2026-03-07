@@ -33,9 +33,9 @@ class ApiKeys {
 }
 EOF
 
-echo ">>> Running flutter pub get..."
+echo ">>> Configuring Flutter iOS build (creates build directories and Generated.xcconfig)..."
 cd "$CI_PRIMARY_REPOSITORY_PATH"
-flutter pub get --suppress-analytics
+flutter build ios --config-only --suppress-analytics
 
 echo ">>> Running pod install..."
 cd "$CI_PRIMARY_REPOSITORY_PATH/ios"
