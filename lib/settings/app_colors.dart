@@ -44,7 +44,7 @@ class AppColors {
   }
 }
 
-enum ColorTheme { green, blue, black, white, pink, yellow, purple, teal, crimson }
+enum ColorTheme { green, blue, black, white, pink, yellow, purple, teal, crimson, orange, brown }
 
 enum SeasonalTheme { normal, ramadan, eid, hajj, laylatulQadr }
 
@@ -140,6 +140,26 @@ class AppColorPalettes {
     activeGlow: Color(0xFFFFD700),
   );
 
+  static const orange = AppColors(
+    scaffold: Color(0xFF7A2E00),
+    card: Color(0xFF652600),
+    surface: Color(0xFFA84010),
+    accent: Color(0xFFFFB347),
+    accentLight: Color(0xFFFFD8A0),
+    bodyText: Color(0xFFF5F0E1),
+    activeGlow: Color(0xFFFFD700),
+  );
+
+  static const brown = AppColors(
+    scaffold: Color(0xFF3D1F0A),
+    card: Color(0xFF321808),
+    surface: Color(0xFF5C3018),
+    accent: Color(0xFFD4A847),
+    accentLight: Color(0xFFE8CFA0),
+    bodyText: Color(0xFFF5F0E1),
+    activeGlow: Color(0xFFFFD700),
+  );
+
   static AppColors forTheme(ColorTheme theme) {
     switch (theme) {
       case ColorTheme.green:
@@ -160,6 +180,10 @@ class AppColorPalettes {
         return teal;
       case ColorTheme.crimson:
         return crimson;
+      case ColorTheme.orange:
+        return orange;
+      case ColorTheme.brown:
+        return brown;
     }
   }
 
@@ -219,6 +243,10 @@ class AppColorPalettes {
         return 'Teal';
       case ColorTheme.crimson:
         return 'Crimson';
+      case ColorTheme.orange:
+        return 'Orange';
+      case ColorTheme.brown:
+        return 'Brown';
     }
   }
 

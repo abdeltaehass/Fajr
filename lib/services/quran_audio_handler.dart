@@ -53,6 +53,12 @@ class QuranAudioHandler extends BaseAudioHandler {
     if (_player.hasPrevious) await _player.seekToPrevious();
   }
 
+  bool get isRepeating => _player.loopMode == LoopMode.all;
+
+  Future<void> toggleRepeat() async {
+    await _player.setLoopMode(isRepeating ? LoopMode.off : LoopMode.all);
+  }
+
   @override
   Future<void> onNotificationDeleted() => stop();
 

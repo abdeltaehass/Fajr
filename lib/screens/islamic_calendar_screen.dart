@@ -1,49 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_provider.dart';
+import '../utils/hijri_utils.dart';
 
-// ─────────────────────────────────────────────────────────────
-// Hijri conversion (tabular/Kuwaiti civil calendar)
-// ─────────────────────────────────────────────────────────────
-
-class HijriDate {
-  final int year;
-  final int month;
-  final int day;
-  const HijriDate(this.year, this.month, this.day);
-}
-
-int _toJdn(int y, int m, int d) {
-  final a = (14 - m) ~/ 12;
-  final yy = y + 4800 - a;
-  final mm = m + 12 * a - 3;
-  return d +
-      (153 * mm + 2) ~/ 5 +
-      365 * yy +
-      yy ~/ 4 -
-      yy ~/ 100 +
-      yy ~/ 400 -
-      32045;
-}
-
-HijriDate jdnToHijri(int jd) {
-  int l = jd - 1948440 + 10632;
-  final n = (l - 1) ~/ 10631;
-  l = l - 10631 * n + 354;
-  final j = ((10985 - l) ~/ 5316) * ((50 * l) ~/ 17719) +
-      (l ~/ 5670) * ((43 * l) ~/ 15238);
-  l = l -
-      ((30 - j) ~/ 15) * ((17719 * j) ~/ 50) -
-      (j ~/ 16) * ((15238 * j) ~/ 43) +
-      29;
-  final month = (24 * l) ~/ 709;
-  final day = l - (709 * month) ~/ 24;
-  final year = 30 * n + j - 30;
-  return HijriDate(year, month, day);
-}
-
-HijriDate gregorianToHijri(DateTime date) =>
-    jdnToHijri(_toJdn(date.year, date.month, date.day));
+export '../utils/hijri_utils.dart' show HijriDate, gregorianToHijri, jdnToHijri;
 
 DateTime hijriMonthStart(int hy, int hm) {
   final n = (hy - 1) ~/ 30;
@@ -232,27 +192,16 @@ _Entry? _rangedEntry(int hm, int hd) {
   return null;
 }
 
-_Entry? getEntry(int hm, int hd) =>
+_Entry? _getEntry(int hm, int hd) =>
     _fixedDates[(hm, hd)] ?? _rangedEntry(hm, hd);
 
 // ─────────────────────────────────────────────────────────────
 // Static labels
 // ─────────────────────────────────────────────────────────────
 
-const List<String> _hijriMonths = [
-  'Muharram',
-  'Safar',
-  "Rabi' al-Awwal",
-  "Rabi' al-Thani",
-  'Jumada al-Awwal',
-  'Jumada al-Thani',
-  'Rajab',
-  "Sha'ban",
-  'Ramadan',
-  'Shawwal',
-  "Dhul Qa'da",
-  'Dhul Hijja',
-];
+// hijriMonthNames is imported from hijri_utils.dart
+// local alias for backward compatibility within this file
+const List<String> _hijriMonths = hijriMonthNames;
 
 const List<String> _hijriMonthsAr = [
   'مُحَرَّم',
@@ -318,11 +267,15 @@ class _IslamicCalendarScreenState extends State<IslamicCalendarScreen> {
     final daysInMonth =
         DateUtils.getDaysInMonth(_viewMonth.year, _viewMonth.month);
     final cells = <DateTime?>[];
-    for (int i = 0; i < firstWeekday; i++) cells.add(null);
+    for (int i = 0; i < firstWeekday; i++) {
+      cells.add(null);
+    }
     for (int d = 1; d <= daysInMonth; d++) {
       cells.add(DateTime(_viewMonth.year, _viewMonth.month, d));
     }
-    while (cells.length % 7 != 0) cells.add(null);
+    while (cells.length % 7 != 0) {
+      cells.add(null);
+    }
     return cells;
   }
 
@@ -334,7 +287,7 @@ class _IslamicCalendarScreenState extends State<IslamicCalendarScreen> {
     for (int d = 1; d <= daysInMonth; d++) {
       final date = DateTime(_viewMonth.year, _viewMonth.month, d);
       final h = gregorianToHijri(date);
-      final entry = getEntry(h.month, h.day);
+      final entry = _getEntry(h.month, h.day);
       if (entry != null && !seen.contains(entry.name)) {
         seen.add(entry.name);
         list.add((day: d, entry: entry, hijri: h));
@@ -478,7 +431,7 @@ class _IslamicCalendarScreenState extends State<IslamicCalendarScreen> {
                         date.month == today.month &&
                         date.day == today.day;
                     final isFriday = date.weekday == DateTime.friday;
-                    final entry = getEntry(h.month, h.day);
+                    final entry = _getEntry(h.month, h.day);
                     final isFast = entry?.isFast ?? false;
                     final isHoliday = entry?.isHoliday ?? false;
                     final hasEntry = entry != null;
@@ -574,6 +527,10 @@ class _IslamicCalendarScreenState extends State<IslamicCalendarScreen> {
 
           // ── Legend ──
           _Legend(c: c, textColor: textColor),
+          const SizedBox(height: 16),
+
+          // ── Today's Hijri date (Day / Night) ──
+          _TodayDateCard(today: _today, c: c, textColor: textColor),
           const SizedBox(height: 16),
 
           // ── Events this month ──
@@ -875,6 +832,99 @@ class _EventCardState extends State<_EventCard> {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Today's Date Card
+// ─────────────────────────────────────────────────────────────
+
+class _TodayDateCard extends StatelessWidget {
+  final DateTime today;
+  final dynamic c;
+  final Color textColor;
+
+  const _TodayDateCard({
+    required this.today,
+    required this.c,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final dayH = gregorianToHijri(today);
+    final nightH = gregorianToHijri(today.add(const Duration(days: 1)));
+    final dayStr = '${dayH.day} ${hijriMonthNames[dayH.month - 1]} ${dayH.year} AH';
+    final nightStr = '${nightH.day} ${hijriMonthNames[nightH.month - 1]} ${nightH.year} AH';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: c.accent.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'TODAY',
+            style: GoogleFonts.poppins(
+              color: c.accentLight.withValues(alpha: 0.6),
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _DateRow(label: 'Day', value: dayStr, c: c, textColor: textColor),
+          const SizedBox(height: 6),
+          _DateRow(label: 'Night', value: nightStr, c: c, textColor: textColor),
+        ],
+      ),
+    );
+  }
+}
+
+class _DateRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final dynamic c;
+  final Color textColor;
+
+  const _DateRow({
+    required this.label,
+    required this.value,
+    required this.c,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 44,
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: c.accentLight.withValues(alpha: 0.55),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            color: textColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // Legend
 // ─────────────────────────────────────────────────────────────
 
@@ -891,17 +941,20 @@ class _Legend extends StatelessWidget {
       runSpacing: 8,
       children: [
         _LegendItem(
+          label: 'Today',
+          textColor: textColor,
+          c: c,
           child: Container(
             width: 20,
             height: 20,
             decoration: BoxDecoration(
                 color: c.accent, borderRadius: BorderRadius.circular(4)),
           ),
-          label: 'Today',
-          textColor: textColor,
-          c: c,
         ),
         _LegendItem(
+          label: 'Friday',
+          textColor: textColor,
+          c: c,
           child: Container(
             width: 20,
             height: 20,
@@ -911,11 +964,11 @@ class _Legend extends StatelessWidget {
               border: Border.all(color: c.accent.withValues(alpha: 0.3)),
             ),
           ),
-          label: 'Friday',
-          textColor: textColor,
-          c: c,
         ),
         _LegendItem(
+          label: 'Fast',
+          textColor: textColor,
+          c: c,
           child: Container(
             width: 20,
             height: 20,
@@ -928,11 +981,11 @@ class _Legend extends StatelessWidget {
                   style: TextStyle(fontSize: 10, color: c.accent)),
             ),
           ),
-          label: 'Fast',
-          textColor: textColor,
-          c: c,
         ),
         _LegendItem(
+          label: 'Event',
+          textColor: textColor,
+          c: c,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -944,9 +997,6 @@ class _Legend extends StatelessWidget {
               ),
             ],
           ),
-          label: 'Event',
-          textColor: textColor,
-          c: c,
         ),
       ],
     );

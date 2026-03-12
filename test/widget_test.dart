@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fajr/main.dart';
+import 'package:manar/main.dart';
 
 void main() {
   testWidgets('App renders without crashing', (WidgetTester tester) async {

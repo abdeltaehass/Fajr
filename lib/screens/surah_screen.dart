@@ -29,6 +29,7 @@ class _SurahScreenState extends State<SurahScreen> {
   SurahContent? _content;
   bool _showTranslation = true;
   String? _loadedEdition;
+  bool _isRepeating = false;
 
   PlaybackState? _playbackState;
   MediaItem? _currentMediaItem;
@@ -140,6 +141,10 @@ class _SurahScreenState extends State<SurahScreen> {
   Future<void> _stop() => audioHandler.stop();
   Future<void> _skipNext() => audioHandler.skipToNext();
   Future<void> _skipPrev() => audioHandler.skipToPrevious();
+  Future<void> _toggleRepeat() async {
+    await audioHandler.toggleRepeat();
+    setState(() => _isRepeating = audioHandler.isRepeating);
+  }
 
   void _showReciterPicker() {
     final c = context.colors;
@@ -410,14 +415,19 @@ class _SurahScreenState extends State<SurahScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => _playSurahFrom(0),
+            onTap: _toggleRepeat,
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: c.accent.withValues(alpha: 0.08),
+                color: _isRepeating
+                    ? c.accent.withValues(alpha: 0.2)
+                    : c.accent.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
+                border: _isRepeating
+                    ? Border.all(color: c.accent.withValues(alpha: 0.5))
+                    : null,
               ),
-              child: Icon(Icons.replay, color: c.accent, size: 22),
+              child: Icon(Icons.repeat, color: c.accent, size: 22),
             ),
           ),
           const SizedBox(width: 4),

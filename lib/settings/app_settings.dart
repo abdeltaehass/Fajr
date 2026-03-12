@@ -23,6 +23,12 @@ class AppSettings extends ChangeNotifier {
   bool _sunriseNotifEnabled = false;
   bool _tahajjudNotifEnabled = false;
   Set<String> _athkarNotifEnabled = {};
+  final Map<String, TimeOfDay> _athkarTimes = {
+    'morning':     const TimeOfDay(hour: 6,  minute: 0),
+    'evening':     const TimeOfDay(hour: 17, minute: 0),
+    'afterPrayer': const TimeOfDay(hour: 13, minute: 30),
+    'sleep':       const TimeOfDay(hour: 22, minute: 0),
+  };
   String _reciterId = 'ar.alafasy';
   String _adhanSoundId = 'adhan_rabeh_ibn_darah.aiff';
   Set<int> _favoriteSurahs = {};
@@ -48,6 +54,7 @@ class AppSettings extends ChangeNotifier {
   bool get sunriseNotifEnabled => _sunriseNotifEnabled;
   bool get tahajjudNotifEnabled => _tahajjudNotifEnabled;
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
+  Map<String, TimeOfDay> get athkarTimes => Map.unmodifiable(_athkarTimes);
   String get reciterId => _reciterId;
   String get adhanSoundId => _adhanSoundId;
   Set<int> get favoriteSurahs => Set.unmodifiable(_favoriteSurahs);
@@ -148,6 +155,19 @@ class AppSettings extends ChangeNotifier {
         _athkarNotifEnabled =
             Set<String>.from(jsonDecode(athkarJson) as List);
       } catch (_) {}
+    }
+
+    for (final key in ['morning', 'evening', 'afterPrayer', 'sleep']) {
+      final saved = prefs.getString('athkarTime_$key');
+      if (saved != null) {
+        try {
+          final parts = saved.split(':');
+          _athkarTimes[key] = TimeOfDay(
+            hour: int.parse(parts[0]),
+            minute: int.parse(parts[1]),
+          );
+        } catch (_) {}
+      }
     }
 
     final iqamaMapJson = prefs.getString('iqamaTimesMap');
@@ -340,6 +360,13 @@ class AppSettings extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         'athkarNotifEnabled', jsonEncode(_athkarNotifEnabled.toList()));
+  }
+
+  Future<void> setAthkarTime(String key, TimeOfDay time) async {
+    _athkarTimes[key] = time;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('athkarTime_$key', '${time.hour}:${time.minute}');
   }
 
   Future<void> setReciter(String id) async {

@@ -137,24 +137,50 @@ class SettingsScreen extends StatelessWidget {
                 _SubLabel(s.athkarReminders),
                 const SizedBox(height: 8),
                 ...[
-                  ('morning',     Icons.wb_sunny_outlined, s.morningAthkar,     '6:00 AM'),
-                  ('evening',     Icons.wb_twilight,        s.eveningAthkar,     '5:00 PM'),
-                  ('afterPrayer', Icons.self_improvement,   s.afterPrayerAthkar, '1:30 PM'),
-                  ('sleep',       Icons.bedtime_outlined,   s.sleepAthkar,       '10:00 PM'),
+                  ('morning',     Icons.wb_sunny_outlined, s.morningAthkar),
+                  ('evening',     Icons.wb_twilight,        s.eveningAthkar),
+                  ('afterPrayer', Icons.self_improvement,   s.afterPrayerAthkar),
+                  ('sleep',       Icons.bedtime_outlined,   s.sleepAthkar),
                 ].map((entry) {
-                  final (key, icon, title, time) = entry;
+                  final (key, icon, title) = entry;
                   final isOn = settings.athkarNotifEnabled.contains(key);
+                  final tod = settings.athkarTimes[key]!;
+                  final h = tod.hourOfPeriod == 0 ? 12 : tod.hourOfPeriod;
+                  final m = tod.minute.toString().padLeft(2, '0');
+                  final period = tod.period == DayPeriod.am ? 'AM' : 'PM';
+                  final timeLabel = '$h:$m $period';
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: _NotifToggleTile(
                       icon: icon,
-                      title: '$title  ·  $time',
+                      title: title,
+                      timeLabel: timeLabel,
+                      onTimeTap: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: tod,
+                        );
+                        if (picked == null) return;
+                        await settings.setAthkarTime(key, picked);
+                        if (settings.athkarNotifEnabled.contains(key)) {
+                          await NotificationService.scheduleAthkarNotifications(
+                            settings.athkarNotifEnabled,
+                            times: settings.athkarTimes.map(
+                              (k, v) => MapEntry(k, (v.hour, v.minute)),
+                            ),
+                          );
+                        }
+                      },
                       value: isOn,
                       onChanged: (val) async {
                         if (val && !await _requestNotifPermission(context)) return;
                         await settings.setAthkarNotifEnabled(key, val);
                         await NotificationService.scheduleAthkarNotifications(
-                            settings.athkarNotifEnabled);
+                          settings.athkarNotifEnabled,
+                          times: settings.athkarTimes.map(
+                            (k, v) => MapEntry(k, (v.hour, v.minute)),
+                          ),
+                        );
                       },
                     ),
                   );
@@ -433,18 +459,21 @@ class _SubLabel extends StatelessWidget {
   }
 }
 
-
 class _NotifToggleTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool value;
   final Future<void> Function(bool) onChanged;
+  final String? timeLabel;
+  final VoidCallback? onTimeTap;
 
   const _NotifToggleTile({
     required this.icon,
     required this.title,
     required this.value,
     required this.onChanged,
+    this.timeLabel,
+    this.onTimeTap,
   });
 
   @override
@@ -476,6 +505,28 @@ class _NotifToggleTile extends StatelessWidget {
               ),
             ),
           ),
+          if (timeLabel != null) ...[
+            GestureDetector(
+              onTap: onTimeTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: c.accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: c.accent.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  timeLabel!,
+                  style: GoogleFonts.poppins(
+                    color: c.accent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
           Switch.adaptive(
             value: value,
             onChanged: onChanged,

@@ -133,21 +133,25 @@ class NotificationService {
     }
   }
 
-  static Future<void> scheduleAthkarNotifications(Set<String> enabled) async {
+  static Future<void> scheduleAthkarNotifications(
+    Set<String> enabled, {
+    Map<String, (int, int)> times = const {},
+  }) async {
     // Athkar use IDs 200–203
     for (int i = 200; i <= 203; i++) {
       await _plugin.cancel(i);
     }
 
     const configs = [
-      ('morning',    200, 'Morning Athkar',      'Time for Athkar Al-Sabah',       6,  0),
-      ('evening',    201, 'Evening Athkar',       'Time for Athkar Al-Masa',        17, 0),
-      ('afterPrayer',202, 'After Prayer Athkar',  "Time for Athkar Ba'd As-Salah",  13, 30),
-      ('sleep',      203, 'Sleep Athkar',         'Time for Athkar An-Nawm',        22, 0),
+      ('morning',     200, 'Morning Athkar',      'Time for Athkar Al-Sabah',       6,  0),
+      ('evening',     201, 'Evening Athkar',       'Time for Athkar Al-Masa',        17, 0),
+      ('afterPrayer', 202, 'After Prayer Athkar',  "Time for Athkar Ba'd As-Salah",  13, 30),
+      ('sleep',       203, 'Sleep Athkar',         'Time for Athkar An-Nawm',        22, 0),
     ];
 
-    for (final (key, id, title, body, hour, minute) in configs) {
+    for (final (key, id, title, body, defaultHour, defaultMinute) in configs) {
       if (!enabled.contains(key)) continue;
+      final (hour, minute) = times[key] ?? (defaultHour, defaultMinute);
       await _scheduleDailyAthkar(
           id: id, title: title, body: body, hour: hour, minute: minute);
     }
