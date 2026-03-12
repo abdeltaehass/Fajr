@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../data/hajj_umrah_guide.dart';
+import '../data/islamic_finance_guide.dart';
 import '../data/zakat_guide.dart';
 import '../settings/settings_provider.dart';
 
@@ -158,8 +159,33 @@ class _ZakatScreenState extends State<ZakatScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Guide sections
+          // Zakat Guide sections
+          _SectionHeader(
+            icon: Icons.volunteer_activism_rounded,
+            title: 'Zakat Guide',
+            subtitle: 'Rules, nisab, and who must pay',
+            c: c,
+            textColor: textColor,
+          ),
+          const SizedBox(height: 12),
           ...zakatGuide.map((section) => _GuideSection(
+                section: section,
+                c: c,
+                textColor: textColor,
+              )),
+
+          const SizedBox(height: 8),
+
+          // Islamic Finance Guide
+          _SectionHeader(
+            icon: Icons.trending_up_rounded,
+            title: 'Islamic Finance & Halal Investing',
+            subtitle: 'Principles, contracts, and screening',
+            c: c,
+            textColor: textColor,
+          ),
+          const SizedBox(height: 12),
+          ...islamicFinanceGuide.map((section) => _GuideSection(
                 section: section,
                 c: c,
                 textColor: textColor,
@@ -185,6 +211,71 @@ class _ZakatScreenState extends State<ZakatScreen> {
             belowNisab: _belowNisab,
             onCalculate: _calculate,
             onReset: _reset,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Section header (Finance / Hajj style divider)
+// ─────────────────────────────────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final dynamic c;
+  final Color textColor;
+
+  const _SectionHeader({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.c,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.accent.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: c.accent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: c.accent, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  color: c.accentLight,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: GoogleFonts.poppins(
+                  color: textColor.withValues(alpha: 0.5),
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -743,9 +834,9 @@ class _ResultCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          _Row('Total zakatable wealth', _fmt(totalWealth), c, textColor),
+          _row('Total zakatable wealth', _fmt(totalWealth), c, textColor),
           if (nisab != null)
-            _Row('Nisab (85g × gold price)', _fmt(nisab!), c, textColor),
+            _row('Nisab (85g × gold price)', _fmt(nisab!), c, textColor),
           if (isDue) ...[
             Divider(height: 20, color: c.accent.withValues(alpha: 0.15)),
             Row(
@@ -787,7 +878,7 @@ class _ResultCard extends StatelessWidget {
     );
   }
 
-  Widget _Row(String label, String value, dynamic c, Color textColor) {
+  Widget _row(String label, String value, dynamic c, Color textColor) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
