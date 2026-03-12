@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../data/hajj_umrah_guide.dart';
+import '../data/islamic_finance_guide.dart';
 import '../data/salah_guide.dart';
 import '../data/menstruation_ghusl_guide.dart';
 import '../data/zakat_guide.dart';
@@ -19,6 +20,7 @@ class _GuidesScreenState extends State<GuidesScreen>
   late TabController _mainTabController;
   late TabController _hajjSubTabController;
   late TabController _puritySubTabController;
+  late TabController _zakatSubTabController;
 
   // Zakat calculator state
   final _goldPriceCtrl = TextEditingController();
@@ -40,6 +42,7 @@ class _GuidesScreenState extends State<GuidesScreen>
     _mainTabController = TabController(length: 4, vsync: this);
     _hajjSubTabController = TabController(length: 2, vsync: this);
     _puritySubTabController = TabController(length: 2, vsync: this);
+    _zakatSubTabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -47,6 +50,7 @@ class _GuidesScreenState extends State<GuidesScreen>
     _mainTabController.dispose();
     _hajjSubTabController.dispose();
     _puritySubTabController.dispose();
+    _zakatSubTabController.dispose();
     _goldPriceCtrl.dispose();
     _cashCtrl.dispose();
     _goldValueCtrl.dispose();
@@ -184,8 +188,9 @@ class _GuidesScreenState extends State<GuidesScreen>
             guides: [haydGuide, ghusulGuide],
           ),
 
-          // ── Zakat ──
-          _ZakatTab(
+          // ── Zakat & Finance ──
+          _ZakatFinanceTab(
+            subTabController: _zakatSubTabController,
             goldPriceCtrl: _goldPriceCtrl,
             cashCtrl: _cashCtrl,
             goldValueCtrl: _goldValueCtrl,
@@ -508,6 +513,105 @@ class _StepCardState extends State<_StepCard> {
             ),
         ],
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Zakat + Finance wrapper (sub-tabbed)
+// ─────────────────────────────────────────────────────────────
+
+class _ZakatFinanceTab extends StatelessWidget {
+  final TabController subTabController;
+  final TextEditingController goldPriceCtrl;
+  final TextEditingController cashCtrl;
+  final TextEditingController goldValueCtrl;
+  final TextEditingController silverValueCtrl;
+  final TextEditingController businessCtrl;
+  final TextEditingController investCtrl;
+  final TextEditingController receivableCtrl;
+  final TextEditingController debtsCtrl;
+  final double? zakatDue;
+  final double? totalWealth;
+  final double? nisab;
+  final bool belowNisab;
+  final VoidCallback onCalculate;
+  final VoidCallback onReset;
+
+  const _ZakatFinanceTab({
+    required this.subTabController,
+    required this.goldPriceCtrl,
+    required this.cashCtrl,
+    required this.goldValueCtrl,
+    required this.silverValueCtrl,
+    required this.businessCtrl,
+    required this.investCtrl,
+    required this.receivableCtrl,
+    required this.debtsCtrl,
+    required this.zakatDue,
+    required this.totalWealth,
+    required this.nisab,
+    required this.belowNisab,
+    required this.onCalculate,
+    required this.onReset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: c.accent.withValues(alpha: 0.2)),
+          ),
+          child: TabBar(
+            controller: subTabController,
+            indicator: BoxDecoration(
+              color: c.accent.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: c.accent, width: 1.5),
+            ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelColor: c.accent,
+            unselectedLabelColor: c.bodyText,
+            labelStyle: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600),
+            unselectedLabelStyle: GoogleFonts.poppins(fontSize: 13),
+            dividerColor: Colors.transparent,
+            tabs: const [
+              Tab(text: 'Zakat'),
+              Tab(text: 'Finance'),
+            ],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: subTabController,
+            children: [
+              _ZakatTab(
+                goldPriceCtrl: goldPriceCtrl,
+                cashCtrl: cashCtrl,
+                goldValueCtrl: goldValueCtrl,
+                silverValueCtrl: silverValueCtrl,
+                businessCtrl: businessCtrl,
+                investCtrl: investCtrl,
+                receivableCtrl: receivableCtrl,
+                debtsCtrl: debtsCtrl,
+                zakatDue: zakatDue,
+                totalWealth: totalWealth,
+                nisab: nisab,
+                belowNisab: belowNisab,
+                onCalculate: onCalculate,
+                onReset: onReset,
+              ),
+              _GuideList(sections: islamicFinanceGuide),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
