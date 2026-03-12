@@ -46,3 +46,4 @@ app.*.map.json
 
 # API keys
 lib/config/api_keys.dart
+build/
