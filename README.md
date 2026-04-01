@@ -1,6 +1,6 @@
-# Fajr
+# Manar
 
-An Islamic prayer times app built with Flutter. Displays accurate salah times based on your location with a beautiful Islamic-themed UI, along with a Qibla compass, daily hadith, athkar, full Quran with audio recitation, nearby masjid finder, and full customization.
+An all-in-one Islamic companion app built with Flutter. Accurate prayer times, Quran with audio, Qibla compass, Athkar, Islamic guides, Zakat calculator, streak tracker, and more — with a beautiful customisable UI.
 
 ## Features
 
@@ -8,30 +8,30 @@ An Islamic prayer times app built with Flutter. Displays accurate salah times ba
 - All 5 daily prayer times (Fajr, Dhuhr, Asr, Maghrib, Isha) plus Sunrise
 - Live countdown to the next prayer
 - Hijri and Gregorian date display
-- GPS-based location detection
-- Pull-to-refresh support
-- **Offline mode**: last successfully fetched prayer times are cached and displayed automatically when the API is unavailable, with a subtle banner indicating offline status
-- Auto-retries every 5 seconds on any network or server failure
+- GPS-based location detection with automatic refresh when location changes
+- Pull-to-refresh forces a fresh GPS + API fetch
+- **Offline mode**: last successfully fetched prayer times are cached and displayed automatically when the API is unavailable
+- Auto-retries on network or server failure
 
 ### Qibla Compass
 - Live compass with smooth low-pass filtering
 - Points toward the Kaaba in Mecca
 - Shows the Qibla bearing in degrees from North
 - Accuracy indicator (High / Medium / Low)
-- Remains available in offline mode using GPS (no internet required)
+- Available offline using GPS (no internet required)
 
 ### Quran
 - All 114 surahs with Arabic text and Sahih International translation
 - Search surahs by English name, Arabic name, or meaning
 - Meccan / Medinan badges and verse count per surah
-- Bismillah header displayed automatically (except Al-Fatiha and At-Tawbah)
 - Toggle translation on/off per surah
 - Long-press any verse to copy Arabic and translation to clipboard
 - **Audio recitation** with 7 selectable reciters (choose in Settings)
   - Mishary Rashid Al-Afasy, Abdul Rahman Al-Sudais, Mahmoud Khalil Al-Husary, Mohamed Siddiq El-Minshawi, Abu Bakr Al-Shatri, Maher Al-Muaiqly, Muhammad Jibreel
   - Play a full surah from the AppBar
+  - **Repeat mode**: loop the current surah continuously for memorisation
   - Tap the play icon on any verse to hear that verse individually
-  - Sticky audio bar with play/pause/stop controls and reciter name
+  - Sticky audio bar with play/pause/stop/repeat controls
   - Currently playing verse highlighted in the list
 
 ### Hadith of the Day
@@ -45,40 +45,73 @@ An Islamic prayer times app built with Flutter. Displays accurate salah times ba
 - After Prayer Athkar (Athkar Ba'd As-Salah)
 - Sleep Athkar (Athkar An-Nawm)
 - Tap-to-count interface with repetition tracking
+- **Next button** to skip to the next dhikr without tapping the counter
 - Arabic text with translations
 - Progress tracking through each session
+
+### Streak Tracker
+- Create custom streaks with your own title (e.g. "Prayed Fajr", "Read Quran", "Fasted")
+- Tap the checkmark each day to mark a streak complete
+- Tracks current streak and all-time best streak
+- Flame indicator goes orange when a streak is active
+- Streak automatically resets if a day is missed
+- Accessible from the Dashboard quick actions
+
+### Islamic Guides
+- **Salah Guide**: step-by-step prayer guide
+- **Umrah Guide**: complete Umrah walkthrough
+- **Hajj Guide**: full Hajj guide with all rites
+- **Purity Guide**: Hayd and Ghusl rulings
+- **Zakat Guide**: Zakat obligations with built-in Nisab calculator
+- **Islamic Finance & Halal Investing Guide**: principles of Islamic finance, halal investment screens, Islamic financial contracts (Murabaha, Ijara, Mudaraba, Musharaka, Sukuk), and practical guidance for halal investing
+
+### Islamic Calendar
+- Monthly Gregorian calendar with Hijri date shown for every day
+- Highlights Islamic events, recommended fasts, and Eid days
+- Events include: Ashura, Mawlid, Isra & Mi'raj, Ramadan, Laylat al-Qadr, Eid al-Fitr, Arafah, Eid al-Adha, Ayyam al-Bidh, 6 days of Shawwal, and more
+- Tap any highlighted day for a full description
+- Today button to jump back to the current month
 
 ### Nearby Masjid Finder
 - Find mosques near your location using Google Places API
 - View address, phone number, website, opening hours, and ratings
 - Get directions via Google Maps
-- Tap to call or visit the masjid's website
 - Set any masjid as "My Masjid" for quick access
-- Your selected masjid persists across app restarts
-- **Iqama times**: manually enter iqama times for each prayer (Fajr, Dhuhr, Asr, Maghrib, Isha, Jumu'ah) with a time picker — saved persistently
-- **Masjid events**: add custom events with title, date/time, and optional description; upcoming events sorted chronologically and persisted
+- **Iqama times**: manually enter iqama times for each prayer with a time picker
+- **Masjid events**: add custom events with title, date/time, and optional description
+
+### Tasbeeh Counter
+- Digital counter for dhikr
+- Customisable target count
+
+### 99 Names of Allah
+- All 99 Names with Arabic, transliteration, and meaning
+
+### Duas Collection
+- Curated duas for daily occasions with Arabic and translation
 
 ### Notifications
-- **Adhan notification**: receive an alert at each prayer time (toggleable)
-- **30-min pre-prayer reminder**: get notified 30 minutes before each prayer (toggleable)
-- Notifications are scheduled from your live prayer times each time you open the app
-- Permissions requested on first enable; guidance shown if denied
+- **Adhan notification**: alert at each prayer time
+- **Pre-prayer reminder**: configurable minutes before each prayer
+- Athkar reminders: morning, evening, after prayer, before sleep
+- Permissions requested on first enable
 
-### Settings & Customization
-- **Color Themes**: Green, Blue, Black, White, Pink, Yellow, Purple
+### Widgets
+- Home screen and lock screen widgets for prayer times
+
+### Settings & Customisation
+- **Prayer Calculation Method**: choose from 10 methods (ISNA, MWL, Egyptian, Umm Al-Qura, Karachi, Kuwait, Qatar, Turkey, Russia, Moonsighting)
+- **Color Themes**: Green, Blue, Black, White, Pink, Yellow, Purple, Teal, Crimson, Orange, Brown
 - **Seasonal Themes**: Normal, Ramadan, Eid, Hajj, Laylatul Qadr
-- **Language Support**: English, Arabic, French, Turkish, Urdu, Malay
-- **Quran Reciter**: choose from 7 reciters for audio playback
-- RTL layout support for Arabic and Urdu
-
-### Navigation
-- Bottom tab navigation: Prayer Times, Quran, Hadith & Athkar, Masjid, Settings
+- **Language Support**: English, Arabic, French, Turkish, Urdu, Malay, Indonesian, Bengali, Persian
+- **Quran Reciter**: choose from 7 reciters
+- RTL layout support for Arabic, Urdu, and Persian
 
 ## Getting Started
 
 ### Prerequisites
 - Flutter SDK 3.11+
-- A Google Places API key (for the Masjid finder feature)
+- A Google Places API key (for the Masjid finder)
 
 ### Setup
 
@@ -86,12 +119,7 @@ An Islamic prayer times app built with Flutter. Displays accurate salah times ba
 flutter pub get
 ```
 
-For the Masjid finder, add your Google Places API key:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Enable the **Places API**
-3. Create an API key
-4. Add it to `lib/config/api_keys.dart`:
+For the Masjid finder, add your Google Places API key to `lib/config/api_keys.dart`:
 ```dart
 static const String googlePlaces = 'YOUR_API_KEY_HERE';
 ```
@@ -103,7 +131,9 @@ flutter run
 
 ## APIs
 
-- **Prayer Times**: [Aladhan API](https://aladhan.com/prayer-times-api) (ISNA calculation method)
+- **Prayer Calculation Method**: choose from 10 calculation methods (ISNA, MWL, Egyptian, Umm Al-Qura, Karachi, Kuwait, Qatar, Turkey, Russia, Moonsighting)
+
+- **Prayer Times**: [Aladhan API](https://aladhan.com/prayer-times-api)
 - **Nearby Masjids**: [Google Places API](https://developers.google.com/maps/documentation/places/web-service)
-- **Quran Text**: [AlQuran Cloud API](https://alquran.cloud/api) — `quran-uthmani` (Arabic) + `en.sahih` (Sahih International)
+- **Quran Text**: [AlQuran Cloud API](https://alquran.cloud/api) — `quran-uthmani` + `en.sahih`
 - **Quran Audio**: [Islamic Network CDN](https://cdn.islamic.network) — 7 reciters, 128 kbps

@@ -219,6 +219,13 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.tune_outlined,
               initiallyExpanded: false,
               children: [
+                _SubLabel('Prayer Calculation Method'),
+                const SizedBox(height: 8),
+                _PrayerMethodPicker(
+                  selected: settings.prayerMethod,
+                  onChanged: settings.setPrayerMethod,
+                ),
+                const SizedBox(height: 16),
                 _SubLabel(s.language),
                 const SizedBox(height: 8),
                 _LangDropdown(
@@ -802,6 +809,79 @@ class _LegalTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+const _prayerMethods = [
+  (id: 1,  name: 'University of Islamic Sciences, Karachi',  region: 'Pakistan / South Asia'),
+  (id: 2,  name: 'Islamic Society of North America (ISNA)',   region: 'North America'),
+  (id: 3,  name: 'Muslim World League (MWL)',                 region: 'Europe / Far East'),
+  (id: 4,  name: "Umm Al-Qura University, Makkah",           region: 'Saudi Arabia'),
+  (id: 5,  name: 'Egyptian General Authority of Survey',      region: 'Egypt / Arab World'),
+  (id: 9,  name: 'Kuwait',                                    region: 'Kuwait'),
+  (id: 10, name: 'Qatar',                                     region: 'Qatar'),
+  (id: 13, name: 'Diyanet İşleri Başkanlığı',                region: 'Turkey'),
+  (id: 14, name: 'Spiritual Administration of Muslims',       region: 'Russia'),
+  (id: 15, name: 'Moonsighting Committee Worldwide',          region: 'Global'),
+];
+
+class _PrayerMethodPicker extends StatelessWidget {
+  final int selected;
+  final ValueChanged<int> onChanged;
+
+  const _PrayerMethodPicker({required this.selected, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Column(
+      children: _prayerMethods.map((m) {
+        final isSelected = m.id == selected;
+        return GestureDetector(
+          onTap: () => onChanged(m.id),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isSelected ? c.accent.withValues(alpha: 0.12) : c.card,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? c.accent : c.accent.withValues(alpha: 0.12),
+                width: isSelected ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        m.name,
+                        style: GoogleFonts.poppins(
+                          color: isSelected ? c.accent : c.bodyText,
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        m.region,
+                        style: GoogleFonts.poppins(
+                          color: c.bodyText.withValues(alpha: 0.45),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isSelected)
+                  Icon(Icons.check_circle, color: c.accent, size: 18),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

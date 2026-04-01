@@ -40,6 +40,18 @@ class _AthkarScreenState extends State<AthkarScreen> {
     });
   }
 
+  void _skipToNext() {
+    if (_completed) return;
+    setState(() {
+      _currentCount = 0;
+      if (_currentIndex < widget.athkar.length - 1) {
+        _currentIndex++;
+      } else {
+        _completed = true;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -132,14 +144,39 @@ class _AthkarScreenState extends State<AthkarScreen> {
 
             // Counter badge
             _buildCounterBadge(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
-            Text(
-              context.strings.tapAnywhere,
-              style: GoogleFonts.poppins(
-                color: c.accentLight.withValues(alpha: 0.5),
-                fontSize: 12,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  context.strings.tapAnywhere,
+                  style: GoogleFonts.poppins(
+                    color: c.accentLight.withValues(alpha: 0.5),
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                OutlinedButton.icon(
+                  onPressed: _skipToNext,
+                  icon: Icon(Icons.arrow_forward_ios, color: c.accent, size: 12),
+                  label: Text(
+                    'Next',
+                    style: GoogleFonts.poppins(
+                      color: c.accent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    side: BorderSide(color: c.accent.withValues(alpha: 0.4)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
           ],

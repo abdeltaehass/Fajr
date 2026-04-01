@@ -410,7 +410,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "WRAPPER_DIR=\"$(mktemp -d)\"\ncp \"${SRCROOT}/codesign_wrapper.sh\" \"${WRAPPER_DIR}/codesign\"\nchmod +x \"${WRAPPER_DIR}/codesign\"\nexport PATH=\"${WRAPPER_DIR}:${PATH}\"\n/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\nEXIT_CODE=$?\nrm -rf \"${WRAPPER_DIR}\"\nexit $EXIT_CODE";
 		};
 		FA9B3C2D1E0F5A4B8C7D6E31 /* Sign Native Assets */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -462,7 +462,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "WRAPPER_DIR=\"$(mktemp -d)\"\ncp \"${SRCROOT}/codesign_wrapper.sh\" \"${WRAPPER_DIR}/codesign\"\nchmod +x \"${WRAPPER_DIR}/codesign\"\nexport PATH=\"${WRAPPER_DIR}:${PATH}\"\n/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\nEXIT_CODE=$?\nrm -rf \"${WRAPPER_DIR}\"\nexit $EXIT_CODE";
 		};
 		E84DD03361F38D19C6CE0C24 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -18,6 +18,7 @@ import '../widgets/prayer_card.dart';
 import '../widgets/qibla_compass.dart';
 import 'duas_screen.dart';
 import 'guides_screen.dart';
+import 'streak_screen.dart';
 import 'tasbeeh_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -87,12 +88,20 @@ class _DashboardScreenState extends State<DashboardScreen>
       _settingsListener?.removeListener(_onSettingsChanged);
       _settingsListener = settings;
       settings.addListener(_onSettingsChanged);
+      _lastPrayerMethod = settings.prayerMethod;
     }
   }
 
+  int _lastPrayerMethod = -1;
+
   void _onSettingsChanged() {
+    final settings = context.settings;
     final pt = _prayerTimes;
     if (pt != null) _scheduleNotifications(pt);
+    if (_lastPrayerMethod != -1 && settings.prayerMethod != _lastPrayerMethod) {
+      _lastPrayerMethod = settings.prayerMethod;
+      _loadPrayerTimes();
+    }
   }
 
   @override
@@ -141,12 +150,19 @@ class _DashboardScreenState extends State<DashboardScreen>
                 _latitude ?? pos.latitude, _longitude ?? pos.longitude,
                 pos.latitude, pos.longitude) >
             50.0;
-          setState(() {
-            _latitude = pos.latitude;
-            _longitude = pos.longitude;
-          });
+          if (mounted) {
+            setState(() {
+              _latitude = pos.latitude;
+              _longitude = pos.longitude;
+            });
+          }
           if (movedFar) _fetchFresh(prefs, today);
-        }).catchError((_) {});
+        }).catchError((_) {
+          // GPS failed silently — retry after 30 seconds
+          Future.delayed(const Duration(seconds: 30), () {
+            if (mounted) _loadPrayerTimes();
+          });
+        });
         return;
       } catch (_) {
         // Corrupt cache — fall through to full fetch
@@ -159,6 +175,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Future<void> _fetchFresh(SharedPreferences prefs, String today) async {
     if (!mounted) return;
+    final method = context.settings.prayerMethod;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -171,6 +188,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       final prayerTimes = await _prayerTimeService.fetchPrayerTimes(
         latitude: position.latitude,
         longitude: position.longitude,
+        method: method,
       );
       _latitude = position.latitude;
       _longitude = position.longitude;
@@ -438,14 +456,17 @@ class _DashboardScreenState extends State<DashboardScreen>
       (Icons.volunteer_activism, 'Dua', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DuasScreen()))),
       (Icons.grain, 'Tasbeeh', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TasbeehScreen()))),
       (Icons.mosque_outlined, 'Masjid', () => widget.onTabSwitch?.call(3)),
+      (Icons.local_fire_department_outlined, 'Streaks', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StreakScreen()))),
     ];
-    return Row(
-      children: actions.map((a) {
-        final (icon, label, onTap) = a;
-        return Expanded(
-          child: GestureDetector(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: actions.map((a) {
+          final (icon, label, onTap) = a;
+          return GestureDetector(
             onTap: onTap,
             child: Container(
+              width: 76,
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
@@ -473,9 +494,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ],
               ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -485,7 +506,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     final nextPrayer = prayers[_nextPrayerIndex];
 
     return RefreshIndicator(
-      onRefresh: _loadPrayerTimes,
+      onRefresh: () async {
+        final prefs = await SharedPreferences.getInstance();
+        final today = DateTime.now().toIso8601String().substring(0, 10);
+        await _fetchFresh(prefs, today);
+      },
       color: c.accent,
       backgroundColor: c.card,
       child: SingleChildScrollView(
