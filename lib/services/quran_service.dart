@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../data/surah_list.dart';
 import '../models/quran_models.dart';
@@ -18,7 +20,40 @@ class QuranService {
       '$_baseUrl/surah/$number/editions/quran-uthmani,$edition',
     );
 
-    final response = await http.get(uri).timeout(const Duration(seconds: 15));
+    // Retry transient failures (timeout, socket, 5xx) with exponential backoff.
+    const delays = [Duration.zero, Duration(seconds: 1), Duration(seconds: 2), Duration(seconds: 4)];
+    QuranServiceException? lastError;
+    for (final delay in delays) {
+      if (delay > Duration.zero) await Future.delayed(delay);
+      try {
+        final content = await _fetchOnce(uri, info);
+        _cache[cacheKey] = content;
+        return content;
+      } on QuranServiceException catch (e) {
+        lastError = e;
+        if (!_isTransient(e.message)) rethrow;
+      }
+    }
+    throw lastError!;
+  }
+
+  bool _isTransient(String message) =>
+      message.contains('timeout') ||
+      message.contains('network') ||
+      message.contains('500') ||
+      message.contains('502') ||
+      message.contains('503') ||
+      message.contains('504');
+
+  Future<SurahContent> _fetchOnce(Uri uri, SurahInfo info) async {
+    final http.Response response;
+    try {
+      response = await http.get(uri).timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      throw QuranServiceException('Request timeout');
+    } on SocketException {
+      throw QuranServiceException('Network unavailable');
+    }
 
     if (response.statusCode != 200) {
       throw QuranServiceException('API returned status ${response.statusCode}');
@@ -42,9 +77,7 @@ class QuranService {
       );
     });
 
-    final content = SurahContent(info: info, ayahs: ayahs);
-    _cache[cacheKey] = content;
-    return content;
+    return SurahContent(info: info, ayahs: ayahs);
   }
 }
 

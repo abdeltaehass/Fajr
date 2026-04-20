@@ -6,5 +6,6 @@ struct FajrWidgetBundle: WidgetBundle {
     var body: some Widget {
         FajrWidget()
         FajrPrayersWidget()
+        PrayerLiveActivityView()
     }
 }

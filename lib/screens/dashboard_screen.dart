@@ -41,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   PrayerTimesResponse? _prayerTimes;
 
   int _nextPrayerIndex = 0;
-  Duration _timeUntilNext = Duration.zero;
+  DateTime? _nextTargetTime;
   Timer? _countdownTimer;
   double? _latitude;
   double? _longitude;
@@ -49,6 +49,57 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   static const _cacheKey = 'cachedPrayerTimes';
   static const _widgetChannel = MethodChannel('fajr.widget');
+  static const _liveChannel = MethodChannel('fajr.live_activity');
+
+  // Called on launch — if the device rebooted and cleared scheduled notifications,
+  // the background fetch handler in AppDelegate sets a flag. We pick it up here
+  // and force a full reschedule by clearing the date cache so _loadPrayerTimes
+  // performs a fresh fetch and schedules new notifications.
+  Future<void> _checkNotificationReschedule() async {
+    try {
+      final needs = await _widgetChannel.invokeMethod<bool>('needsReschedule') ?? false;
+      if (needs) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('cachedDate'); // forces fresh fetch + notification reschedule
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _updateLiveActivity(PrayerTimesResponse pt) async {
+    try {
+      final prayers = pt.timings.dailyPrayers;
+      final now = DateTime.now();
+      PrayerEntry? next;
+      for (final p in prayers) {
+        if (p.todayDateTime.isAfter(now)) { next = p; break; }
+      }
+      if (next == null) return; // all prayers passed today
+      final icon = switch (next.name) {
+        'Fajr'    => 'moon.stars.fill',
+        'Sunrise' => 'sunrise.fill',
+        'Dhuhr'   => 'sun.max.fill',
+        'Asr'     => 'sun.haze.fill',
+        'Maghrib' => 'sunset.fill',
+        'Isha'    => 'moon.fill',
+        _         => 'clock.fill',
+      };
+      // Format 24h time to 12h display
+      final parts = next.time.split(':');
+      final h = int.parse(parts[0]);
+      final m = int.parse(parts[1]);
+      final suffix = h >= 12 ? 'PM' : 'AM';
+      final h12 = h == 0 ? 12 : (h > 12 ? h - 12 : h);
+      final displayTime = '$h12:${m.toString().padLeft(2, '0')} $suffix';
+
+      final args = {
+        'prayerName': next.name,
+        'prayerTime': displayTime,
+        'prayerEpoch': next.todayDateTime.millisecondsSinceEpoch,
+        'prayerIcon': icon,
+      };
+      await _liveChannel.invokeMethod('start', args);
+    } catch (_) {}
+  }
 
   Future<void> _updateWidget(PrayerTimesResponse pt) async {
     try {
@@ -69,6 +120,9 @@ class _DashboardScreenState extends State<DashboardScreen>
         'nextTime': next.time,
         'nextEpoch': next.todayDateTime.millisecondsSinceEpoch,
         'allPrayers': jsonEncode(allPrayers),
+        'hijriDay': pt.date.hijriDay,
+        'hijriMonth': pt.date.hijriMonthEn,
+        'hijriYear': pt.date.hijriYear,
       });
     } catch (_) {}
   }
@@ -78,6 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadPrayerTimes();
+    _checkNotificationReschedule();
   }
 
   @override
@@ -211,6 +266,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       _startCountdown();
       _scheduleNotifications(prayerTimes);
       _updateWidget(prayerTimes);
+      _updateLiveActivity(prayerTimes);
     } on LocationServiceException catch (e) {
       if (!mounted) return;
       if (await _tryLoadCache()) return;
@@ -282,21 +338,20 @@ class _DashboardScreenState extends State<DashboardScreen>
     final prayers = _prayerTimes!.timings.dailyPrayers;
     final now = DateTime.now();
 
+    int newIndex = 0;
+    DateTime newTarget = prayers[0].todayDateTime.add(const Duration(days: 1));
     for (int i = 0; i < prayers.length; i++) {
       if (prayers[i].todayDateTime.isAfter(now)) {
-        setState(() {
-          _nextPrayerIndex = i;
-          _timeUntilNext = prayers[i].todayDateTime.difference(now);
-        });
-        return;
+        newIndex = i;
+        newTarget = prayers[i].todayDateTime;
+        break;
       }
     }
 
-    // All prayers have passed — next is tomorrow's Fajr
-    final tomorrowFajr = prayers[0].todayDateTime.add(const Duration(days: 1));
+    if (newIndex == _nextPrayerIndex && newTarget == _nextTargetTime) return;
     setState(() {
-      _nextPrayerIndex = 0;
-      _timeUntilNext = tomorrowFajr.difference(now);
+      _nextPrayerIndex = newIndex;
+      _nextTargetTime = newTarget;
     });
   }
 
@@ -335,12 +390,19 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
+  // The banner has its own internal 1-second ticker for the countdown digits.
+  // This timer only fires to detect a prayer transition (every ~30 s is plenty)
+  // — _determineNextPrayer is a no-op until the index actually changes.
   void _startCountdown() {
     _countdownTimer?.cancel();
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+    var lastIndex = _nextPrayerIndex;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (_prayerTimes == null) return;
-
       _determineNextPrayer();
+      if (_nextPrayerIndex != lastIndex) {
+        lastIndex = _nextPrayerIndex;
+        _updateLiveActivity(_prayerTimes!);
+      }
     });
   }
 
@@ -543,7 +605,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             NextPrayerBanner(
               prayerName: nextPrayer.localizedName(context.strings),
               prayerTime: nextPrayer.time,
-              timeRemaining: _timeUntilNext,
+              targetTime: _nextTargetTime ?? nextPrayer.todayDateTime,
             ),
             const SizedBox(height: 22),
 

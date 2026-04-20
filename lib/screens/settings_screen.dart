@@ -14,15 +14,28 @@ class SettingsScreen extends StatelessWidget {
   Future<bool> _requestNotifPermission(BuildContext context) async {
     final granted = await NotificationService.requestPermissions();
     if (!granted && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Notifications Blocked',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           content: Text(
-            context.strings.notifPermDenied,
+            'Please enable notifications for Manar in Settings to receive prayer alerts and reminders.',
             style: GoogleFonts.poppins(fontSize: 13),
           ),
-          backgroundColor: context.colors.card,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await launchUrl(Uri.parse('app-settings:'));
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
         ),
       );
     }

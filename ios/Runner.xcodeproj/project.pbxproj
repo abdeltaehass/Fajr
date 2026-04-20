@@ -27,6 +27,8 @@
 		63B142AD862050C00021DC89 /* FajrWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15027D61A9A38A01B5696527 /* FajrWidgetBundle.swift */; };
 		93A959A4A69ECA06B5AFB354 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2903BCE73835ED9071C18786 /* Assets.xcassets */; };
 		6051DBFF7CEB755FAF05BE98 /* FajrWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5895F9B48887CE13F288A8B8 /* FajrWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E2B8C4DAF3E5F7B9C1D3E5F7 /* PrayerLiveAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */; };
+		E3C9D5EBF4F6E8CAD2E4F6F8 /* PrayerLiveAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +110,7 @@
 		5895F9B48887CE13F288A8B8 /* FajrWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FajrWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2903BCE73835ED9071C18786 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABF964124133021C616E417E /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerLiveAttributes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +174,7 @@
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				44AC03AC5D5F7577B661975B /* FajrWidget */,
+				E4DAE6FCF5F7F9DBE3F5F7F9 /* Shared */,
 				97C146EF1CF9000F007C117D /* Products */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				EAF2A1D484D8FAC3796A8242 /* Pods */,
@@ -221,6 +225,14 @@
 				2B4A3ECC8274460FCADD0FAF /* Info.plist */,
 			);
 			path = FajrWidget;
+			sourceTree = "<group>";
+		};
+		E4DAE6FCF5F7F9DBE3F5F7F9 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 		EAF2A1D484D8FAC3796A8242 /* Pods */ = {
@@ -504,6 +516,7 @@
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
+				E2B8C4DAF3E5F7B9C1D3E5F7 /* PrayerLiveAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,6 +526,7 @@
 			files = (
 				D6C7546226BD6CD69B602FFB /* FajrWidget.swift in Sources */,
 				63B142AD862050C00021DC89 /* FajrWidgetBundle.swift in Sources */,
+				E3C9D5EBF4F6E8CAD2E4F6F8 /* PrayerLiveAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,7 +609,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -731,7 +745,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -784,7 +798,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -861,7 +875,7 @@
 				DEVELOPMENT_TEAM = LNYK7FSPB5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FajrWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -891,7 +905,7 @@
 				DEVELOPMENT_TEAM = LNYK7FSPB5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FajrWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -920,7 +934,7 @@
 				DEVELOPMENT_TEAM = LNYK7FSPB5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FajrWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_provider.dart';
 import '../data/athkar.dart';
@@ -27,6 +28,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
   void _onTap() {
     if (_completed) return;
 
+    HapticFeedback.lightImpact();
     setState(() {
       _currentCount++;
       if (_currentCount >= _currentDhikr.repeatCount) {
@@ -35,6 +37,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
           _currentIndex++;
         } else {
           _completed = true;
+          HapticFeedback.mediumImpact();
         }
       }
     });
@@ -42,6 +45,7 @@ class _AthkarScreenState extends State<AthkarScreen> {
 
   void _skipToNext() {
     if (_completed) return;
+    HapticFeedback.selectionClick();
     setState(() {
       _currentCount = 0;
       if (_currentIndex < widget.athkar.length - 1) {

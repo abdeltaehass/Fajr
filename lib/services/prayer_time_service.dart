@@ -21,6 +21,29 @@ class PrayerTimeService {
       '&method=$method',
     );
 
+    // Retry with exponential backoff: 0s, 1s, 2s, 4s — only on transient errors
+    // (timeout, socket, 5xx). 4xx and parse errors fail fast.
+    const delays = [Duration.zero, Duration(seconds: 1), Duration(seconds: 2), Duration(seconds: 4)];
+    PrayerTimeServiceException? lastError;
+    for (final delay in delays) {
+      if (delay > Duration.zero) await Future.delayed(delay);
+      try {
+        return await _fetchOnce(uri);
+      } on PrayerTimeServiceException catch (e) {
+        lastError = e;
+        if (!_isTransient(e.message)) rethrow;
+      }
+    }
+    throw lastError!;
+  }
+
+  bool _isTransient(String message) =>
+      message == '503' ||
+      message.contains('502') ||
+      message.contains('504') ||
+      message.contains('500');
+
+  Future<PrayerTimesResponse> _fetchOnce(Uri uri) async {
     final http.Response response;
     try {
       response = await http.get(uri).timeout(const Duration(seconds: 15));

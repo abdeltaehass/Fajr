@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../data/hajj_umrah_guide.dart';
 import '../data/islamic_finance_guide.dart';
 import '../data/salah_guide.dart';
@@ -178,14 +179,20 @@ class _GuidesScreenState extends State<GuidesScreen>
           _SubTabbedGuide(
             tabController: _hajjSubTabController,
             tabLabels: const ['Umrah', 'Hajj'],
-            guides: [umrahGuide, hajjGuide],
+            children: [
+              _GuideList(sections: umrahGuide, footer: const _UmrahChecklist()),
+              _GuideList(sections: hajjGuide, footer: const _HajjChecklist()),
+            ],
           ),
 
           // ── Purity ──
           _SubTabbedGuide(
             tabController: _puritySubTabController,
             tabLabels: const ['Hayd & Nifas', 'Ghusl'],
-            guides: [haydGuide, ghusulGuide],
+            children: [
+              _GuideList(sections: haydGuide),
+              _GuideList(sections: ghusulGuide),
+            ],
           ),
 
           // ── Zakat & Finance ──
@@ -219,12 +226,12 @@ class _GuidesScreenState extends State<GuidesScreen>
 class _SubTabbedGuide extends StatelessWidget {
   final TabController tabController;
   final List<String> tabLabels;
-  final List<List<GuideSection>> guides;
+  final List<Widget> children;
 
   const _SubTabbedGuide({
     required this.tabController,
     required this.tabLabels,
-    required this.guides,
+    required this.children,
   });
 
   @override
@@ -268,7 +275,7 @@ class _SubTabbedGuide extends StatelessWidget {
         Expanded(
           child: TabBarView(
             controller: tabController,
-            children: guides.map((g) => _GuideList(sections: g)).toList(),
+            children: children,
           ),
         ),
       ],
@@ -282,14 +289,17 @@ class _SubTabbedGuide extends StatelessWidget {
 
 class _GuideList extends StatelessWidget {
   final List<GuideSection> sections;
-  const _GuideList({required this.sections});
+  final Widget? footer;
+  const _GuideList({required this.sections, this.footer});
 
   @override
   Widget build(BuildContext context) {
+    final itemCount = sections.length + (footer != null ? 1 : 0);
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      itemCount: sections.length,
+      itemCount: itemCount,
       itemBuilder: (context, sIndex) {
+        if (footer != null && sIndex == sections.length) return footer!;
         final section = sections[sIndex];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1331,6 +1341,478 @@ class _ResultCard extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Umrah Checklist
+// ─────────────────────────────────────────────────────────────
+
+const _umrahChecklistItems = [
+  'Performed Ghusl & wore Ihram',
+  'Made Niyyah (intention) for Umrah',
+  'Prayed 2 Rak\'ahs before Ihram',
+  'Entered Ihram at the Miqat',
+  'Reciting Talbiyah',
+  'Entered Masjid al-Haram',
+  'Completed 7 rounds of Tawaf',
+  'Prayed 2 Rak\'ahs at Maqam Ibrahim',
+  'Drank Zamzam water',
+  'Completed Sa\'i (7 times between Safa & Marwa)',
+  'Performed Halq or Taqsir (shave or trim hair)',
+  'Exited Ihram — Umrah Complete',
+];
+
+class _UmrahChecklist extends StatefulWidget {
+  const _UmrahChecklist();
+
+  @override
+  State<_UmrahChecklist> createState() => _UmrahChecklistState();
+}
+
+class _UmrahChecklistState extends State<_UmrahChecklist> {
+  static const _prefsKey = 'umrah_checklist_v1';
+  List<bool> _checked = List.filled(_umrahChecklistItems.length, false);
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_prefsKey);
+    if (saved != null && saved.length == _umrahChecklistItems.length) {
+      if (mounted) {
+        setState(() {
+          _checked = saved.split('').map((c) => c == '1').toList();
+        });
+      }
+    }
+  }
+
+  Future<void> _toggle(int index) async {
+    HapticFeedback.lightImpact();
+    setState(() => _checked[index] = !_checked[index]);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsKey, _checked.map((v) => v ? '1' : '0').join());
+  }
+
+  Future<void> _reset() async {
+    setState(() => _checked = List.filled(_umrahChecklistItems.length, false));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsKey);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final completed = _checked.where((v) => v).length;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [c.accent.withValues(alpha: 0.15), c.card],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              border: Border.all(color: c.accent.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.checklist_rounded, color: c.accent, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Umrah Progress Tracker',
+                        style: GoogleFonts.poppins(
+                          color: c.accent,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        '$completed of ${_umrahChecklistItems.length} steps completed',
+                        style: GoogleFonts.poppins(
+                          color: c.bodyText.withValues(alpha: 0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (completed > 0)
+                  GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text('Reset checklist?',
+                            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                        content: Text('This will clear all your progress.',
+                            style: GoogleFonts.poppins(fontSize: 13)),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel')),
+                          TextButton(
+                            onPressed: () { _reset(); Navigator.pop(context); },
+                            child: Text('Reset',
+                                style: TextStyle(color: Colors.red.shade400)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    child: Icon(Icons.refresh, color: c.bodyText.withValues(alpha: 0.4), size: 20),
+                  ),
+              ],
+            ),
+          ),
+
+          // Progress bar
+          ClipRRect(
+            child: LinearProgressIndicator(
+              value: completed / _umrahChecklistItems.length,
+              minHeight: 4,
+              backgroundColor: c.accent.withValues(alpha: 0.1),
+              valueColor: AlwaysStoppedAnimation(c.accent),
+            ),
+          ),
+
+          // Checklist items
+          Container(
+            decoration: BoxDecoration(
+              color: c.card,
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              border: Border(
+                left: BorderSide(color: c.accent.withValues(alpha: 0.3)),
+                right: BorderSide(color: c.accent.withValues(alpha: 0.3)),
+                bottom: BorderSide(color: c.accent.withValues(alpha: 0.3)),
+              ),
+            ),
+            child: Column(
+              children: _umrahChecklistItems.asMap().entries.map((entry) {
+                final i = entry.key;
+                final label = entry.value;
+                final done = _checked[i];
+                return InkWell(
+                  onTap: () => _toggle(i),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: done ? c.accent : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: done ? c.accent : c.bodyText.withValues(alpha: 0.3),
+                              width: 2,
+                            ),
+                          ),
+                          child: done
+                              ? Icon(Icons.check, color: c.scaffold, size: 14)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: GoogleFonts.poppins(
+                              color: done
+                                  ? c.bodyText.withValues(alpha: 0.4)
+                                  : c.bodyText,
+                              fontSize: 14,
+                              decoration: done ? TextDecoration.lineThrough : null,
+                              decorationColor: c.bodyText.withValues(alpha: 0.4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          if (completed == _umrahChecklistItems.length) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'Taqabbal Allahu minna wa minkum 🤲',
+                style: GoogleFonts.poppins(
+                  color: c.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Hajj Checklist
+// ─────────────────────────────────────────────────────────────
+
+const _hajjChecklistItems = [
+  // Preparation
+  'Performed Ghusl & entered Ihram',
+  'Made Niyyah for Hajj & recited Talbiyah',
+  // 8th Dhul Hijjah
+  'Proceeded to Mina (8th Dhul Hijjah)',
+  // 9th Dhul Hijjah — Arafah
+  'Moved to Arafat (9th Dhul Hijjah)',
+  'Prayed Dhuhr & Asr combined at Arafat',
+  'Completed Wuquf — standing at Arafat until sunset',
+  // Muzdalifah
+  'Moved to Muzdalifah after sunset',
+  'Spent night at Muzdalifah & collected pebbles',
+  // 10th Dhul Hijjah
+  'Rami — stoned Jamrat al-Aqabah (7 pebbles)',
+  'Hady — animal sacrifice performed',
+  'Tahallul Awwal — shaved or cut hair (1st release from Ihram)',
+  'Completed Tawaf al-Ifadah (7 rounds)',
+  'Completed Sa\'i between Safa & Marwa (7 times)',
+  'Tahallul Thani — full release from Ihram',
+  // Ayyam al-Tashreeq
+  'Stayed in Mina (Ayyam al-Tashreeq)',
+  'Rami — stoned all 3 Jamarat on 11th Dhul Hijjah',
+  'Rami — stoned all 3 Jamarat on 12th Dhul Hijjah',
+  // Farewell
+  'Completed Tawaf al-Wada\' (Farewell Tawaf)',
+];
+
+class _HajjChecklist extends StatefulWidget {
+  const _HajjChecklist();
+
+  @override
+  State<_HajjChecklist> createState() => _HajjChecklistState();
+}
+
+class _HajjChecklistState extends State<_HajjChecklist> {
+  static const _prefsKey = 'hajj_checklist_v1';
+  List<bool> _checked = List.filled(_hajjChecklistItems.length, false);
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_prefsKey);
+    if (saved != null && saved.length == _hajjChecklistItems.length) {
+      if (mounted) {
+        setState(() {
+          _checked = saved.split('').map((c) => c == '1').toList();
+        });
+      }
+    }
+  }
+
+  Future<void> _toggle(int index) async {
+    HapticFeedback.lightImpact();
+    setState(() => _checked[index] = !_checked[index]);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsKey, _checked.map((v) => v ? '1' : '0').join());
+  }
+
+  Future<void> _reset() async {
+    setState(() => _checked = List.filled(_hajjChecklistItems.length, false));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsKey);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final completed = _checked.where((v) => v).length;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [c.accent.withValues(alpha: 0.15), c.card],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              border: Border.all(color: c.accent.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.checklist_rounded, color: c.accent, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hajj Progress Tracker',
+                        style: GoogleFonts.poppins(
+                          color: c.accent,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        '$completed of ${_hajjChecklistItems.length} steps completed',
+                        style: GoogleFonts.poppins(
+                          color: c.bodyText.withValues(alpha: 0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (completed > 0)
+                  GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text('Reset checklist?',
+                            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                        content: Text('This will clear all your progress.',
+                            style: GoogleFonts.poppins(fontSize: 13)),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel')),
+                          TextButton(
+                            onPressed: () { _reset(); Navigator.pop(context); },
+                            child: Text('Reset',
+                                style: TextStyle(color: Colors.red.shade400)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    child: Icon(Icons.refresh,
+                        color: c.bodyText.withValues(alpha: 0.4), size: 20),
+                  ),
+              ],
+            ),
+          ),
+
+          // Progress bar
+          ClipRRect(
+            child: LinearProgressIndicator(
+              value: completed / _hajjChecklistItems.length,
+              minHeight: 4,
+              backgroundColor: c.accent.withValues(alpha: 0.1),
+              valueColor: AlwaysStoppedAnimation(c.accent),
+            ),
+          ),
+
+          // Checklist items
+          Container(
+            decoration: BoxDecoration(
+              color: c.card,
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(16)),
+              border: Border(
+                left: BorderSide(color: c.accent.withValues(alpha: 0.3)),
+                right: BorderSide(color: c.accent.withValues(alpha: 0.3)),
+                bottom: BorderSide(color: c.accent.withValues(alpha: 0.3)),
+              ),
+            ),
+            child: Column(
+              children: _hajjChecklistItems.asMap().entries.map((entry) {
+                final i = entry.key;
+                final label = entry.value;
+                final done = _checked[i];
+                return InkWell(
+                  onTap: () => _toggle(i),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: done ? c.accent : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: done
+                                  ? c.accent
+                                  : c.bodyText.withValues(alpha: 0.3),
+                              width: 2,
+                            ),
+                          ),
+                          child: done
+                              ? Icon(Icons.check, color: c.scaffold, size: 14)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: GoogleFonts.poppins(
+                              color: done
+                                  ? c.bodyText.withValues(alpha: 0.4)
+                                  : c.bodyText,
+                              fontSize: 14,
+                              decoration:
+                                  done ? TextDecoration.lineThrough : null,
+                              decorationColor:
+                                  c.bodyText.withValues(alpha: 0.4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          if (completed == _hajjChecklistItems.length) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'Hajj Mabrur insha\'Allah 🤲',
+                style: GoogleFonts.poppins(
+                  color: c.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

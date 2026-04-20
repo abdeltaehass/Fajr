@@ -1,5 +1,5 @@
-# Minimum iOS version required for App Store submission (iOS 16+)
-platform :ios, '16.0'
+# Minimum iOS version required for App Store submission (iOS 16.1+)
+platform :ios, '16.1'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

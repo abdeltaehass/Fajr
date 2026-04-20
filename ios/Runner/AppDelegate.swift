@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import WidgetKit
 import UserNotifications
+import ActivityKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -51,6 +52,29 @@ import UserNotifications
     super.userNotificationCenter(center, willPresent: notification, withCompletionHandler: completionHandler)
   }
 
+  // ── Background fetch ────────────────────────────────────────────────────
+  // iOS wakes the app periodically (when fetch background mode is enabled).
+  // We use this to reload the widget timeline and flag notification reschedule
+  // if the device has rebooted and cleared all scheduled notifications.
+  override func application(
+    _ application: UIApplication,
+    performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+  ) {
+    // Always reload widget so it reflects the latest cached prayer times.
+    if #available(iOS 14.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    // If very few notifications are pending the device likely rebooted and
+    // cleared them. Set a flag so Flutter reschedules them on next launch.
+    UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+      if requests.count < 3 {
+        UserDefaults.standard.set(true, forKey: "needsNotificationReschedule")
+      }
+      completionHandler(.newData)
+    }
+  }
+
   // ── Widget + Adhan channels ─────────────────────────────────────────────
   func didInitializeImplicitFlutterEngine(_ engineBridge: any FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
@@ -61,7 +85,11 @@ import UserNotifications
     // Widget channel
     let widgetChannel = FlutterMethodChannel(name: "fajr.widget", binaryMessenger: messenger)
     widgetChannel.setMethodCallHandler { call, result in
-      if call.method == "updateWidget" {
+      if call.method == "needsReschedule" {
+        let needs = UserDefaults.standard.bool(forKey: "needsNotificationReschedule")
+        UserDefaults.standard.removeObject(forKey: "needsNotificationReschedule")
+        result(needs)
+      } else if call.method == "updateWidget" {
         guard let args = call.arguments as? [String: Any] else {
           result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
           return
@@ -71,6 +99,9 @@ import UserNotifications
         if let nextTime   = args["nextTime"]   as? String { defaults?.set(nextTime,   forKey: "nextTime") }
         if let nextEpoch  = args["nextEpoch"]  as? Double { defaults?.set(nextEpoch,  forKey: "nextEpoch") }
         if let allPrayers = args["allPrayers"] as? String { defaults?.set(allPrayers, forKey: "allPrayers") }
+        if let hijriDay   = args["hijriDay"]   as? String { defaults?.set(hijriDay,   forKey: "hijriDay") }
+        if let hijriMonth = args["hijriMonth"] as? String { defaults?.set(hijriMonth, forKey: "hijriMonth") }
+        if let hijriYear  = args["hijriYear"]  as? String { defaults?.set(hijriYear,  forKey: "hijriYear") }
         defaults?.synchronize()
         if #available(iOS 14.0, *) {
           WidgetCenter.shared.reloadAllTimelines()
@@ -78,6 +109,64 @@ import UserNotifications
         result(nil)
       } else {
         result(FlutterMethodNotImplemented)
+      }
+    }
+
+    // Live Activity channel
+    let liveChannel = FlutterMethodChannel(name: "fajr.live_activity", binaryMessenger: messenger)
+    liveChannel.setMethodCallHandler { call, result in
+      if #available(iOS 16.2, *) {
+        guard let args = call.arguments as? [String: Any] else {
+          result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
+          return
+        }
+        let name  = args["prayerName"]  as? String ?? ""
+        let time  = args["prayerTime"]  as? String ?? ""
+        let epoch = args["prayerEpoch"] as? Double ?? 0
+        let icon  = args["prayerIcon"]  as? String ?? "moon.stars.fill"
+
+        let state = PrayerLiveAttributes.ContentState(
+          prayerName: name, prayerTime: time, prayerEpoch: epoch, prayerIcon: icon
+        )
+
+        switch call.method {
+        case "start":
+          // End any existing activities first
+          for activity in Activity<PrayerLiveAttributes>.activities {
+            Task { await activity.end(nil, dismissalPolicy: .immediate) }
+          }
+          // Start new
+          let attrs = PrayerLiveAttributes()
+          let content = ActivityContent(state: state, staleDate: Date(timeIntervalSince1970: epoch / 1000))
+          do {
+            _ = try Activity.request(attributes: attrs, content: content)
+            result(nil)
+          } catch {
+            result(FlutterError(code: "LIVE_ACTIVITY_ERROR", message: error.localizedDescription, details: nil))
+          }
+
+        case "update":
+          let content = ActivityContent(state: state, staleDate: Date(timeIntervalSince1970: epoch / 1000))
+          Task {
+            for activity in Activity<PrayerLiveAttributes>.activities {
+              await activity.update(content)
+            }
+            result(nil)
+          }
+
+        case "end":
+          Task {
+            for activity in Activity<PrayerLiveAttributes>.activities {
+              await activity.end(nil, dismissalPolicy: .immediate)
+            }
+            result(nil)
+          }
+
+        default:
+          result(FlutterMethodNotImplemented)
+        }
+      } else {
+        result(nil) // Silently no-op on iOS < 16.1
       }
     }
 

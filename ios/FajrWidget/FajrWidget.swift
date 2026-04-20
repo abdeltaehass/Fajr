@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import ActivityKit
 
 // MARK: - Shared data
 
@@ -37,6 +38,9 @@ struct PrayerItem {
 struct PrayerData {
     let allPrayers: [PrayerItem]
     let nextEpoch: Double
+    let hijriDay: String
+    let hijriMonth: String
+    let hijriYear: String
 
     static func load() -> PrayerData {
         let d = UserDefaults(suiteName: fajrSuiteName)
@@ -61,8 +65,13 @@ struct PrayerData {
             prayers = [PrayerItem(name: name, time24: time, epoch: epoch)]
         }
 
-        return PrayerData(allPrayers: prayers,
-                          nextEpoch: d?.double(forKey: "nextEpoch") ?? 0)
+        return PrayerData(
+            allPrayers: prayers,
+            nextEpoch: d?.double(forKey: "nextEpoch") ?? 0,
+            hijriDay: d?.string(forKey: "hijriDay") ?? "",
+            hijriMonth: d?.string(forKey: "hijriMonth") ?? "",
+            hijriYear: d?.string(forKey: "hijriYear") ?? ""
+        )
     }
 
     /// Next `count` prayers that haven't happened yet.
@@ -82,7 +91,7 @@ struct FajrTimelineProvider: TimelineProvider {
             PrayerItem(name: "Maghrib", time24: "18:12", epoch: 0),
             PrayerItem(name: "Isha",    time24: "19:48", epoch: 0),
         ]
-        return FajrEntry(date: Date(), data: PrayerData(allPrayers: items, nextEpoch: 0))
+        return FajrEntry(date: Date(), data: PrayerData(allPrayers: items, nextEpoch: 0, hijriDay: "15", hijriMonth: "Shawwal", hijriYear: "1447"))
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FajrEntry) -> Void) {
@@ -318,6 +327,188 @@ struct FajrMediumView: View {
     }
 }
 
+// MARK: - Home Screen: Large — full dashboard
+
+private let cardBg = Color.white.opacity(0.06)
+private let cardBorder = Color.white.opacity(0.08)
+private let softGold = Color(red: 0.85, green: 0.73, blue: 0.40)
+
+struct FajrLargeView: View {
+    let entry: FajrEntry
+
+    var body: some View {
+        let data = entry.data
+        let now = Date()
+        let upcoming = data.allPrayers.filter { $0.epoch > 0 && $0.date > now }
+        let next = upcoming.first ?? data.allPrayers.first
+
+        let day = Calendar.current.component(.day, from: now)
+        let monthName = DateFormatter().monthSymbols[Calendar.current.component(.month, from: now) - 1]
+        let weekday = DateFormatter().weekdaySymbols[Calendar.current.component(.weekday, from: now) - 1]
+
+        VStack(spacing: 12) {
+            // ── Header cards row ──
+            HStack(spacing: 10) {
+                // Next prayer card
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Text(next?.name ?? "—")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(cream)
+                        Spacer()
+                        Image(systemName: next?.icon ?? "clock.fill")
+                            .font(.system(size: 13))
+                            .foregroundColor(softGold)
+                    }
+
+                    Text(next?.displayTime ?? "—")
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundColor(cream)
+                        .minimumScaleFactor(0.8)
+
+                    Spacer(minLength: 0)
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "bell.fill")
+                            .font(.system(size: 8))
+                            .foregroundColor(softGold.opacity(0.6))
+                        Text("Remaining")
+                            .font(.system(size: 9, weight: .medium, design: .rounded))
+                            .foregroundColor(cream.opacity(0.4))
+                    }
+
+                    if let nextDate = next?.date, nextDate > now {
+                        Text(nextDate, style: .timer)
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(softGold)
+                            .minimumScaleFactor(0.7)
+                    } else {
+                        Text("—:—")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(softGold.opacity(0.4))
+                    }
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(cardBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .strokeBorder(cardBorder, lineWidth: 0.5)
+                        )
+                )
+
+                // Date card
+                VStack(alignment: .leading, spacing: 4) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 13))
+                        .foregroundColor(softGold)
+
+                    Spacer(minLength: 0)
+
+                    Text("\(day) \(monthName)")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(cream.opacity(0.55))
+                    Text(weekday)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(cream)
+                        .minimumScaleFactor(0.7)
+
+                    if !data.hijriDay.isEmpty {
+                        Spacer(minLength: 2)
+                        Text("\(data.hijriDay) \(data.hijriMonth)")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundColor(cream.opacity(0.4))
+                        Text(data.hijriYear)
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .foregroundColor(softGold)
+                    }
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(cardBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .strokeBorder(cardBorder, lineWidth: 0.5)
+                        )
+                )
+            }
+            .frame(height: 130)
+
+            // ── Prayer times grid ──
+            VStack(spacing: 0) {
+                let half = (data.allPrayers.count + 1) / 2
+                let left  = Array(data.allPrayers.prefix(half))
+                let right = Array(data.allPrayers.suffix(from: half))
+                let rows = max(left.count, right.count)
+
+                ForEach(0..<rows, id: \.self) { i in
+                    if i > 0 {
+                        Rectangle()
+                            .fill(cream.opacity(0.06))
+                            .frame(height: 0.5)
+                    }
+                    HStack(spacing: 0) {
+                        if i < left.count {
+                            prayerCell(left[i], isNext: left[i].name == next?.name)
+                        } else {
+                            Spacer().frame(maxWidth: .infinity)
+                        }
+
+                        Rectangle()
+                            .fill(cream.opacity(0.06))
+                            .frame(width: 0.5)
+
+                        if i < right.count {
+                            prayerCell(right[i], isNext: right[i].name == next?.name)
+                        } else {
+                            Spacer().frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(cardBg)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(cardBorder, lineWidth: 0.5)
+                    )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .widgetBackground { appGradient }
+    }
+
+    private func prayerCell(_ p: PrayerItem, isNext: Bool) -> some View {
+        HStack(spacing: 0) {
+            Text(p.name)
+                .font(.system(size: isNext ? 13 : 12,
+                              weight: isNext ? .bold : .medium,
+                              design: .rounded))
+                .foregroundColor(isNext ? cream : cream.opacity(0.5))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Spacer(minLength: 4)
+            Text(p.displayTime)
+                .font(.system(size: isNext ? 13 : 12,
+                              weight: isNext ? .bold : .regular,
+                              design: .rounded))
+                .foregroundColor(isNext ? softGold : cream.opacity(0.35))
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .frame(maxWidth: .infinity)
+        .background(isNext ? softGold.opacity(0.12) : Color.clear)
+    }
+}
+
 // MARK: - Entry View Router
 
 struct FajrEntryView: View {
@@ -336,6 +527,8 @@ struct FajrEntryView: View {
             FajrSmallView(entry: entry)
         case .systemMedium:
             FajrMediumView(entry: entry)
+        case .systemLarge:
+            FajrLargeView(entry: entry)
         default:
             FajrRectangularView(entry: entry)
         }
@@ -395,6 +588,7 @@ struct FajrWidget: Widget {
             .accessoryRectangular,
             .systemSmall,
             .systemMedium,
+            .systemLarge,
         ])
     }
 }
@@ -409,5 +603,120 @@ struct FajrPrayersWidget: Widget {
         .configurationDisplayName("manār · Prayers")
         .description("Next three prayers at a glance.")
         .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+// MARK: - Live Activity
+// PrayerLiveAttributes is defined in Shared/PrayerLiveAttributes.swift
+// (compiled into both the app and widget targets).
+
+struct PrayerLiveActivityView: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: PrayerLiveAttributes.self) { context in
+            // ── Lock screen / banner presentation ──
+            HStack(spacing: 14) {
+                // Icon
+                Image(systemName: context.state.prayerIcon)
+                    .font(.system(size: 20))
+                    .foregroundColor(gold)
+                    .frame(width: 36)
+
+                // Prayer info
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(context.state.prayerName)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                    Text(context.state.prayerTime)
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+
+                Spacer()
+
+                // Live countdown
+                let target = Date(timeIntervalSince1970: context.state.prayerEpoch / 1000)
+                if target > Date() {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(target, style: .timer)
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(gold)
+                            .multilineTextAlignment(.trailing)
+                        Text("remaining")
+                            .font(.system(size: 10, design: .rounded))
+                            .foregroundColor(.white.opacity(0.4))
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+            .background(appGradient)
+
+        } dynamicIsland: { context in
+            DynamicIsland {
+                // ── Expanded regions ──
+                DynamicIslandExpandedRegion(.leading) {
+                    HStack(spacing: 6) {
+                        Image(systemName: context.state.prayerIcon)
+                            .font(.system(size: 14))
+                            .foregroundColor(gold)
+                        Text(context.state.prayerName)
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.leading, 4)
+                }
+
+                DynamicIslandExpandedRegion(.trailing) {
+                    Text(context.state.prayerTime)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.7))
+                        .padding(.trailing, 4)
+                }
+
+                DynamicIslandExpandedRegion(.bottom) {
+                    let target = Date(timeIntervalSince1970: context.state.prayerEpoch / 1000)
+                    if target > Date() {
+                        HStack(spacing: 8) {
+                            Image(systemName: "bell.fill")
+                                .font(.system(size: 10))
+                                .foregroundColor(gold.opacity(0.6))
+                            Text("Remaining until \(context.state.prayerName)")
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundColor(.white.opacity(0.5))
+                            Spacer()
+                            Text(target, style: .timer)
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(gold)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        .padding(.top, 4)
+                    }
+                }
+            } compactLeading: {
+                // ── Compact: left pill ──
+                Image(systemName: context.state.prayerIcon)
+                    .font(.system(size: 12))
+                    .foregroundColor(gold)
+            } compactTrailing: {
+                // ── Compact: right pill ──
+                let target = Date(timeIntervalSince1970: context.state.prayerEpoch / 1000)
+                if target > Date() {
+                    Text(target, style: .timer)
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(gold)
+                        .multilineTextAlignment(.center)
+                        .frame(minWidth: 36)
+                } else {
+                    Text(context.state.prayerTime)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundColor(gold)
+                }
+            } minimal: {
+                // ── Minimal: single icon ──
+                Image(systemName: "moon.stars.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(gold)
+            }
+        }
     }
 }

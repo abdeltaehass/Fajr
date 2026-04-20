@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -6,13 +7,13 @@ import '../settings/settings_provider.dart';
 class NextPrayerBanner extends StatelessWidget {
   final String prayerName;
   final String prayerTime;
-  final Duration timeRemaining;
+  final DateTime targetTime;
 
   const NextPrayerBanner({
     super.key,
     required this.prayerName,
     required this.prayerTime,
-    required this.timeRemaining,
+    required this.targetTime,
   });
 
   String _formattedTime(String locale) {
@@ -27,9 +28,6 @@ class NextPrayerBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final locale = context.settings.locale.toLanguageTag();
-    final hours = timeRemaining.inHours;
-    final minutes = timeRemaining.inMinutes.remainder(60);
-    final seconds = timeRemaining.inSeconds.remainder(60);
 
     return Stack(
       children: [
@@ -77,24 +75,9 @@ class NextPrayerBanner extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _CountdownBox(
-                    value: hours.toString().padLeft(2, '0'),
-                    label: context.strings.hours.toLowerCase(),
-                  ),
-                  const _CountdownSeparator(),
-                  _CountdownBox(
-                    value: minutes.toString().padLeft(2, '0'),
-                    label: context.strings.minutes.toLowerCase(),
-                  ),
-                  const _CountdownSeparator(),
-                  _CountdownBox(
-                    value: seconds.toString().padLeft(2, '0'),
-                    label: context.strings.seconds.toLowerCase(),
-                  ),
-                ],
+              _LiveCountdown(
+                key: ValueKey(targetTime.millisecondsSinceEpoch),
+                targetTime: targetTime,
               ),
               const SizedBox(height: 8),
               Text(
@@ -120,6 +103,69 @@ class NextPrayerBanner extends StatelessWidget {
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// Self-contained 1s ticker. Only this subtree rebuilds each second —
+// the rest of the dashboard stays static between prayer transitions.
+class _LiveCountdown extends StatefulWidget {
+  final DateTime targetTime;
+  const _LiveCountdown({super.key, required this.targetTime});
+
+  @override
+  State<_LiveCountdown> createState() => _LiveCountdownState();
+}
+
+class _LiveCountdownState extends State<_LiveCountdown> {
+  Timer? _timer;
+  late Duration _remaining;
+
+  @override
+  void initState() {
+    super.initState();
+    _remaining = _compute();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() => _remaining = _compute());
+    });
+  }
+
+  Duration _compute() {
+    final diff = widget.targetTime.difference(DateTime.now());
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hours = _remaining.inHours;
+    final minutes = _remaining.inMinutes.remainder(60);
+    final seconds = _remaining.inSeconds.remainder(60);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _CountdownBox(
+          value: hours.toString().padLeft(2, '0'),
+          label: context.strings.hours.toLowerCase(),
+        ),
+        const _CountdownSeparator(),
+        _CountdownBox(
+          value: minutes.toString().padLeft(2, '0'),
+          label: context.strings.minutes.toLowerCase(),
+        ),
+        const _CountdownSeparator(),
+        _CountdownBox(
+          value: seconds.toString().padLeft(2, '0'),
+          label: context.strings.seconds.toLowerCase(),
         ),
       ],
     );

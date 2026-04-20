@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/streak.dart';
 import '../services/streak_service.dart';
@@ -30,13 +31,15 @@ class _StreakScreenState extends State<StreakScreen> {
   Future<void> _save() => StreakService.save(_streaks);
 
   void _toggle(Streak streak) {
+    final wasDone = streak.isCompletedToday;
     setState(() {
-      if (streak.isCompletedToday) {
+      if (wasDone) {
         streak.unmarkToday();
       } else {
         streak.markToday();
       }
     });
+    HapticFeedback.lightImpact();
     _save();
   }
 
