@@ -37,6 +37,43 @@ class PrayerTimeService {
     throw lastError!;
   }
 
+  /// Fetch a whole month of prayer times in one call. Used to pre-populate
+  /// the widget timeline so the home-screen widget stays accurate even when
+  /// iOS doesn't run the app in the background for several days.
+  Future<List<PrayerTimesResponse>> fetchMonth({
+    required double latitude,
+    required double longitude,
+    int method = 2,
+    required int year,
+    required int month,
+  }) async {
+    final uri = Uri.parse(
+      '$_baseUrl/calendar/$year/$month'
+      '?latitude=$latitude'
+      '&longitude=$longitude'
+      '&method=$method',
+    );
+    final http.Response response;
+    try {
+      response = await http.get(uri).timeout(const Duration(seconds: 25));
+    } on TimeoutException {
+      throw PrayerTimeServiceException('503');
+    } on SocketException {
+      throw PrayerTimeServiceException('503');
+    }
+    if (response.statusCode != 200) {
+      throw PrayerTimeServiceException('API returned status ${response.statusCode}');
+    }
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    if (json['code'] != 200 || json['status'] != 'OK') {
+      throw PrayerTimeServiceException('API error: ${json['status']}');
+    }
+    final data = json['data'] as List<dynamic>;
+    return data
+        .map((day) => PrayerTimesResponse.fromJson({'data': day}))
+        .toList();
+  }
+
   bool _isTransient(String message) =>
       message == '503' ||
       message.contains('502') ||

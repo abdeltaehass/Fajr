@@ -13,6 +13,7 @@ import '../services/notification_service.dart';
 import '../services/prayer_time_service.dart';
 import '../widgets/crescent_decoration.dart';
 import '../widgets/hijri_date_header.dart';
+import '../widgets/islamic_ornament.dart';
 import '../widgets/next_prayer_banner.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/qibla_compass.dart';
@@ -65,7 +66,14 @@ class _DashboardScreenState extends State<DashboardScreen>
     } catch (_) {}
   }
 
+  Future<void> _endLiveActivity() async {
+    try {
+      await _liveChannel.invokeMethod('end');
+    } catch (_) {}
+  }
+
   Future<void> _updateLiveActivity(PrayerTimesResponse pt) async {
+    if (!mounted || !context.settings.liveActivityEnabled) return;
     try {
       final prayers = pt.timings.dailyPrayers;
       final now = DateTime.now();
@@ -127,6 +135,53 @@ class _DashboardScreenState extends State<DashboardScreen>
     } catch (_) {}
   }
 
+  // Preload the next 7 days of prayer times into the widget's data store.
+  // The Swift widget uses these to build a longer timeline so it stays
+  // accurate even if iOS doesn't run the app for several days.
+  Future<void> _prefetchWeekAhead(double lat, double lng, int method) async {
+    try {
+      final now = DateTime.now();
+      final months = <int, List<PrayerTimesResponse>>{};
+      // Always need this month; fetch next month too if we'll cross the boundary.
+      months[now.month] = await _prayerTimeService.fetchMonth(
+        latitude: lat, longitude: lng, method: method,
+        year: now.year, month: now.month,
+      );
+      final weekEnd = now.add(const Duration(days: 7));
+      if (weekEnd.month != now.month) {
+        months[weekEnd.month] = await _prayerTimeService.fetchMonth(
+          latitude: lat, longitude: lng, method: method,
+          year: weekEnd.year, month: weekEnd.month,
+        );
+      }
+
+      final weekPrayers = <Map<String, dynamic>>[];
+      for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
+        final date = now.add(Duration(days: dayOffset));
+        final monthData = months[date.month];
+        if (monthData == null || date.day > monthData.length) continue;
+        final pt = monthData[date.day - 1];
+        for (final p in pt.timings.dailyPrayers) {
+          final parts = p.time.split(':');
+          if (parts.length < 2) continue;
+          final dt = DateTime(date.year, date.month, date.day,
+              int.parse(parts[0]), int.parse(parts[1]));
+          weekPrayers.add({
+            'name': p.name,
+            'time': p.time,
+            'epoch': dt.millisecondsSinceEpoch,
+          });
+        }
+      }
+      if (weekPrayers.isEmpty) return;
+      await _widgetChannel.invokeMethod('updateWidgetWeek', {
+        'weekPrayers': jsonEncode(weekPrayers),
+      });
+    } catch (_) {
+      // Non-fatal — widget falls back to today's data.
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -144,10 +199,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       _settingsListener = settings;
       settings.addListener(_onSettingsChanged);
       _lastPrayerMethod = settings.prayerMethod;
+      _lastLiveActivity = settings.liveActivityEnabled;
     }
   }
 
   int _lastPrayerMethod = -1;
+  bool? _lastLiveActivity;
 
   void _onSettingsChanged() {
     final settings = context.settings;
@@ -157,6 +214,14 @@ class _DashboardScreenState extends State<DashboardScreen>
       _lastPrayerMethod = settings.prayerMethod;
       _loadPrayerTimes();
     }
+    if (_lastLiveActivity != null && settings.liveActivityEnabled != _lastLiveActivity) {
+      if (settings.liveActivityEnabled) {
+        if (pt != null) _updateLiveActivity(pt);
+      } else {
+        _endLiveActivity();
+      }
+    }
+    _lastLiveActivity = settings.liveActivityEnabled;
   }
 
   @override
@@ -267,6 +332,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       _scheduleNotifications(prayerTimes);
       _updateWidget(prayerTimes);
       _updateLiveActivity(prayerTimes);
+      // Fire-and-forget — pre-populates the widget's 7-day timeline
+      _prefetchWeekAhead(position.latitude, position.longitude, method);
     } on LocationServiceException catch (e) {
       if (!mounted) return;
       if (await _tryLoadCache()) return;
@@ -483,31 +550,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildSectionHeader(String title) {
-    final c = context.colors;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Container(
-            width: 3,
-            height: 13,
-            decoration: BoxDecoration(
-              color: c.accent,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            title.toUpperCase(),
-            style: GoogleFonts.poppins(
-              color: c.accent.withValues(alpha: 0.7),
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.6,
-            ),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.only(bottom: 14, top: 4),
+      child: IslamicDivider(label: title),
     );
   }
 
@@ -586,12 +631,16 @@ class _DashboardScreenState extends State<DashboardScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  IslamicOrnament(size: 7, color: c.accent),
+                  const SizedBox(width: 10),
                   CrescentMoon(size: 28, color: c.accent),
                   const SizedBox(width: 10),
                   Text(
                     'Al-Manar',
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
+                  const SizedBox(width: 10),
+                  IslamicOrnament(size: 7, color: c.accent),
                 ],
               ),
             ),

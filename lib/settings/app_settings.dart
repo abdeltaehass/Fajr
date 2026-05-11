@@ -30,6 +30,7 @@ class AppSettings extends ChangeNotifier {
     'sleep':       const TimeOfDay(hour: 22, minute: 0),
   };
   int _prayerMethod = 2; // ISNA default
+  bool _liveActivityEnabled = true;
   String _reciterId = 'ar.alafasy';
   String _adhanSoundId = 'adhan_rabeh_ibn_darah.aiff';
   Set<int> _favoriteSurahs = {};
@@ -57,6 +58,7 @@ class AppSettings extends ChangeNotifier {
   Set<String> get athkarNotifEnabled => Set.unmodifiable(_athkarNotifEnabled);
   Map<String, TimeOfDay> get athkarTimes => Map.unmodifiable(_athkarTimes);
   int get prayerMethod => _prayerMethod;
+  bool get liveActivityEnabled => _liveActivityEnabled;
   String get reciterId => _reciterId;
   String get adhanSoundId => _adhanSoundId;
   Set<int> get favoriteSurahs => Set.unmodifiable(_favoriteSurahs);
@@ -134,6 +136,7 @@ class AppSettings extends ChangeNotifier {
     _sunriseNotifEnabled = prefs.getBool('sunriseNotifEnabled') ?? false;
     _tahajjudNotifEnabled = prefs.getBool('tahajjudNotifEnabled') ?? false;
     _prayerMethod = prefs.getInt('prayerMethod') ?? 2;
+    _liveActivityEnabled = prefs.getBool('liveActivityEnabled') ?? true;
     _reciterId = prefs.getString('reciterId') ?? 'ar.alafasy';
     _adhanSoundId = (prefs.getString('adhanSoundId') ?? 'adhan_rabeh_ibn_darah.aiff')
         .replaceAll('.mp3', '.aiff')
@@ -377,6 +380,13 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('prayerMethod', method);
+  }
+
+  Future<void> setLiveActivityEnabled(bool value) async {
+    _liveActivityEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('liveActivityEnabled', value);
   }
 
   Future<void> setReciter(String id) async {

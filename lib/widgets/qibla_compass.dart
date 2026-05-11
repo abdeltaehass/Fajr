@@ -20,20 +20,19 @@ class QiblaCompass extends StatefulWidget {
   State<QiblaCompass> createState() => _QiblaCompassState();
 }
 
-class _QiblaCompassState extends State<QiblaCompass>
-    with SingleTickerProviderStateMixin {
+class _QiblaCompassState extends State<QiblaCompass> {
   static const double _kaabaLat = 21.4225;
   static const double _kaabaLon = 39.8262;
 
   StreamSubscription<CompassEvent>? _compassSub;
-  double _smoothedHeading = 0;
-  double _targetHeading = 0;
+  double _heading = 0;
   double? _accuracy;
   bool _hasData = false;
-  late AnimationController _animController;
 
-  // Low-pass filter coefficient (0 = no smoothing, 1 = infinite smoothing)
-  static const double _smoothingFactor = 0.3;
+  // Low-pass filter coefficient. Higher = more momentum = less jitter.
+  static const double _smoothingFactor = 0.85;
+  // Skip rebuilds for sub-perceptual changes — prevents thrashing when stationary.
+  static const double _minRebuildDelta = 0.4;
 
   double get _qiblaDirection {
     final lat1 = widget.latitude * pi / 180;
@@ -47,25 +46,17 @@ class _QiblaCompassState extends State<QiblaCompass>
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    )..addListener(() {
-        setState(() {});
-      });
     _startCompass();
   }
 
   void _startCompass() {
     _compassSub = FlutterCompass.events?.listen((event) {
-      final heading = event.heading;
-      if (heading == null) return;
-
+      final raw = event.heading;
+      if (raw == null) return;
       _accuracy = event.accuracy;
 
-      // Calculate shortest angular distance for smooth interpolation
-      double delta = heading - _targetHeading;
-      // Normalize delta to [-180, 180] so we always take the short way around
+      // Shortest-path angular delta in [-180, 180]
+      double delta = raw - _heading;
       while (delta > 180) {
         delta -= 360;
       }
@@ -73,31 +64,33 @@ class _QiblaCompassState extends State<QiblaCompass>
         delta += 360;
       }
 
-      // Low-pass filter: blend new heading with previous to reduce jitter
-      _targetHeading = _targetHeading + delta * (1 - _smoothingFactor);
-      // Normalize to [0, 360)
-      _targetHeading = (_targetHeading + 360) % 360;
+      // Low-pass filter: keep most of the previous heading, add a small bit of new
+      final newHeading = (_heading + delta * (1 - _smoothingFactor) + 360) % 360;
 
       if (!_hasData) {
-        // First reading — snap immediately
-        _smoothedHeading = _targetHeading;
+        _heading = newHeading;
         _hasData = true;
         setState(() {});
-      } else {
-        // Animate from current to smoothed target
-        _smoothedHeading = _targetHeading;
-        if (!_animController.isAnimating) {
-          _animController.forward(from: 0);
-        }
-        setState(() {});
+        return;
       }
+
+      // Skip imperceptible updates to avoid wasteful rebuilds
+      double rebuildDelta = newHeading - _heading;
+      while (rebuildDelta > 180) {
+        rebuildDelta -= 360;
+      }
+      while (rebuildDelta < -180) {
+        rebuildDelta += 360;
+      }
+      if (rebuildDelta.abs() < _minRebuildDelta) return;
+
+      setState(() => _heading = newHeading);
     });
   }
 
   @override
   void dispose() {
     _compassSub?.cancel();
-    _animController.dispose();
     super.dispose();
   }
 
@@ -138,14 +131,20 @@ class _QiblaCompassState extends State<QiblaCompass>
           ),
           const SizedBox(height: 20),
 
-          // Compass
-          _CompassDial(
-            compassAngle: _hasData ? -_smoothedHeading * pi / 180 : 0,
-            qiblaAngle: qibla * pi / 180,
-            qiblaDegrees: qibla,
-            isLive: _hasData,
-            accuracy: _accuracy,
-            colors: c,
+          // Compass — TweenAnimationBuilder smooths between sensor samples so
+          // small jumps are interpolated visually instead of snapping.
+          TweenAnimationBuilder<double>(
+            tween: Tween(end: _hasData ? -_heading * pi / 180 : 0),
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            builder: (context, animatedAngle, _) => _CompassDial(
+              compassAngle: animatedAngle,
+              qiblaAngle: qibla * pi / 180,
+              qiblaDegrees: qibla,
+              isLive: _hasData,
+              accuracy: _accuracy,
+              colors: c,
+            ),
           ),
         ],
       ),

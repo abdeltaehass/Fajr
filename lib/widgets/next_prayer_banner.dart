@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../settings/settings_provider.dart';
+import 'islamic_ornament.dart';
 
 class NextPrayerBanner extends StatelessWidget {
   final String prayerName;
@@ -29,82 +30,107 @@ class NextPrayerBanner extends StatelessWidget {
     final c = context.colors;
     final locale = context.settings.locale.toLanguageTag();
 
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [c.surface, c.card],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: c.accent.withValues(alpha: 0.45),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: c.accent.withValues(alpha: 0.1),
-                blurRadius: 24,
-                spreadRadius: 0,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    // Outer container = thicker outer hairline; inner Container = body of the
+    // banner. This produces the "double gold line" inscription-band feel
+    // without needing custom paint.
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          colors: [
+            c.accent.withValues(alpha: 0.55),
+            c.accent.withValues(alpha: 0.25),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: c.accent.withValues(alpha: 0.12),
+            blurRadius: 28,
+            spreadRadius: 0,
+            offset: const Offset(0, 6),
           ),
-          padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
-          child: Column(
-            children: [
-              Text(
-                context.strings.nextPrayer.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall,
+        ],
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [c.surface, c.card],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: c.accent.withValues(alpha: 0.35),
+            width: 0.6,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            // Faint geometric watermark
+            Positioned.fill(
+              child: IslamicWatermark(
+                color: c.accent,
+                opacity: 0.06,
+                size: 200,
               ),
-              const SizedBox(height: 6),
-              Text(
-                prayerName,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                _formattedTime(locale),
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: c.accent,
+            ),
+            // Subtle top-light shimmer
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 56,
+              child: const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0x14FFFFFF), Color(0x00FFFFFF)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
-              const SizedBox(height: 18),
-              _LiveCountdown(
-                key: ValueKey(targetTime.millisecondsSinceEpoch),
-                targetTime: targetTime,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.strings.remaining,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-        // Subtle top-light shimmer — zero runtime cost
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 48,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0x0FFFFFFF), Color(0x00FFFFFF)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-          ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              child: Column(
+                children: [
+                  IslamicDivider(label: context.strings.nextPrayer),
+                  const SizedBox(height: 14),
+                  Text(
+                    prayerName,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _formattedTime(locale),
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: c.accent,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  _LiveCountdown(
+                    key: ValueKey(targetTime.millisecondsSinceEpoch),
+                    targetTime: targetTime,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    context.strings.remaining,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

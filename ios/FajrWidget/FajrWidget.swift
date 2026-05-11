@@ -46,7 +46,9 @@ struct PrayerData {
         let d = UserDefaults(suiteName: fajrSuiteName)
         var prayers: [PrayerItem] = []
 
-        if let json = d?.string(forKey: "allPrayers"),
+        // Prefer 7-day pre-fetched data when present — keeps the widget
+        // accurate even if the app hasn't run today.
+        if let json = d?.string(forKey: "weekPrayers"),
            let raw  = json.data(using: .utf8),
            let arr  = try? JSONSerialization.jsonObject(with: raw) as? [[String: Any]] {
             prayers = arr.compactMap { dict -> PrayerItem? in
@@ -57,7 +59,20 @@ struct PrayerData {
             }
         }
 
-        // Fallback before the app writes allPrayers for the first time
+        // Fallback to today-only data
+        if prayers.isEmpty,
+           let json = d?.string(forKey: "allPrayers"),
+           let raw  = json.data(using: .utf8),
+           let arr  = try? JSONSerialization.jsonObject(with: raw) as? [[String: Any]] {
+            prayers = arr.compactMap { dict -> PrayerItem? in
+                guard let name  = dict["name"]  as? String,
+                      let time  = dict["time"]  as? String,
+                      let epoch = dict["epoch"] as? Double else { return nil }
+                return PrayerItem(name: name, time24: time, epoch: epoch)
+            }
+        }
+
+        // Last-resort fallback before the app writes anything for the first time
         if prayers.isEmpty {
             let name  = d?.string(forKey: "nextPrayer") ?? "—"
             let time  = d?.string(forKey: "nextTime")   ?? "—"
@@ -74,10 +89,11 @@ struct PrayerData {
         )
     }
 
-    /// Next `count` prayers that haven't happened yet.
-    func upcoming(_ count: Int = 3) -> [PrayerItem] {
-        let now = Date()
-        let future = allPrayers.filter { $0.epoch > 0 && $0.date > now }
+    /// Next `count` prayers that haven't happened yet, relative to `referenceDate`.
+    /// Widget views must pass `entry.date` here. Using `Date()` would freeze
+    /// the snapshot at provide-time since iOS pre-renders all entries.
+    func upcoming(after referenceDate: Date, _ count: Int = 3) -> [PrayerItem] {
+        let future = allPrayers.filter { $0.epoch > 0 && $0.date > referenceDate }
         return Array((future.isEmpty ? allPrayers : future).prefix(count))
     }
 }
@@ -99,14 +115,27 @@ struct FajrTimelineProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<FajrEntry>) -> Void) {
-        let data  = PrayerData.load()
-        let entry = FajrEntry(date: Date(), data: data)
-        var next  = Date().addingTimeInterval(30 * 60)
-        if data.nextEpoch > 0 {
-            let prayerDate = Date(timeIntervalSince1970: data.nextEpoch / 1000)
-            if prayerDate > Date() { next = prayerDate.addingTimeInterval(60) }
+        let data = PrayerData.load()
+        let now  = Date()
+
+        // Build one entry now + one entry at each upcoming prayer time. iOS
+        // renders the most recent entry whose date is in the past, so as each
+        // prayer arrives the widget naturally rolls forward to the next.
+        var entries: [FajrEntry] = [FajrEntry(date: now, data: data)]
+        let upcoming = data.allPrayers
+            .filter { $0.epoch > 0 && $0.date > now }
+            .sorted { $0.date < $1.date }
+            .prefix(40) // 7 days * ~6 prayers, with headroom
+
+        for item in upcoming {
+            // Add a small offset so the entry refreshes just after the prayer time
+            entries.append(FajrEntry(date: item.date.addingTimeInterval(1), data: data))
         }
-        completion(Timeline(entries: [entry], policy: .after(next)))
+
+        // Refresh policy: re-pull the timeline ~6h after the last entry so
+        // we always have fresh data once the pre-fetched window winds down.
+        let refreshAfter = (entries.last?.date ?? now).addingTimeInterval(6 * 60 * 60)
+        completion(Timeline(entries: entries, policy: .after(refreshAfter)))
     }
 }
 
@@ -148,7 +177,7 @@ private var appGradient: LinearGradient {
 struct FajrInlineView: View {
     let entry: FajrEntry
     var body: some View {
-        let next = entry.data.upcoming(1).first
+        let next = entry.data.upcoming(after: entry.date, 1).first
         Text("\(next?.name ?? "—") · \(next?.displayTime ?? "—")")
             .font(.system(size: 13, weight: .medium, design: .rounded))
             .widgetBackground { Color.clear }
@@ -160,7 +189,7 @@ struct FajrInlineView: View {
 struct FajrCircularView: View {
     let entry: FajrEntry
     var body: some View {
-        let next = entry.data.upcoming(1).first
+        let next = entry.data.upcoming(after: entry.date, 1).first
         ZStack {
             AccessoryWidgetBackground()
             VStack(spacing: 1) {
@@ -183,7 +212,7 @@ struct FajrCircularView: View {
 struct FajrRectangularView: View {
     let entry: FajrEntry
     var body: some View {
-        let next = entry.data.upcoming(1).first
+        let next = entry.data.upcoming(after: entry.date, 1).first
         let isLive = (next?.epoch ?? 0) > 0 && (next?.date ?? .distantPast) > Date()
 
         VStack(alignment: .leading, spacing: 2) {
@@ -223,7 +252,7 @@ struct FajrSmallView: View {
     let entry: FajrEntry
 
     var body: some View {
-        let prayers = entry.data.upcoming(3)
+        let prayers = entry.data.upcoming(after: entry.date, 3)
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 5) {
                 Image(systemName: "moon.stars.fill")
@@ -272,7 +301,7 @@ struct FajrMediumView: View {
     let entry: FajrEntry
 
     var body: some View {
-        let prayers = entry.data.upcoming(3)
+        let prayers = entry.data.upcoming(after: entry.date, 3)
         VStack(alignment: .leading, spacing: 0) {
             // Header
             HStack(spacing: 5) {
@@ -338,13 +367,16 @@ struct FajrLargeView: View {
 
     var body: some View {
         let data = entry.data
-        let now = Date()
-        let upcoming = data.allPrayers.filter { $0.epoch > 0 && $0.date > now }
+        // Use the entry's date — not the current wall clock — because iOS
+        // pre-renders all timeline entries at provide-time. Otherwise every
+        // entry would freeze on whatever was "next" the moment iOS asked.
+        let reference = entry.date
+        let upcoming = data.allPrayers.filter { $0.epoch > 0 && $0.date > reference }
         let next = upcoming.first ?? data.allPrayers.first
 
-        let day = Calendar.current.component(.day, from: now)
-        let monthName = DateFormatter().monthSymbols[Calendar.current.component(.month, from: now) - 1]
-        let weekday = DateFormatter().weekdaySymbols[Calendar.current.component(.weekday, from: now) - 1]
+        let day = Calendar.current.component(.day, from: reference)
+        let monthName = DateFormatter().monthSymbols[Calendar.current.component(.month, from: reference) - 1]
+        let weekday = DateFormatter().weekdaySymbols[Calendar.current.component(.weekday, from: reference) - 1]
 
         VStack(spacing: 12) {
             // ── Header cards row ──
@@ -377,7 +409,7 @@ struct FajrLargeView: View {
                             .foregroundColor(cream.opacity(0.4))
                     }
 
-                    if let nextDate = next?.date, nextDate > now {
+                    if let nextDate = next?.date, nextDate > reference {
                         Text(nextDate, style: .timer)
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundColor(softGold)
@@ -540,7 +572,7 @@ struct FajrEntryView: View {
 struct FajrRectangularPrayersView: View {
     let entry: FajrEntry
     var body: some View {
-        let prayers = entry.data.upcoming(3)
+        let prayers = entry.data.upcoming(after: entry.date, 3)
         VStack(alignment: .leading, spacing: 0) {
             ForEach(prayers.indices, id: \.self) { i in
                 let p = prayers[i]

@@ -34,7 +34,12 @@ class PrayerCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: isNext
             ? LinearGradient(
-                colors: [c.accent.withValues(alpha: 0.16), c.card],
+                colors: [
+                  c.accent.withValues(alpha: 0.18),
+                  c.card,
+                  c.accent.withValues(alpha: 0.06),
+                ],
+                stops: const [0.0, 0.6, 1.0],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               )
@@ -43,10 +48,19 @@ class PrayerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isNext
-              ? c.accent.withValues(alpha: 0.35)
+              ? c.accent.withValues(alpha: 0.45)
               : c.accent.withValues(alpha: 0.07),
-          width: 1,
+          width: isNext ? 1.2 : 1,
         ),
+        boxShadow: isNext
+            ? [
+                BoxShadow(
+                  color: c.accent.withValues(alpha: 0.16),
+                  blurRadius: 14,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       child: Row(
@@ -59,6 +73,9 @@ class PrayerCard extends StatelessWidget {
                   ? c.accent.withValues(alpha: 0.18)
                   : c.scaffold.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(10),
+              border: isNext
+                  ? Border.all(color: c.accent.withValues(alpha: 0.4), width: 0.8)
+                  : null,
             ),
             child: Icon(
               prayer.icon,

@@ -239,6 +239,15 @@ class SettingsScreen extends StatelessWidget {
                   onChanged: settings.setPrayerMethod,
                 ),
                 const SizedBox(height: 16),
+                _SubLabel('Dynamic Island'),
+                const SizedBox(height: 8),
+                _NotifToggleTile(
+                  icon: Icons.smartphone,
+                  title: 'Live Activity (Lock Screen + Island)',
+                  value: settings.liveActivityEnabled,
+                  onChanged: (val) => settings.setLiveActivityEnabled(val),
+                ),
+                const SizedBox(height: 16),
                 _SubLabel(s.language),
                 const SizedBox(height: 8),
                 _LangDropdown(

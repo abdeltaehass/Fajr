@@ -5,6 +5,7 @@ import '../models/streak.dart';
 import '../services/streak_service.dart';
 import '../settings/app_colors.dart';
 import '../settings/settings_provider.dart';
+import '../widgets/islamic_ornament.dart';
 
 class StreakScreen extends StatefulWidget {
   const StreakScreen({super.key});
@@ -93,14 +94,24 @@ class _StreakScreenState extends State<StreakScreen> {
       appBar: AppBar(
         backgroundColor: c.surface,
         elevation: 0,
-        title: Text(
-          'Streak Tracker',
-          style: GoogleFonts.poppins(
-            color: c.accent,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IslamicOrnament(size: 7, color: c.accent),
+            const SizedBox(width: 10),
+            Text(
+              'Streak Tracker',
+              style: GoogleFonts.poppins(
+                color: c.accent,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(width: 10),
+            IslamicOrnament(size: 7, color: c.accent),
+          ],
         ),
+        centerTitle: true,
         iconTheme: IconThemeData(color: c.accent),
       ),
       body: _loading
@@ -168,7 +179,7 @@ String _streakSubtitle(int count, bool active, bool done) {
   return '${_days(count)} — keep it going!';
 }
 
-class _StreakCard extends StatelessWidget {
+class _StreakCard extends StatefulWidget {
   final Streak streak;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
@@ -180,8 +191,16 @@ class _StreakCard extends StatelessWidget {
   });
 
   @override
+  State<_StreakCard> createState() => _StreakCardState();
+}
+
+class _StreakCardState extends State<_StreakCard> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final streak = widget.streak;
     final done = streak.isCompletedToday;
     final active = streak.isStreakActive;
 
@@ -196,100 +215,184 @@ class _StreakCard extends StatelessWidget {
               : c.accent.withValues(alpha: 0.12),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            // Flame + streak count
-            Column(
-              children: [
-                Icon(
-                  Icons.local_fire_department,
-                  color: active
-                      ? const Color(0xFFFF6B35)
-                      : c.bodyText.withValues(alpha: 0.25),
-                  size: 28,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${streak.currentStreak}',
-                  style: GoogleFonts.poppins(
-                    color: active ? c.accent : c.bodyText.withValues(alpha: 0.4),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 16),
-            // Title + best streak
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
                 children: [
-                  Text(
-                    streak.title,
-                    style: GoogleFonts.poppins(
-                      color: c.bodyText,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    _streakSubtitle(streak.currentStreak, active, done),
-                    style: GoogleFonts.poppins(
-                      color: c.bodyText.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                  if (streak.longestStreak > 0) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      'Best: ${_days(streak.longestStreak)}',
-                      style: GoogleFonts.poppins(
-                        color: c.accent.withValues(alpha: 0.6),
-                        fontSize: 11,
+                  // Flame + streak count
+                  Column(
+                    children: [
+                      Icon(
+                        Icons.local_fire_department,
+                        color: active
+                            ? const Color(0xFFFF6B35)
+                            : c.bodyText.withValues(alpha: 0.25),
+                        size: 28,
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${streak.currentStreak}',
+                        style: GoogleFonts.poppins(
+                          color: active ? c.accent : c.bodyText.withValues(alpha: 0.4),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  // Title + best streak
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          streak.title,
+                          style: GoogleFonts.poppins(
+                            color: c.bodyText,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          _streakSubtitle(streak.currentStreak, active, done),
+                          style: GoogleFonts.poppins(
+                            color: c.bodyText.withValues(alpha: 0.5),
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (streak.longestStreak > 0) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Best: ${_days(streak.longestStreak)}',
+                            style: GoogleFonts.poppins(
+                              color: c.accent.withValues(alpha: 0.6),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 8),
+                  // Check button
+                  GestureDetector(
+                    onTap: widget.onToggle,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: done ? c.accent : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: done ? c.accent : c.bodyText.withValues(alpha: 0.25),
+                          width: 2,
+                        ),
+                      ),
+                      child: done
+                          ? Icon(Icons.check, color: c.scaffold, size: 20)
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Delete
+                  GestureDetector(
+                    onTap: widget.onDelete,
+                    child: Icon(
+                      Icons.close,
+                      color: c.bodyText.withValues(alpha: 0.25),
+                      size: 18,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            // Check button
-            GestureDetector(
-              onTap: onToggle,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: done ? c.accent : Colors.transparent,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: done ? c.accent : c.bodyText.withValues(alpha: 0.25),
-                    width: 2,
-                  ),
-                ),
-                child: done
-                    ? Icon(Icons.check, color: c.scaffold, size: 20)
+          ),
+          // Calendar — expands on tap, shows last 30 days
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            child: _expanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                    child: _StreakCalendar(streak: streak, colors: c),
+                  )
+                : const SizedBox(width: double.infinity),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StreakCalendar extends StatelessWidget {
+  final Streak streak;
+  final AppColors colors;
+  const _StreakCalendar({required this.streak, required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    // 5 weeks × 7 days, ending today; oldest in the top-left.
+    const weeks = 5;
+    final today = DateTime.now();
+    final start = DateTime(today.year, today.month, today.day)
+        .subtract(const Duration(days: weeks * 7 - 1));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 1,
+          color: colors.accent.withValues(alpha: 0.12),
+          margin: const EdgeInsets.only(bottom: 12),
+        ),
+        Text(
+          'Last ${weeks * 7} days',
+          style: GoogleFonts.poppins(
+            color: colors.bodyText.withValues(alpha: 0.55),
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Grid of dots, 7 columns, one per day
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 6,
+            crossAxisSpacing: 6,
+            childAspectRatio: 1,
+          ),
+          itemCount: weeks * 7,
+          itemBuilder: (context, i) {
+            final date = start.add(Duration(days: i));
+            final iso = date.toIso8601String().substring(0, 10);
+            final completed = streak.completedDates.contains(iso);
+            final isToday = iso == streak.today;
+            return Container(
+              decoration: BoxDecoration(
+                color: completed
+                    ? colors.accent.withValues(alpha: isToday ? 0.95 : 0.7)
+                    : colors.bodyText.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(4),
+                border: isToday
+                    ? Border.all(color: colors.accent, width: 1.5)
                     : null,
               ),
-            ),
-            const SizedBox(width: 8),
-            // Delete
-            GestureDetector(
-              onTap: onDelete,
-              child: Icon(
-                Icons.close,
-                color: c.bodyText.withValues(alpha: 0.25),
-                size: 18,
-              ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
+      ],
     );
   }
 }
