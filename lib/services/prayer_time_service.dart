@@ -53,6 +53,23 @@ class PrayerTimeService {
       '&longitude=$longitude'
       '&method=$method',
     );
+    // Same retry pattern as fetchPrayerTimes so a transient blip doesn't
+    // silently kill the widget pre-fetch.
+    const delays = [Duration.zero, Duration(seconds: 1), Duration(seconds: 2), Duration(seconds: 4)];
+    PrayerTimeServiceException? lastError;
+    for (final delay in delays) {
+      if (delay > Duration.zero) await Future.delayed(delay);
+      try {
+        return await _fetchMonthOnce(uri);
+      } on PrayerTimeServiceException catch (e) {
+        lastError = e;
+        if (!_isTransient(e.message)) rethrow;
+      }
+    }
+    throw lastError!;
+  }
+
+  Future<List<PrayerTimesResponse>> _fetchMonthOnce(Uri uri) async {
     final http.Response response;
     try {
       response = await http.get(uri).timeout(const Duration(seconds: 25));

@@ -42,6 +42,14 @@ void main() async {
   const MethodChannel('fajr.adhan').setMethodCallHandler((call) async {
     if (call.method == 'play') {
       final assetPath = call.arguments as String? ?? 'assets/audio/adhan_rabeh_ibn_darah.mp3';
+      // Defensively pause any active Quran recitation through its handler
+      // so the audio session state stays consistent. The handler's
+      // interruption listener may or may not fire, but doing this
+      // explicitly avoids the "Quran stuck in a weird state after adhan"
+      // edge case.
+      try {
+        await audioHandler.pause();
+      } catch (_) {}
       await _adhanPlayer.stop();
       await _adhanPlayer.setAsset(assetPath);
       await _adhanPlayer.play();
