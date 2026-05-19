@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -19,6 +20,13 @@ void main() async {
   tz.initializeTimeZones();
   await initializeDateFormatting();
   await NotificationService.initialize();
+
+  // Configure as a music app — playback category, no special options.
+  // Custom flags like `duckOthers` interfere with iOS's now-playing
+  // integration, which is what surfaces the Control Center / lock-screen
+  // controls. The .music() preset is what Apple expects for a media app.
+  final session = await AudioSession.instance;
+  await session.configure(const AudioSessionConfiguration.music());
 
   audioHandler = await AudioService.init(
     builder: () => QuranAudioHandler(),

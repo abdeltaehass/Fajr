@@ -23,7 +23,8 @@ class SurahScreen extends StatefulWidget {
   State<SurahScreen> createState() => _SurahScreenState();
 }
 
-class _SurahScreenState extends State<SurahScreen> {
+class _SurahScreenState extends State<SurahScreen>
+    with WidgetsBindingObserver {
   bool _isLoading = true;
   String? _error;
   SurahContent? _content;
@@ -42,12 +43,23 @@ class _SurahScreenState extends State<SurahScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _psSub = audioHandler.playbackState.listen((ps) {
       if (mounted) setState(() => _playbackState = ps);
     });
     _miSub = audioHandler.mediaItem.listen((mi) {
       if (mounted) setState(() => _currentMediaItem = mi);
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // If the player silently stalled while we were in the background
+    // (iOS suspended the Dart isolate so watchdogs couldn't fire), try
+    // to resume playback on resume rather than leaving the user stuck.
+    if (state == AppLifecycleState.resumed) {
+      audioHandler.resumeIfStalled();
+    }
   }
 
   @override
@@ -62,6 +74,7 @@ class _SurahScreenState extends State<SurahScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _psSub.cancel();
     _miSub.cancel();
     super.dispose();
