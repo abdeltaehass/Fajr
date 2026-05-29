@@ -128,12 +128,15 @@ class _SurahScreenState extends State<SurahScreen>
     final urls = _content!.ayahs
         .map((a) => '$_cdnVerseBase/$id/${a.globalNumber}.mp3')
         .toList();
+    final total = _content!.ayahs.length;
     final items = _content!.ayahs.asMap().entries.map((e) {
       return MediaItem(
         id: 'surah_${widget.surahInfo.number}_verse_${e.value.number}',
-        title: widget.surahInfo.name,
+        // Title that iOS reads as the "song name" — pair the surah with the
+        // current ayah so the lock-screen banner makes sense at a glance.
+        title: '${widget.surahInfo.name} — Verse ${e.value.number} of $total',
         artist: reciterName,
-        album: 'Verse ${e.value.number}',
+        album: widget.surahInfo.meaning,
         extras: {
           'verseNumber': e.value.number,
           'surahIndex': e.key,

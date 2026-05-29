@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_keys.dart';
 import '../models/masjid.dart';
+import '../utils/request_deduper.dart';
 
 class MasjidService {
   static const String _baseUrl = 'https://places.googleapis.com/v1';
@@ -15,6 +16,11 @@ class MasjidService {
   };
 
   static const Duration _cacheTtl = Duration(days: 7);
+
+  // Coalesces concurrent in-flight requests so rapid screen-switching
+  // doesn't fan out into duplicate billable Places API calls.
+  final RequestDeduper<List<Masjid>> _searchDeduper = RequestDeduper();
+  final RequestDeduper<Masjid> _detailsDeduper = RequestDeduper();
 
   // Round to nearest 0.25° ≈ 28 km grid, matching the 30 km location threshold
   static String _nearbyKey(double lat, double lng) {
@@ -36,6 +42,24 @@ class MasjidService {
     final cached = _loadListFromCache(prefs, cacheKey);
     if (cached != null) return cached;
 
+    return _searchDeduper.run(
+      cacheKey,
+      () => _doSearchNearbyMasjids(
+        latitude: latitude,
+        longitude: longitude,
+        radiusMeters: radiusMeters,
+        cacheKey: cacheKey,
+      ),
+    );
+  }
+
+  Future<List<Masjid>> _doSearchNearbyMasjids({
+    required double latitude,
+    required double longitude,
+    required int radiusMeters,
+    required String cacheKey,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
     final uri = Uri.parse('$_baseUrl/places:searchNearby');
     final body = jsonEncode({
       'includedTypes': ['mosque'],
@@ -101,6 +125,11 @@ class MasjidService {
     final cached = _loadMasjidFromCache(prefs, cacheKey);
     if (cached != null) return cached;
 
+    return _detailsDeduper.run(cacheKey, () => _doGetMasjidDetails(masjid, cacheKey));
+  }
+
+  Future<Masjid> _doGetMasjidDetails(Masjid masjid, String cacheKey) async {
+    final prefs = await SharedPreferences.getInstance();
     final uri = Uri.parse('$_baseUrl/places/${masjid.placeId}');
     final http.Response detailResponse;
     try {

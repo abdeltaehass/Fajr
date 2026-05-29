@@ -48,8 +48,23 @@ class QuranAudioHandler extends BaseAudioHandler {
       _scheduleStuckCheck();
       if (index != null) {
         final q = queue.value;
-        if (index < q.length) mediaItem.add(q[index]);
+        if (index < q.length) {
+          // Publish the new ayah's MediaItem. Duration is unknown at this
+          // point — the durationStream listener will republish with
+          // duration filled in once the ayah finishes loading.
+          mediaItem.add(q[index]);
+        }
       }
+    });
+    // When the player learns the current ayah's duration, republish the
+    // MediaItem with the duration set so iOS shows a scrub bar on the lock
+    // screen / Control Center.
+    _player.durationStream.listen((duration) {
+      if (duration == null) return;
+      final current = mediaItem.value;
+      if (current == null) return;
+      if (current.duration == duration) return;
+      mediaItem.add(current.copyWith(duration: duration));
     });
     _player.positionStream.listen((pos) {
       if (pos != _lastPosition) {

@@ -28,6 +28,20 @@ class Ayah {
     required this.arabic,
     required this.translation,
   });
+
+  Map<String, dynamic> toJson() => {
+        'n': number,
+        'g': globalNumber,
+        'a': arabic,
+        't': translation,
+      };
+
+  factory Ayah.fromJson(Map<String, dynamic> json) => Ayah(
+        number: json['n'] as int,
+        globalNumber: json['g'] as int,
+        arabic: json['a'] as String,
+        translation: json['t'] as String,
+      );
 }
 
 class SurahContent {

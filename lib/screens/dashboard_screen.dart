@@ -11,6 +11,7 @@ import '../models/prayer_times.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_time_service.dart';
+import '../utils/rate_limiter.dart';
 import '../widgets/crescent_decoration.dart';
 import '../widgets/hijri_date_header.dart';
 import '../widgets/islamic_ornament.dart';
@@ -52,6 +53,10 @@ class _DashboardScreenState extends State<DashboardScreen>
   static const _cacheKey = 'cachedPrayerTimes';
   static const _widgetChannel = MethodChannel('fajr.widget');
   static const _liveChannel = MethodChannel('fajr.live_activity');
+
+  // Throttles pull-to-refresh so the user can't spam Aladhan from one device.
+  final RateLimiter _refreshLimiter = RateLimiter();
+  static const Duration _minRefreshInterval = Duration(seconds: 15);
 
   // Called on launch — if the device rebooted and cleared scheduled notifications,
   // the background fetch handler in AppDelegate sets a flag. We pick it up here
@@ -140,6 +145,13 @@ class _DashboardScreenState extends State<DashboardScreen>
   // The Swift widget uses these to build a longer timeline so it stays
   // accurate even if iOS doesn't run the app for several days.
   Future<void> _prefetchWeekAhead(double lat, double lng, int method) async {
+    // Throttle: at most one calendar fetch per hour. Today's prayer-time
+    // fetch is already gated by the same-day cache; this guard prevents
+    // rapid app foreground/background cycles from re-fetching the whole
+    // month repeatedly.
+    if (!_refreshLimiter.tryAcquire('prefetch_week', const Duration(hours: 1))) {
+      return;
+    }
     try {
       final now = DateTime.now();
       final months = <int, List<PrayerTimesResponse>>{};
@@ -206,11 +218,24 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   int _lastPrayerMethod = -1;
   bool? _lastLiveActivity;
+  Timer? _rescheduleDebounce;
 
   void _onSettingsChanged() {
     final settings = context.settings;
     final pt = _prayerTimes;
-    if (pt != null) _scheduleNotifications(pt);
+
+    // Debounce notification rescheduling — multiple toggles in the
+    // settings sheet would otherwise fire _scheduleNotifications once per
+    // toggle. Coalesce into a single call 400 ms after the last change.
+    if (pt != null) {
+      _rescheduleDebounce?.cancel();
+      _rescheduleDebounce = Timer(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        final latest = _prayerTimes;
+        if (latest != null) _scheduleNotifications(latest);
+      });
+    }
+
     if (_lastPrayerMethod != -1 && settings.prayerMethod != _lastPrayerMethod) {
       _lastPrayerMethod = settings.prayerMethod;
       _loadPrayerTimes();
@@ -230,6 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     _settingsListener?.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     _countdownTimer?.cancel();
+    _rescheduleDebounce?.cancel();
     super.dispose();
   }
 
@@ -629,6 +655,11 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     return RefreshIndicator(
       onRefresh: () async {
+        // Throttle: silently no-op if user pulled within the last 15 s.
+        // RefreshIndicator still animates and dismisses on its own.
+        if (!_refreshLimiter.tryAcquire('dashboard_refresh', _minRefreshInterval)) {
+          return;
+        }
         final prefs = await SharedPreferences.getInstance();
         final today = DateTime.now().toIso8601String().substring(0, 10);
         await _fetchFresh(prefs, today);

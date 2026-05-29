@@ -374,6 +374,14 @@ struct FajrLargeView: View {
         let upcoming = data.allPrayers.filter { $0.epoch > 0 && $0.date > reference }
         let next = upcoming.first ?? data.allPrayers.first
 
+        // The data store now holds up to 7 days of prayers (for the timeline).
+        // The large widget should only list TODAY's prayers — take the 6 that
+        // fall on the same calendar day as the reference date.
+        let cal = Calendar.current
+        let todaysPrayers = data.allPrayers.filter {
+            $0.epoch > 0 && cal.isDate($0.date, inSameDayAs: reference)
+        }
+
         let day = Calendar.current.component(.day, from: reference)
         let monthName = DateFormatter().monthSymbols[Calendar.current.component(.month, from: reference) - 1]
         let weekday = DateFormatter().weekdaySymbols[Calendar.current.component(.weekday, from: reference) - 1]
@@ -470,11 +478,11 @@ struct FajrLargeView: View {
             }
             .frame(height: 130)
 
-            // ── Prayer times grid ──
+            // ── Prayer times grid (today only) ──
             VStack(spacing: 0) {
-                let half = (data.allPrayers.count + 1) / 2
-                let left  = Array(data.allPrayers.prefix(half))
-                let right = Array(data.allPrayers.suffix(from: half))
+                let half = (todaysPrayers.count + 1) / 2
+                let left  = Array(todaysPrayers.prefix(half))
+                let right = Array(todaysPrayers.suffix(from: half))
                 let rows = max(left.count, right.count)
 
                 ForEach(0..<rows, id: \.self) { i in
@@ -485,7 +493,7 @@ struct FajrLargeView: View {
                     }
                     HStack(spacing: 0) {
                         if i < left.count {
-                            prayerCell(left[i], isNext: left[i].name == next?.name)
+                            prayerCell(left[i], isNext: left[i].epoch == next?.epoch)
                         } else {
                             Spacer().frame(maxWidth: .infinity)
                         }
@@ -495,7 +503,7 @@ struct FajrLargeView: View {
                             .frame(width: 0.5)
 
                         if i < right.count {
-                            prayerCell(right[i], isNext: right[i].name == next?.name)
+                            prayerCell(right[i], isNext: right[i].epoch == next?.epoch)
                         } else {
                             Spacer().frame(maxWidth: .infinity)
                         }
