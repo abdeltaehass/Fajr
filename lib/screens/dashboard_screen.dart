@@ -46,6 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Timer? _countdownTimer;
   double? _latitude;
   double? _longitude;
+  String? _locationName;
   AppSettings? _settingsListener;
 
   static const _cacheKey = 'cachedPrayerTimes';
@@ -252,6 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             jsonDecode(raw) as Map<String, dynamic>);
         _latitude = prefs.getDouble('cachedLat');
         _longitude = prefs.getDouble('cachedLng');
+        _locationName = prefs.getString('cachedLocationName');
         if (!mounted) return;
         setState(() {
           _prayerTimes = cached;
@@ -276,6 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               _longitude = pos.longitude;
             });
           }
+          _updateLocationName(pos.latitude, pos.longitude);
           if (movedFar) _fetchFresh(prefs, today);
         }).catchError((_) {
           // GPS failed silently — retry after 30 seconds
@@ -332,6 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       _scheduleNotifications(prayerTimes);
       _updateWidget(prayerTimes);
       _updateLiveActivity(prayerTimes);
+      _updateLocationName(position.latitude, position.longitude);
       // Fire-and-forget — pre-populates the widget's 7-day timeline
       _prefetchWeekAhead(position.latitude, position.longitude, method);
     } on LocationServiceException catch (e) {
@@ -374,6 +378,16 @@ class _DashboardScreenState extends State<DashboardScreen>
     return r * sqrt(x * x + y * y);
   }
 
+  // Resolves a human-readable "City, Country" for the given coords and caches it
+  // so users can tell which location the prayer times and Qibla are based on.
+  Future<void> _updateLocationName(double lat, double lng) async {
+    final name = await _locationService.getLocationName(lat, lng);
+    if (name == null || !mounted || name == _locationName) return;
+    setState(() => _locationName = name);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('cachedLocationName', name);
+  }
+
   Future<bool> _tryLoadCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -386,6 +400,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           jsonDecode(raw) as Map<String, dynamic>);
       _latitude = prefs.getDouble('cachedLat');
       _longitude = prefs.getDouble('cachedLng');
+      _locationName = prefs.getString('cachedLocationName');
       setState(() {
         _prayerTimes = cached;
         _isLoading = false;
@@ -679,6 +694,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               QiblaCompass(
                 latitude: _latitude!,
                 longitude: _longitude!,
+                locationName: _locationName,
               ),
             ],
             const SizedBox(height: 16),

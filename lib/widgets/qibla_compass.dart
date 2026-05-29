@@ -9,11 +9,13 @@ import '../settings/settings_provider.dart';
 class QiblaCompass extends StatefulWidget {
   final double latitude;
   final double longitude;
+  final String? locationName;
 
   const QiblaCompass({
     super.key,
     required this.latitude,
     required this.longitude,
+    this.locationName,
   });
 
   @override
@@ -129,6 +131,32 @@ class _QiblaCompassState extends State<QiblaCompass> {
               ),
             ],
           ),
+          // Shows which location the Qibla bearing is computed from, so users
+          // can confirm it updated after travelling to a new city.
+          if (widget.locationName != null &&
+              widget.locationName!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.location_on_outlined,
+                    color: c.accentLight, size: 13),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    widget.locationName!,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      color: c.accentLight,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 20),
 
           // Compass — TweenAnimationBuilder smooths between sensor samples so
