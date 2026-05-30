@@ -11,6 +11,7 @@ import '../services/location_service.dart';
 import '../services/masjid_service.dart';
 import '../services/prayer_time_service.dart';
 import '../widgets/crescent_decoration.dart';
+import '../widgets/error_view.dart';
 import 'masjid_detail_screen.dart';
 
 class MasjidScreen extends StatefulWidget {
@@ -159,41 +160,10 @@ class _MasjidScreenState extends State<MasjidScreen> {
   }
 
   Widget _buildErrorState() {
-    final c = context.colors;
-    final s = context.strings;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.mosque_outlined, size: 64, color: c.accentLight),
-            const SizedBox(height: 16),
-            Text(
-              _errorMessage!,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadMasjids,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: c.accent,
-                foregroundColor: c.scaffold,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                s.retry,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ErrorView(
+      message: _errorMessage!,
+      icon: Icons.mosque_outlined,
+      onRetry: _loadMasjids,
     );
   }
 

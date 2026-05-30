@@ -8,6 +8,7 @@ import '../main.dart';
 import '../models/quran_models.dart';
 import '../services/quran_service.dart';
 import '../settings/settings_provider.dart';
+import '../widgets/error_view.dart';
 
 class SurahScreen extends StatefulWidget {
   final SurahInfo surahInfo;
@@ -519,40 +520,10 @@ class _SurahScreenState extends State<SurahScreen>
   }
 
   Widget _buildError(dynamic c, dynamic s, Color textColor) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.wifi_off_rounded, size: 56, color: c.accentLight),
-            const SizedBox(height: 16),
-            Text(
-              s.couldNotLoadSurah,
-              style: GoogleFonts.poppins(
-                fontSize: 15,
-                color: textColor.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadSurah,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: c.accent,
-                foregroundColor: c.scaffold,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(s.retry,
-                  style:
-                      GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-            ),
-          ],
-        ),
-      ),
+    return ErrorView(
+      message: s.couldNotLoadSurah,
+      icon: Icons.wifi_off_rounded,
+      onRetry: _loadSurah,
     );
   }
 

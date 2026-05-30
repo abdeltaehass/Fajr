@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/prayer_times.dart';
 
@@ -31,7 +32,7 @@ class PrayerTimeService {
         return await _fetchOnce(uri);
       } on PrayerTimeServiceException catch (e) {
         lastError = e;
-        if (!_isTransient(e.message)) rethrow;
+        if (!e.transient) rethrow;
       }
     }
     throw lastError!;
@@ -63,7 +64,7 @@ class PrayerTimeService {
         return await _fetchMonthOnce(uri);
       } on PrayerTimeServiceException catch (e) {
         lastError = e;
-        if (!_isTransient(e.message)) rethrow;
+        if (!e.transient) rethrow;
       }
     }
     throw lastError!;
@@ -74,16 +75,18 @@ class PrayerTimeService {
     try {
       response = await http.get(uri).timeout(const Duration(seconds: 25));
     } on TimeoutException {
-      throw PrayerTimeServiceException('503');
+      throw PrayerTimeServiceException.network();
     } on SocketException {
-      throw PrayerTimeServiceException('503');
+      throw PrayerTimeServiceException.network();
     }
     if (response.statusCode != 200) {
-      throw PrayerTimeServiceException('API returned status ${response.statusCode}');
+      debugPrint('PrayerTimeService fetchMonth ${response.statusCode}: ${response.body}');
+      throw PrayerTimeServiceException.fromStatus(response.statusCode);
     }
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     if (json['code'] != 200 || json['status'] != 'OK') {
-      throw PrayerTimeServiceException('API error: ${json['status']}');
+      debugPrint('PrayerTimeService fetchMonth API status: ${json['status']}');
+      throw PrayerTimeServiceException.apiError();
     }
     final data = json['data'] as List<dynamic>;
     return data
@@ -91,32 +94,26 @@ class PrayerTimeService {
         .toList();
   }
 
-  bool _isTransient(String message) =>
-      message == '503' ||
-      message.contains('502') ||
-      message.contains('504') ||
-      message.contains('500');
-
   Future<PrayerTimesResponse> _fetchOnce(Uri uri) async {
     final http.Response response;
     try {
       response = await http.get(uri).timeout(const Duration(seconds: 15));
     } on TimeoutException {
-      throw PrayerTimeServiceException('503');
+      throw PrayerTimeServiceException.network();
     } on SocketException {
-      throw PrayerTimeServiceException('503');
+      throw PrayerTimeServiceException.network();
     }
 
     if (response.statusCode != 200) {
-      throw PrayerTimeServiceException(
-        'API returned status ${response.statusCode}',
-      );
+      debugPrint('PrayerTimeService fetch ${response.statusCode}: ${response.body}');
+      throw PrayerTimeServiceException.fromStatus(response.statusCode);
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
 
     if (json['code'] != 200 || json['status'] != 'OK') {
-      throw PrayerTimeServiceException('API error: ${json['status']}');
+      debugPrint('PrayerTimeService fetch API status: ${json['status']}');
+      throw PrayerTimeServiceException.apiError();
     }
 
     return PrayerTimesResponse.fromJson(json);
@@ -125,7 +122,33 @@ class PrayerTimeService {
 
 class PrayerTimeServiceException implements Exception {
   final String message;
-  PrayerTimeServiceException(this.message);
+  /// True when retrying might help (timeout, socket error, 5xx). Drives the
+  /// service's internal retry loop and the dashboard's "service unavailable"
+  /// UI vs. generic error UI.
+  final bool transient;
+
+  PrayerTimeServiceException(this.message, {this.transient = false});
+
+  /// Connectivity or timeout — almost always recovers on retry.
+  factory PrayerTimeServiceException.network() =>
+      PrayerTimeServiceException(
+        "Couldn't reach the prayer times service. Please check your connection.",
+        transient: true,
+      );
+
+  /// HTTP error from the upstream API. 5xx is treated as transient.
+  factory PrayerTimeServiceException.fromStatus(int code) =>
+      PrayerTimeServiceException(
+        code >= 500
+            ? 'Prayer times service is temporarily unavailable.'
+            : "Couldn't load prayer times. Please try again later.",
+        transient: code >= 500,
+      );
+
+  /// The API returned a 200 but the response payload signals an error.
+  factory PrayerTimeServiceException.apiError() => PrayerTimeServiceException(
+        "Couldn't load prayer times. Please try again later.",
+      );
 
   @override
   String toString() => message;

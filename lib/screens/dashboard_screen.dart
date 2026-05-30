@@ -13,6 +13,7 @@ import '../services/notification_service.dart';
 import '../services/prayer_time_service.dart';
 import '../utils/rate_limiter.dart';
 import '../widgets/crescent_decoration.dart';
+import '../widgets/error_view.dart';
 import '../widgets/hijri_date_header.dart';
 import '../widgets/islamic_ornament.dart';
 import '../widgets/next_prayer_banner.dart';
@@ -374,14 +375,12 @@ class _DashboardScreenState extends State<DashboardScreen>
     } on PrayerTimeServiceException catch (e) {
       if (!mounted) return;
       if (await _tryLoadCache()) return;
-      final isServerError =
-          e.message.contains('503') || e.message.contains('502');
       setState(() {
         _isLoading = false;
-        _isServerUnavailable = isServerError;
-        _errorMessage = isServerError ? null : e.message;
+        _isServerUnavailable = e.transient;
+        _errorMessage = e.transient ? null : e.message;
       });
-      if (isServerError) {
+      if (e.transient) {
         await Future.delayed(const Duration(seconds: 5));
         if (mounted) _loadPrayerTimes();
       }
@@ -545,48 +544,14 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildErrorState() {
-    final c = context.colors;
     final s = context.strings;
     final errorText = _isServerUnavailable
         ? s.serviceUnavailable
         : (_isGenericError ? s.somethingWentWrong : _errorMessage ?? '');
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.location_off,
-              size: 64,
-              color: c.accentLight,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              errorText,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadPrayerTimes,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: c.accent,
-                foregroundColor: c.scaffold,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                context.strings.retry,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ErrorView(
+      message: errorText,
+      icon: Icons.location_off,
+      onRetry: _loadPrayerTimes,
     );
   }
 

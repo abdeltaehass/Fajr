@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/surah_list.dart';
@@ -103,18 +104,28 @@ class QuranService {
     try {
       response = await http.get(uri).timeout(const Duration(seconds: 15));
     } on TimeoutException {
-      throw QuranServiceException('Request timeout');
+      throw QuranServiceException(
+        "Couldn't reach the Quran service. Please check your connection.",
+      );
     } on SocketException {
-      throw QuranServiceException('Network unavailable');
+      throw QuranServiceException(
+        "Couldn't reach the Quran service. Please check your connection.",
+      );
     }
 
     if (response.statusCode != 200) {
-      throw QuranServiceException('API returned status ${response.statusCode}');
+      debugPrint('QuranService ${response.statusCode}: ${response.body}');
+      throw QuranServiceException(
+        "Couldn't load the Quran right now. Please try again later.",
+      );
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     if (json['code'] != 200) {
-      throw QuranServiceException('Quran API error: ${json['status']}');
+      debugPrint('QuranService API status: ${json['status']}');
+      throw QuranServiceException(
+        "Couldn't load the Quran right now. Please try again later.",
+      );
     }
 
     final data = json['data'] as List<dynamic>;
