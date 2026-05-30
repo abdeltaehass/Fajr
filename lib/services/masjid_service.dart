@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_keys.dart';
@@ -95,8 +96,11 @@ class MasjidService {
     }
 
     if (response.statusCode != 200) {
+      debugPrint(
+        'MasjidService searchNearby ${response.statusCode}: ${response.body}',
+      );
       throw MasjidServiceException(
-        'API ${response.statusCode}: ${response.body}',
+        "Couldn't load nearby masjids. Please try again later.",
       );
     }
 
@@ -148,8 +152,11 @@ class MasjidService {
     }
 
     if (detailResponse.statusCode != 200) {
+      debugPrint(
+        'MasjidService details ${detailResponse.statusCode}: ${detailResponse.body}',
+      );
       throw MasjidServiceException(
-        'API returned status ${detailResponse.statusCode}',
+        "Couldn't load masjid details. Please try again later.",
       );
     }
 
