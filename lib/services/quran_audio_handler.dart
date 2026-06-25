@@ -169,21 +169,28 @@ class QuranAudioHandler extends BaseAudioHandler {
       await session.setActive(true);
     } catch (_) {}
 
-    final source = ConcatenatingAudioSource(
-      // Eager prep on short/medium surahs — short = whole Juz Amma fits — kills
-      // the between-ayah pauses users perceive as "freezes." Long surahs stay
-      // lazy so we don't blast hundreds of parallel requests at the start.
-      useLazyPreparation: urls.length > _eagerLoadThreshold,
-      children: urls.map((url) => AudioSource.uri(Uri.parse(url))).toList(),
-    );
+    // Eager prep on short/medium surahs — short = whole Juz Amma fits — kills
+    // the between-ayah pauses users perceive as "freezes." Long surahs stay
+    // lazy so we don't blast hundreds of parallel requests at the start.
+    final lazyPrep = urls.length > _eagerLoadThreshold;
+    final sources =
+        urls.map((url) => AudioSource.uri(Uri.parse(url))).toList();
     try {
-      await _player.setAudioSource(source, initialIndex: startIndex);
+      await _player.setAudioSources(
+        sources,
+        initialIndex: startIndex,
+        preload: !lazyPrep,
+      );
     } catch (_) {
       // Source-setup failure — try once more with a fresh queue so a stuck
       // initial ayah doesn't permanently block playback.
       if (startIndex + 1 < urls.length) {
         try {
-          await _player.setAudioSource(source, initialIndex: startIndex + 1);
+          await _player.setAudioSources(
+            sources,
+            initialIndex: startIndex + 1,
+            preload: !lazyPrep,
+          );
         } catch (_) {
           return;
         }

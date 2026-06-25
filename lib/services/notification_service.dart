@@ -22,7 +22,7 @@ class NotificationService {
       requestSoundPermission: false,
     );
     const settings = InitializationSettings(iOS: iosSettings);
-    await _plugin.initialize(settings);
+    await _plugin.initialize(settings: settings);
   }
 
   static Future<bool> requestPermissions() async {
@@ -41,7 +41,7 @@ class NotificationService {
   // Cancel only prayer notification IDs (0–59), leaving athkar IDs intact
   static Future<void> _cancelPrayerNotifications() async {
     for (int i = 0; i < 60; i++) {
-      await _plugin.cancel(i);
+      await _plugin.cancel(id: i);
     }
   }
 
@@ -102,8 +102,8 @@ class NotificationService {
     required bool sunriseEnabled,
     required bool tahajjudEnabled,
   }) async {
-    await _plugin.cancel(100);
-    await _plugin.cancel(101);
+    await _plugin.cancel(id: 100);
+    await _plugin.cancel(id: 101);
 
     final now = DateTime.now();
 
@@ -139,7 +139,7 @@ class NotificationService {
   }) async {
     // Athkar use IDs 200–203
     for (int i = 200; i <= 203; i++) {
-      await _plugin.cancel(i);
+      await _plugin.cancel(id: i);
     }
 
     const configs = [
@@ -175,19 +175,18 @@ class NotificationService {
     final tzScheduled =
         tz.TZDateTime(tz.UTC, utc.year, utc.month, utc.day, utc.hour, utc.minute);
     await _plugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tzScheduled,
-      const NotificationDetails(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: tzScheduled,
+      notificationDetails: const NotificationDetails(
         iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: false,
           presentSound: true,
         ),
       ),
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
@@ -217,13 +216,12 @@ class NotificationService {
             presentSound: true,
           );
     await _plugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tzAt,
-      NotificationDetails(iOS: iosDetails),
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: tzAt,
+      notificationDetails: NotificationDetails(iOS: iosDetails),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
