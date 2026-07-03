@@ -114,7 +114,9 @@ class QuranService {
     }
 
     if (response.statusCode != 200) {
-      debugPrint('QuranService ${response.statusCode}: ${response.body}');
+      if (kDebugMode) {
+        debugPrint('QuranService ${response.statusCode}: ${response.body}');
+      }
       throw QuranServiceException(
         "Couldn't load the Quran right now. Please try again later.",
       );

@@ -91,7 +91,7 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
               final uri = Uri.parse(
                 'https://www.google.com/maps/dir/?api=1'
                 '&destination=$lat,$lng'
-                '&destination_place_id=${_masjid.placeId}',
+                '&destination_place_id=${Uri.encodeComponent(_masjid.placeId)}',
               );
               if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
             },
@@ -108,16 +108,27 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
   }
 
   Future<void> _callPhone() async {
-    if (_masjid.phoneNumber == null) return;
-    final uri = Uri.parse('tel:${_masjid.phoneNumber}');
+    final phone = _masjid.phoneNumber;
+    if (phone == null) return;
+    // Strip everything except digits, +, *, # so a malformed API value
+    // can't smuggle a different scheme or URL syntax into the dialer.
+    final sanitized = phone.replaceAll(RegExp(r'[^0-9+*#]'), '');
+    if (sanitized.isEmpty) return;
+    final uri = Uri(scheme: 'tel', path: sanitized);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     }
   }
 
   Future<void> _openWebsite() async {
-    if (_masjid.website == null) return;
-    final uri = Uri.parse(_masjid.website!);
+    final website = _masjid.website;
+    if (website == null) return;
+    // The website value comes from a remote API — only ever open real web
+    // URLs, never custom schemes (tel:, file:, other apps' deep links).
+    final uri = Uri.tryParse(website);
+    if (uri == null || !(uri.scheme == 'https' || uri.scheme == 'http')) {
+      return;
+    }
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
@@ -598,7 +609,7 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                             _masjid.photoReferences.first,
                             maxWidth: 800,
                           ),
-                          headers: const {'X-Ios-Bundle-Identifier': 'com.fajr.fajr'},
+                          headers: MasjidService.photoHeaders,
                           fit: BoxFit.cover,
                           cacheWidth: 800,
                           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {

@@ -80,7 +80,9 @@ class PrayerTimeService {
       throw PrayerTimeServiceException.network();
     }
     if (response.statusCode != 200) {
-      debugPrint('PrayerTimeService fetchMonth ${response.statusCode}: ${response.body}');
+      if (kDebugMode) {
+        debugPrint('PrayerTimeService fetchMonth ${response.statusCode}: ${response.body}');
+      }
       throw PrayerTimeServiceException.fromStatus(response.statusCode);
     }
     final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -105,7 +107,9 @@ class PrayerTimeService {
     }
 
     if (response.statusCode != 200) {
-      debugPrint('PrayerTimeService fetch ${response.statusCode}: ${response.body}');
+      if (kDebugMode) {
+        debugPrint('PrayerTimeService fetch ${response.statusCode}: ${response.body}');
+      }
       throw PrayerTimeServiceException.fromStatus(response.statusCode);
     }
 

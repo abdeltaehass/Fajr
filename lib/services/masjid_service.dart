@@ -96,9 +96,11 @@ class MasjidService {
     }
 
     if (response.statusCode != 200) {
-      debugPrint(
-        'MasjidService searchNearby ${response.statusCode}: ${response.body}',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'MasjidService searchNearby ${response.statusCode}: ${response.body}',
+        );
+      }
       throw MasjidServiceException(
         "Couldn't load nearby masjids. Please try again later.",
       );
@@ -134,7 +136,8 @@ class MasjidService {
 
   Future<Masjid> _doGetMasjidDetails(Masjid masjid, String cacheKey) async {
     final prefs = await SharedPreferences.getInstance();
-    final uri = Uri.parse('$_baseUrl/places/${masjid.placeId}');
+    final uri =
+        Uri.parse('$_baseUrl/places/${Uri.encodeComponent(masjid.placeId)}');
     final http.Response detailResponse;
     try {
       detailResponse = await http.get(
@@ -152,9 +155,11 @@ class MasjidService {
     }
 
     if (detailResponse.statusCode != 200) {
-      debugPrint(
-        'MasjidService details ${detailResponse.statusCode}: ${detailResponse.body}',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'MasjidService details ${detailResponse.statusCode}: ${detailResponse.body}',
+        );
+      }
       throw MasjidServiceException(
         "Couldn't load masjid details. Please try again later.",
       );
@@ -180,10 +185,13 @@ class MasjidService {
   }
 
   String getPhotoUrl(String photoName, {int maxWidth = 400}) {
-    return '$_baseUrl/$photoName/media'
-        '?maxWidthPx=$maxWidth'
-        '&key=${ApiKeys.googlePlaces}';
+    // No key in the URL — photo requests authenticate via [photoHeaders]
+    // so the key never lands in image caches, logs, or proxies.
+    return '$_baseUrl/$photoName/media?maxWidthPx=$maxWidth';
   }
+
+  /// Headers required when fetching photo media directly (Image.network).
+  static const Map<String, String> photoHeaders = _baseHeaders;
 
   // ── Cache helpers ──────────────────────────────────────────────────────────
 
