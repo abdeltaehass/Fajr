@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_provider.dart';
 import '../models/prayer_times.dart';
+import '../services/location_cache.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/prayer_time_service.dart';
@@ -278,9 +279,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       try {
         final cached = PrayerTimesResponse.fromCached(
             jsonDecode(raw) as Map<String, dynamic>);
-        _latitude = prefs.getDouble('cachedLat');
-        _longitude = prefs.getDouble('cachedLng');
-        _locationName = prefs.getString('cachedLocationName');
+        final coords = await LocationCache.readCoords();
+        _latitude = coords?.$1;
+        _longitude = coords?.$2;
+        _locationName = await LocationCache.readName();
         if (!mounted) return;
         setState(() {
           _prayerTimes = cached;
@@ -348,8 +350,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       await Future.wait([
         prefs.setString(_cacheKey, jsonEncode(prayerTimes.toJson())),
         prefs.setString('cachedDate', today),
-        prefs.setDouble('cachedLat', position.latitude),
-        prefs.setDouble('cachedLng', position.longitude),
+        LocationCache.writeCoords(position.latitude, position.longitude),
       ]);
 
       setState(() {
@@ -409,8 +410,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     final name = await _locationService.getLocationName(lat, lng);
     if (name == null || !mounted || name == _locationName) return;
     setState(() => _locationName = name);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('cachedLocationName', name);
+    await LocationCache.writeName(name);
   }
 
   Future<bool> _tryLoadCache() async {
@@ -423,9 +423,11 @@ class _DashboardScreenState extends State<DashboardScreen>
       if (cachedDate != today) return false;
       final cached = PrayerTimesResponse.fromCached(
           jsonDecode(raw) as Map<String, dynamic>);
-      _latitude = prefs.getDouble('cachedLat');
-      _longitude = prefs.getDouble('cachedLng');
-      _locationName = prefs.getString('cachedLocationName');
+      final coords = await LocationCache.readCoords();
+      _latitude = coords?.$1;
+      _longitude = coords?.$2;
+      _locationName = await LocationCache.readName();
+      if (!mounted) return false;
       setState(() {
         _prayerTimes = cached;
         _isLoading = false;

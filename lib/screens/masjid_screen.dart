@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,6 +6,7 @@ import '../config/api_keys.dart';
 import '../settings/settings_provider.dart';
 import '../models/masjid.dart';
 import '../models/prayer_times.dart';
+import '../services/location_cache.dart';
 import '../services/location_service.dart';
 import '../services/masjid_service.dart';
 import '../services/prayer_time_service.dart';
@@ -62,11 +62,11 @@ class _MasjidScreenState extends State<MasjidScreen> {
       // Use GPS coords already cached by the dashboard to avoid competing
       // GPS requests. Fall back to a live fix only if nothing is stored yet.
       double? lat, lng;
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        lat = prefs.getDouble('cachedLat');
-        lng = prefs.getDouble('cachedLng');
-      } catch (_) {}
+      final cached = await LocationCache.readCoords();
+      if (cached != null) {
+        lat = cached.$1;
+        lng = cached.$2;
+      }
 
       if (lat == null || lng == null) {
         final position = await _locationService.getCurrentPosition();

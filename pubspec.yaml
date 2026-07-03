@@ -17,6 +17,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_compass: ^0.8.1
   shared_preferences: ^2.3.0
+  flutter_secure_storage: ^9.2.2
   url_launcher: ^6.2.5
   audio_service: ^0.18.15
   just_audio: ^0.10.0
