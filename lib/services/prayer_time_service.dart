@@ -8,6 +8,11 @@ import '../models/prayer_times.dart';
 class PrayerTimeService {
   static const String _baseUrl = 'https://api.aladhan.com/v1';
 
+  // Prayer times only vary at neighbourhood scale, so send coordinates
+  // rounded to ~1 km rather than the user's exact GPS position — the
+  // third-party API learns less about where the user actually is.
+  static double _coarse(double v) => (v * 100).roundToDouble() / 100;
+
   Future<PrayerTimesResponse> fetchPrayerTimes({
     required double latitude,
     required double longitude,
@@ -17,8 +22,8 @@ class PrayerTimeService {
 
     final uri = Uri.parse(
       '$_baseUrl/timings/$timestamp'
-      '?latitude=$latitude'
-      '&longitude=$longitude'
+      '?latitude=${_coarse(latitude)}'
+      '&longitude=${_coarse(longitude)}'
       '&method=$method',
     );
 
@@ -50,8 +55,8 @@ class PrayerTimeService {
   }) async {
     final uri = Uri.parse(
       '$_baseUrl/calendar/$year/$month'
-      '?latitude=$latitude'
-      '&longitude=$longitude'
+      '?latitude=${_coarse(latitude)}'
+      '&longitude=${_coarse(longitude)}'
       '&method=$method',
     );
     // Same retry pattern as fetchPrayerTimes so a transient blip doesn't
