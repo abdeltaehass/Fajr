@@ -8,6 +8,7 @@ import '../models/masjid.dart';
 import '../models/prayer_times.dart';
 import '../services/masjid_service.dart';
 import '../services/prayer_time_service.dart';
+import '../utils/safe_launcher.dart';
 import 'masjid_iqama_sheet.dart';
 
 class MasjidDetailScreen extends StatefulWidget {
@@ -107,32 +108,9 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
     );
   }
 
-  Future<void> _callPhone() async {
-    final phone = _masjid.phoneNumber;
-    if (phone == null) return;
-    // Strip everything except digits, +, *, # so a malformed API value
-    // can't smuggle a different scheme or URL syntax into the dialer.
-    final sanitized = phone.replaceAll(RegExp(r'[^0-9+*#]'), '');
-    if (sanitized.isEmpty) return;
-    final uri = Uri(scheme: 'tel', path: sanitized);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
+  Future<void> _callPhone() => SafeLauncher.dial(_masjid.phoneNumber);
 
-  Future<void> _openWebsite() async {
-    final website = _masjid.website;
-    if (website == null) return;
-    // The website value comes from a remote API — only ever open real web
-    // URLs, never custom schemes (tel:, file:, other apps' deep links).
-    final uri = Uri.tryParse(website);
-    if (uri == null || !(uri.scheme == 'https' || uri.scheme == 'http')) {
-      return;
-    }
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
+  Future<void> _openWebsite() => SafeLauncher.openWebsite(_masjid.website);
 
   bool get _isSelected =>
       context.settings.selectedMasjid?.placeId == _masjid.placeId;

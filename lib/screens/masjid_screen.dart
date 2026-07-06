@@ -9,6 +9,7 @@ import '../models/prayer_times.dart';
 import '../services/location_cache.dart';
 import '../services/location_service.dart';
 import '../services/masjid_service.dart';
+import '../utils/safe_launcher.dart';
 import '../services/prayer_time_service.dart';
 import '../widgets/crescent_decoration.dart';
 import '../widgets/error_view.dart';
@@ -649,13 +650,7 @@ class _MyMasjidCard extends StatelessWidget {
                         _QuickAction(
                           icon: Icons.phone,
                           color: Colors.green,
-                          onTap: () async {
-                            final uri =
-                                Uri.parse('tel:${masjid.phoneNumber}');
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(uri);
-                            }
-                          },
+                          onTap: () => SafeLauncher.dial(masjid.phoneNumber),
                         ),
                       ],
                       if (masjid.website != null) ...[
@@ -663,13 +658,8 @@ class _MyMasjidCard extends StatelessWidget {
                         _QuickAction(
                           icon: Icons.language,
                           color: Colors.blue,
-                          onTap: () async {
-                            final uri = Uri.parse(masjid.website!);
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(uri,
-                                  mode: LaunchMode.externalApplication);
-                            }
-                          },
+                          onTap: () =>
+                              SafeLauncher.openWebsite(masjid.website),
                         ),
                       ],
                     ],
