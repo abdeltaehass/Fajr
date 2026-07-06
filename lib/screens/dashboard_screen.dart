@@ -139,6 +139,9 @@ class _DashboardScreenState extends State<DashboardScreen>
         'hijriDay': pt.date.hijriDay,
         'hijriMonth': pt.date.hijriMonthEn,
         'hijriYear': pt.date.hijriYear,
+        // Shown on the Apple Watch app so users know which city the
+        // mirrored times belong to.
+        'locationName': _locationName ?? '',
       });
     } catch (_) {}
   }

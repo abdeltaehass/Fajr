@@ -22,6 +22,9 @@ import BackgroundTasks
       UNUserNotificationCenter.current().delegate = self
     }
 
+    // Begin mirroring prayer data to a paired Apple Watch (no-op if none).
+    WatchSessionManager.shared.start()
+
     // Register the BGAppRefreshTask handler before super.application() returns.
     if #available(iOS 13.0, *) {
       BGTaskScheduler.shared.register(
@@ -161,6 +164,8 @@ import BackgroundTasks
         if #available(iOS 14.0, *) {
           WidgetCenter.shared.reloadAllTimelines()
         }
+        // Same payload drives the Apple Watch mirror.
+        WatchSessionManager.shared.merge(args)
         result(nil)
       } else if call.method == "updateWidgetWeek" {
         // Pre-populated 7-day timeline so the widget stays accurate even when
@@ -173,6 +178,9 @@ import BackgroundTasks
           if #available(iOS 14.0, *) {
             WidgetCenter.shared.reloadAllTimelines()
           }
+          // The week timeline is what lets the watch stay accurate for days
+          // without the phone nearby.
+          WatchSessionManager.shared.merge(["weekPrayers": weekPrayers])
         }
         result(nil)
       } else {
