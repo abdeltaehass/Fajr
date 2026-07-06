@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -582,23 +583,16 @@ class _MasjidDetailScreenState extends State<MasjidDetailScreen> {
                   ? Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          widget.masjidService.getPhotoUrl(
+                        CachedNetworkImage(
+                          imageUrl: widget.masjidService.getPhotoUrl(
                             _masjid.photoReferences.first,
                             maxWidth: 800,
                           ),
-                          headers: MasjidService.photoHeaders,
+                          httpHeaders: MasjidService.photoHeaders,
                           fit: BoxFit.cover,
-                          cacheWidth: 800,
-                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                            if (wasSynchronouslyLoaded) return child;
-                            return AnimatedOpacity(
-                              opacity: frame == null ? 0 : 1,
-                              duration: const Duration(milliseconds: 300),
-                              child: child,
-                            );
-                          },
-                          errorBuilder: (_, e, st) => Container(
+                          memCacheWidth: 800,
+                          fadeInDuration: const Duration(milliseconds: 300),
+                          errorWidget: (_, url, error) => Container(
                             color: c.surface,
                             child: Icon(
                               Icons.mosque,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -362,23 +363,18 @@ class _MyMasjidCard extends StatelessWidget {
                 child: SizedBox(
                   height: 140,
                   width: double.infinity,
-                  child: Image.network(
-                    masjidService.getPhotoUrl(
+                  child: CachedNetworkImage(
+                    imageUrl: masjidService.getPhotoUrl(
                       masjid.photoReferences.first,
                       maxWidth: 600,
                     ),
-                    headers: const {'X-Ios-Bundle-Identifier': 'com.fajr.fajr'},
+                    // photoHeaders carries the API key — the old bundle-ID-only
+                    // header stopped working once the key moved out of the URL.
+                    httpHeaders: MasjidService.photoHeaders,
                     fit: BoxFit.cover,
-                    cacheWidth: 600,
-                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                      if (wasSynchronouslyLoaded) return child;
-                      return AnimatedOpacity(
-                        opacity: frame == null ? 0 : 1,
-                        duration: const Duration(milliseconds: 300),
-                        child: child,
-                      );
-                    },
-                    errorBuilder: (_, e, st) => Container(
+                    memCacheWidth: 600,
+                    fadeInDuration: const Duration(milliseconds: 300),
+                    errorWidget: (_, url, error) => Container(
                       color: c.surface,
                       child: Center(
                         child: Icon(Icons.mosque, size: 48,
