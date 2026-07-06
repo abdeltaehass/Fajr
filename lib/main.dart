@@ -15,20 +15,15 @@ import 'services/quran_audio_handler.dart';
 late QuranAudioHandler audioHandler;
 final _adhanPlayer = AudioPlayer();
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  tz.initializeTimeZones();
-  await initializeDateFormatting();
-  await NotificationService.initialize();
-
-  // Configure as a music app — playback category, no special options.
-  // Custom flags like `duckOthers` interfere with iOS's now-playing
-  // integration, which is what surfaces the Control Center / lock-screen
-  // controls. The .music() preset is what Apple expects for a media app.
+// Configure as a music app — playback category, no special options.
+// Custom flags like `duckOthers` interfere with iOS's now-playing
+// integration, which is what surfaces the Control Center / lock-screen
+// controls. The .music() preset is what Apple expects for a media app.
+Future<QuranAudioHandler> _initAudio() async {
   final session = await AudioSession.instance;
   await session.configure(const AudioSessionConfiguration.music());
 
-  audioHandler = await AudioService.init(
+  return AudioService.init(
     builder: () => QuranAudioHandler(),
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.fajr.fajr.quran',
@@ -37,6 +32,22 @@ void main() async {
       androidStopForegroundOnPause: true,
     ),
   );
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+
+  // These four don't depend on each other, so overlap their platform-channel
+  // round-trips instead of awaiting them one at a time — same guarantees
+  // (everything ready before the first frame), shorter cold start.
+  final results = await Future.wait<dynamic>([
+    initializeDateFormatting(),
+    NotificationService.initialize(),
+    _initAudio(),
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+  ]);
+  audioHandler = results[2] as QuranAudioHandler;
 
   // Handle adhan playback triggered by foreground notifications
   const MethodChannel('fajr.adhan').setMethodCallHandler((call) async {
@@ -57,7 +68,6 @@ void main() async {
     return null;
   });
 
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
