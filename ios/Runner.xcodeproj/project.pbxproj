@@ -7,13 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0393BEF403415A321B68BD79 /* PrayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A914EC0948F73912106AC9 /* PrayerData.swift */; };
+		05A976304BA297533549E23F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 31C8220CD77D2F9142C91E2E /* Assets.xcassets */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2D708F755D754155B185CAB8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 601DDDB43D454806ADE0F460 /* PrivacyInfo.xcprivacy */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		53F41CF0E2B30329D2394990 /* FajrWatchComplications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E3F9DAC67162CBBB18972FE /* FajrWatchComplications.swift */; };
 		57114D80CF3E4C7783F79472 /* adhan_akhdam_bnu_al_madane.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6335F6081F3B43D3ABA28B02 /* adhan_akhdam_bnu_al_madane.aiff */; };
+		57D0C5E6826A9820E8864786 /* PrayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A914EC0948F73912106AC9 /* PrayerData.swift */; };
 		6051DBFF7CEB755FAF05BE98 /* FajrWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5895F9B48887CE13F288A8B8 /* FajrWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6165302C0C65F74050A4AA10 /* FajrWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB642D4E632692E44F65AACC /* FajrWatchApp.swift */; };
+		633313AD9B15F0E8F36BA96E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF7F348295B2784F177F8B59 /* Foundation.framework */; };
 		63B142AD862050C00021DC89 /* FajrWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15027D61A9A38A01B5696527 /* FajrWidgetBundle.swift */; };
+		6621672648A8112EAA740528 /* PhoneConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5F6D5BDB0EACA0150D1FDE /* PhoneConnector.swift */; };
+		6B1B566B506D0BAEA9948EF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE8D09F8E46B32259CBFEC04 /* ContentView.swift */; };
+		6DE3658F6A700663BFB20980 /* FajrWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D5590A0881DAA1586FD90BF2 /* FajrWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		921A8FEB21EC4E5782220F34 /* adhan_ismail_al_sheikh.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A67469C9B96A47AD9A7B527F /* adhan_ismail_al_sheikh.aiff */; };
@@ -24,11 +33,13 @@
 		9DC448FE90D6482BBA77D7AA /* adhan_rabeh_ibn_darah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.aiff */; };
 		A3B0211D61234B5892A41C24 /* adhan_adham_al_sharqawe.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 9B212FB6A6D54FFA9D033B66 /* adhan_adham_al_sharqawe.aiff */; };
 		AAB0AD1F73C8EA200186273C /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AD821B6D98039AB03EFBD40 /* Pods_RunnerTests.framework */; };
+		B1387D5103E27B1E0E7165DC /* FajrWatchComplications.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B207E0DFD2D099EA1D3AB780 /* FajrWatchComplications.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D6C7546226BD6CD69B602FFB /* FajrWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BAC3F61B5F53E1A925F682 /* FajrWidget.swift */; };
 		D84C8F867AFB4B05203E26A3 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31881ECCB14A9DAC625E48BB /* WatchSessionManager.swift */; };
 		E2B8C4DAF3E5F7B9C1D3E5F7 /* PrayerLiveAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */; };
 		E3C9D5EBF4F6E8CAD2E4F6F8 /* PrayerLiveAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */; };
 		EB037FA2E035CDDFD8B377AA /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4847B9F45B3B3C202ED2F095 /* Pods_Runner.framework */; };
+		F36F56D91D2AE92A62A50E79 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF7F348295B2784F177F8B59 /* Foundation.framework */; };
 		FD9F7B7708AD49DDA3FA4053 /* adhan_ahmed_el_kourdi.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8A634744D110406BA697A651 /* adhan_ahmed_el_kourdi.aiff */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +58,20 @@
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
 		};
+		67C86414278F60D00C89B1F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E381DF5E2242A3436C624F4D;
+			remoteInfo = FajrWatchComplications;
+		};
+		714AB3FF42EF0C0E369CFF18 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 085805D246ECC72D86347E11;
+			remoteInfo = FajrWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +85,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9EB19565CEA3740502E3036E /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				6DE3658F6A700663BFB20980 /* FajrWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B08EED403B05D20BE847B75A /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -71,22 +107,41 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D75AAB2E3EE3D8D40962BE65 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B1387D5103E27B1E0E7165DC /* FajrWatchComplications.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03F1A270536C4FD0C6E55081 /* FajrWatch.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FajrWatch.entitlements; sourceTree = "<group>"; };
+		0E3F9DAC67162CBBB18972FE /* FajrWatchComplications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FajrWatchComplications.swift; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		15027D61A9A38A01B5696527 /* FajrWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FajrWidgetBundle.swift; sourceTree = "<group>"; };
+		1B7DD574B128BFD462EAA3EA /* FajrWatchComplications.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FajrWatchComplications.entitlements; sourceTree = "<group>"; };
 		2903BCE73835ED9071C18786 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		29C0956BD999CF9E37AA4778 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2B4A3ECC8274460FCADD0FAF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		31881ECCB14A9DAC625E48BB /* WatchSessionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
+		31C8220CD77D2F9142C91E2E /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		35A914EC0948F73912106AC9 /* PrayerData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrayerData.swift; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		4847B9F45B3B3C202ED2F095 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		53A89392DD1AF7920D8C6502 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5895F9B48887CE13F288A8B8 /* FajrWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FajrWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		601DDDB43D454806ADE0F460 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6335F6081F3B43D3ABA28B02 /* adhan_akhdam_bnu_al_madane.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = adhan_akhdam_bnu_al_madane.aiff; sourceTree = "<group>"; };
+		6F5F6D5BDB0EACA0150D1FDE /* PhoneConnector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneConnector.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -106,13 +161,18 @@
 		A7F0A18E48D1169F3F2977DF /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		A9BAC3F61B5F53E1A925F682 /* FajrWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FajrWidget.swift; sourceTree = "<group>"; };
 		ABF964124133021C616E417E /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		B207E0DFD2D099EA1D3AB780 /* FajrWatchComplications.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FajrWatchComplications.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB642D4E632692E44F65AACC /* FajrWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FajrWatchApp.swift; sourceTree = "<group>"; };
 		C1473D31D8F2033EA52044B2 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		C262EB069685403ABD069D97 /* adhan_rabeh_ibn_darah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = adhan_rabeh_ibn_darah.aiff; sourceTree = "<group>"; };
 		D3C5EBC595D442260FB20047 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		D5590A0881DAA1586FD90BF2 /* FajrWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FajrWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCBD2286B7A443651725CDD9 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E1A7B3C9F2D4E6A8B0C2D4F6 /* PrayerLiveAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerLiveAttributes.swift; sourceTree = "<group>"; };
 		E45568DE222D647CB530E3B1 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		E777DD25B5374F12314D3D44 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		FE8D09F8E46B32259CBFEC04 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		FF7F348295B2784F177F8B59 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +180,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		431B2D392004297B255B720D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F36F56D91D2AE92A62A50E79 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		506E483B5B0B3B95DDBA7D9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				633313AD9B15F0E8F36BA96E /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,6 +218,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		169161C1C5C1208B346C8843 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				FF7F348295B2784F177F8B59 /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -167,6 +251,7 @@
 			children = (
 				4847B9F45B3B3C202ED2F095 /* Pods_Runner.framework */,
 				8AD821B6D98039AB03EFBD40 /* Pods_RunnerTests.framework */,
+				169161C1C5C1208B346C8843 /* watchOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -193,6 +278,8 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				EAF2A1D484D8FAC3796A8242 /* Pods */,
 				476D72123D1587C42FC64CB7 /* Frameworks */,
+				E2E225CE7F79160A4F2C8864 /* FajrWatch */,
+				F82FAD0AA6F16FA6D40E9AB1 /* FajrWatchComplications */,
 			);
 			sourceTree = "<group>";
 		};
@@ -202,6 +289,8 @@
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				5895F9B48887CE13F288A8B8 /* FajrWidget.appex */,
+				D5590A0881DAA1586FD90BF2 /* FajrWatch.app */,
+				B207E0DFD2D099EA1D3AB780 /* FajrWatchComplications.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -230,6 +319,21 @@
 			path = Runner;
 			sourceTree = "<group>";
 		};
+		E2E225CE7F79160A4F2C8864 /* FajrWatch */ = {
+			isa = PBXGroup;
+			children = (
+				BB642D4E632692E44F65AACC /* FajrWatchApp.swift */,
+				FE8D09F8E46B32259CBFEC04 /* ContentView.swift */,
+				6F5F6D5BDB0EACA0150D1FDE /* PhoneConnector.swift */,
+				35A914EC0948F73912106AC9 /* PrayerData.swift */,
+				31C8220CD77D2F9142C91E2E /* Assets.xcassets */,
+				53A89392DD1AF7920D8C6502 /* Info.plist */,
+				03F1A270536C4FD0C6E55081 /* FajrWatch.entitlements */,
+			);
+			name = FajrWatch;
+			path = FajrWatch;
+			sourceTree = "<group>";
+		};
 		E4DAE6FCF5F7F9DBE3F5F7F9 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -251,9 +355,39 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		F82FAD0AA6F16FA6D40E9AB1 /* FajrWatchComplications */ = {
+			isa = PBXGroup;
+			children = (
+				0E3F9DAC67162CBBB18972FE /* FajrWatchComplications.swift */,
+				29C0956BD999CF9E37AA4778 /* Info.plist */,
+				1B7DD574B128BFD462EAA3EA /* FajrWatchComplications.entitlements */,
+			);
+			name = FajrWatchComplications;
+			path = FajrWatchComplications;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		085805D246ECC72D86347E11 /* FajrWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5F59AAA7F6A41AB15CB90A83 /* Build configuration list for PBXNativeTarget "FajrWatch" */;
+			buildPhases = (
+				51486A17F54673512D66C3B0 /* Sources */,
+				506E483B5B0B3B95DDBA7D9F /* Frameworks */,
+				52A095715050A9613733F923 /* Resources */,
+				D75AAB2E3EE3D8D40962BE65 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				610BD6A414D1609149CEA65A /* PBXTargetDependency */,
+			);
+			name = FajrWatch;
+			productName = FajrWatch;
+			productReference = D5590A0881DAA1586FD90BF2 /* FajrWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		331C8080294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */;
@@ -282,6 +416,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				9EB19565CEA3740502E3036E /* Embed Watch Content */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				B08EED403B05D20BE847B75A /* Embed Foundation Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
@@ -292,11 +427,29 @@
 			);
 			dependencies = (
 				1AF274A4952CB593CFD3E2A0 /* PBXTargetDependency */,
+				DCB953D6C97BA72FA979FD1E /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		E381DF5E2242A3436C624F4D /* FajrWatchComplications */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 205121E5398AB12A01156B2F /* Build configuration list for PBXNativeTarget "FajrWatchComplications" */;
+			buildPhases = (
+				6586BACD5F6D58C428971B1F /* Sources */,
+				431B2D392004297B255B720D /* Frameworks */,
+				D39AC13457AD769BC59E584B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FajrWatchComplications;
+			productName = FajrWatchComplications;
+			productReference = B207E0DFD2D099EA1D3AB780 /* FajrWatchComplications.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		EA5FD18BF7909EFE2AFF250A /* FajrWidget */ = {
 			isa = PBXNativeTarget;
@@ -354,6 +507,8 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				EA5FD18BF7909EFE2AFF250A /* FajrWidget */,
+				085805D246ECC72D86347E11 /* FajrWatch */,
+				E381DF5E2242A3436C624F4D /* FajrWatchComplications */,
 			);
 		};
 /* End PBXProject section */
@@ -363,6 +518,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52A095715050A9613733F923 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05A976304BA297533549E23F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,6 +551,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				93A959A4A69ECA06B5AFB354 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D39AC13457AD769BC59E584B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,6 +692,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51486A17F54673512D66C3B0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6165302C0C65F74050A4AA10 /* FajrWatchApp.swift in Sources */,
+				6B1B566B506D0BAEA9948EF4 /* ContentView.swift in Sources */,
+				6621672648A8112EAA740528 /* PhoneConnector.swift in Sources */,
+				0393BEF403415A321B68BD79 /* PrayerData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6586BACD5F6D58C428971B1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53F41CF0E2B30329D2394990 /* FajrWatchComplications.swift in Sources */,
+				57D0C5E6826A9820E8864786 /* PrayerData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EA1CF9000F007C117D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -546,6 +736,18 @@
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
+		};
+		610BD6A414D1609149CEA65A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FajrWatchComplications;
+			target = E381DF5E2242A3436C624F4D /* FajrWatchComplications */;
+			targetProxy = 67C86414278F60D00C89B1F4 /* PBXContainerItemProxy */;
+		};
+		DCB953D6C97BA72FA979FD1E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FajrWatch;
+			target = 085805D246ECC72D86347E11 /* FajrWatch */;
+			targetProxy = 714AB3FF42EF0C0E369CFF18 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -598,6 +800,64 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
+		};
+		054930220776758FEF0AAC0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FajrWatch/FajrWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 12;
+				DEVELOPMENT_TEAM = LNYK7FSPB5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FajrWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fajr.fajr.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		0599E1228F09663DCE77EA78 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FajrWatch/FajrWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 12;
+				DEVELOPMENT_TEAM = LNYK7FSPB5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FajrWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fajr.fajr.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Profile;
 		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
@@ -757,6 +1017,34 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
 			name = Profile;
+		};
+		806536809CAAD3F04F1323FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FajrWatch/FajrWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 12;
+				DEVELOPMENT_TEAM = LNYK7FSPB5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FajrWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fajr.fajr.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -926,6 +1214,89 @@
 			};
 			name = Release;
 		};
+		BBEA969EED1155B7C9E792D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FajrWatchComplications/FajrWatchComplications.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 12;
+				DEVELOPMENT_TEAM = LNYK7FSPB5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FajrWatchComplications/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fajr.fajr.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		CA74105CA6ECF0B302167B60 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FajrWatchComplications/FajrWatchComplications.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 12;
+				DEVELOPMENT_TEAM = LNYK7FSPB5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FajrWatchComplications/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fajr.fajr.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		D83CB811C21B74A64DFE8749 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FajrWatchComplications/FajrWatchComplications.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 12;
+				DEVELOPMENT_TEAM = LNYK7FSPB5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FajrWatchComplications/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fajr.fajr.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Profile;
+		};
 		E20D4D887B52C64C258D56A9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -958,12 +1329,32 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		205121E5398AB12A01156B2F /* Build configuration list for PBXNativeTarget "FajrWatchComplications" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA74105CA6ECF0B302167B60 /* Release */,
+				BBEA969EED1155B7C9E792D1 /* Debug */,
+				D83CB811C21B74A64DFE8749 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				331C8088294A63A400263BE5 /* Debug */,
 				331C8089294A63A400263BE5 /* Release */,
 				331C808A294A63A400263BE5 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5F59AAA7F6A41AB15CB90A83 /* Build configuration list for PBXNativeTarget "FajrWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				054930220776758FEF0AAC0C /* Release */,
+				806536809CAAD3F04F1323FF /* Debug */,
+				0599E1228F09663DCE77EA78 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
