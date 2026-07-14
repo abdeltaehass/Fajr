@@ -29,6 +29,7 @@ class _SurahScreenState extends State<SurahScreen>
   bool _isLoading = true;
   String? _error;
   SurahContent? _content;
+  String? _firstAyahStripped;
   bool _showTranslation = true;
   String? _loadedEdition;
   bool _isRepeating = false;
@@ -45,10 +46,17 @@ class _SurahScreenState extends State<SurahScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _psSub = audioHandler.playbackState.listen((ps) {
+    // Filter both streams down to changes the UI actually renders.
+    // playbackState fires on every playback event (buffer progress included),
+    // which during network hiccups means many events per second — rebuilding
+    // the whole ayah list each time is what users feel as lag.
+    _psSub = audioHandler.playbackState
+        .distinct((a, b) =>
+            a.playing == b.playing && a.processingState == b.processingState)
+        .listen((ps) {
       if (mounted) setState(() => _playbackState = ps);
     });
-    _miSub = audioHandler.mediaItem.listen((mi) {
+    _miSub = audioHandler.mediaItem.distinct((a, b) => a?.id == b?.id).listen((mi) {
       if (mounted) setState(() => _currentMediaItem = mi);
     });
   }
@@ -111,6 +119,7 @@ class _SurahScreenState extends State<SurahScreen>
       if (!mounted) return;
       setState(() {
         _content = content;
+        _firstAyahStripped = _stripBismillah(content.ayahs);
         _isLoading = false;
       });
     } catch (e) {
@@ -120,6 +129,29 @@ class _SurahScreenState extends State<SurahScreen>
         _error = e.toString();
       });
     }
+  }
+
+  // Computed once per surah load — the regexes over Arabic text are too
+  // expensive to run on every rebuild.
+  String? _stripBismillah(List<Ayah> ayahs) {
+    if (!_showBismillah || ayahs.isEmpty) return null;
+    final arabic = ayahs[0].arabic;
+    final bare = arabic
+        .replaceAll(RegExp(r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]'), '')
+        .replaceAll('ٱ', 'ا');
+    if (!bare.startsWith('بسم الله')) return null;
+    final stripped = arabic
+        .replaceFirst(
+          RegExp(
+            r'^.+?ح[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*'
+            r'ي[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*'
+            r'م[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*\s*',
+            dotAll: true,
+          ),
+          '',
+        )
+        .trim();
+    return stripped.isEmpty ? null : stripped;
   }
 
   Future<void> _playSurahFrom(int index) async {
@@ -529,27 +561,7 @@ class _SurahScreenState extends State<SurahScreen>
 
   Widget _buildContent(dynamic c, dynamic s, Color textColor) {
     final ayahs = _content!.ayahs;
-    String? firstAyahStripped;
-    if (_showBismillah && ayahs.isNotEmpty) {
-      final arabic = ayahs[0].arabic;
-      final bare = arabic
-          .replaceAll(RegExp(r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]'), '')
-          .replaceAll('ٱ', 'ا');
-      if (bare.startsWith('بسم الله')) {
-        final stripped = arabic
-            .replaceFirst(
-              RegExp(
-                r'^.+?ح[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*'
-                r'ي[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*'
-                r'م[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]*\s*',
-                dotAll: true,
-              ),
-              '',
-            )
-            .trim();
-        if (stripped.isNotEmpty) firstAyahStripped = stripped;
-      }
-    }
+    final firstAyahStripped = _firstAyahStripped;
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       itemCount: ayahs.length + (_showBismillah ? 1 : 0),

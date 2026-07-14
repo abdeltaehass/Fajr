@@ -8,6 +8,12 @@ import '../data/surah_list.dart';
 import '../models/quran_models.dart';
 import '../utils/request_deduper.dart';
 
+// Top-level so `compute` can run it on a background isolate — surah payloads
+// (Arabic + translation) reach ~1 MB for the long surahs, and decoding that
+// on the UI isolate is a visible jank spike when opening a surah.
+Map<String, dynamic> _decodeJsonMap(String source) =>
+    jsonDecode(source) as Map<String, dynamic>;
+
 class QuranService {
   static const String _baseUrl = 'https://api.alquran.cloud/v1';
   static const String _diskCacheKeyPrefix = 'quran_surah_v1_';
@@ -52,7 +58,7 @@ class QuranService {
         return content;
       } on QuranServiceException catch (e) {
         lastError = e;
-        if (!_isTransient(e.message)) rethrow;
+        if (!e.transient) rethrow;
       }
     }
     throw lastError!;
@@ -63,7 +69,7 @@ class QuranService {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString('$_diskCacheKeyPrefix$cacheKey');
       if (raw == null) return null;
-      final json = jsonDecode(raw) as Map<String, dynamic>;
+      final json = await compute(_decodeJsonMap, raw);
       final number = json['s'] as int;
       final ayahsList = json['v'] as List<dynamic>;
       return SurahContent(
@@ -91,14 +97,6 @@ class QuranService {
     }
   }
 
-  bool _isTransient(String message) =>
-      message.contains('timeout') ||
-      message.contains('network') ||
-      message.contains('500') ||
-      message.contains('502') ||
-      message.contains('503') ||
-      message.contains('504');
-
   Future<SurahContent> _fetchOnce(Uri uri, SurahInfo info) async {
     final http.Response response;
     try {
@@ -106,10 +104,12 @@ class QuranService {
     } on TimeoutException {
       throw QuranServiceException(
         "Couldn't reach the Quran service. Please check your connection.",
+        transient: true,
       );
     } on SocketException {
       throw QuranServiceException(
         "Couldn't reach the Quran service. Please check your connection.",
+        transient: true,
       );
     }
 
@@ -119,10 +119,11 @@ class QuranService {
       }
       throw QuranServiceException(
         "Couldn't load the Quran right now. Please try again later.",
+        transient: response.statusCode >= 500,
       );
     }
 
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    final json = await compute(_decodeJsonMap, response.body);
     if (json['code'] != 200) {
       debugPrint('QuranService API status: ${json['status']}');
       throw QuranServiceException(
@@ -149,7 +150,11 @@ class QuranService {
 
 class QuranServiceException implements Exception {
   final String message;
-  QuranServiceException(this.message);
+  /// True when a retry might help (timeout, socket error, 5xx). Drives the
+  /// fetch retry loop — matching on the user-facing message text broke when
+  /// the messages were made friendly.
+  final bool transient;
+  QuranServiceException(this.message, {this.transient = false});
 
   @override
   String toString() => message;
