@@ -32,6 +32,8 @@
 	<string>manār uses your location to calculate accurate prayer times and find nearby mosques.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>manār uses your location to calculate accurate prayer times and find nearby mosques.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>manār never records audio. This permission is referenced by the audio playback framework used for Quran recitation and the adhan; no sound is ever captured.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>manār uses the compass sensor to show you the Qibla direction toward Mecca.</string>
 	<key>NSUserNotificationsUsageDescription</key>
